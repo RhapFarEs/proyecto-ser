@@ -1,36 +1,53 @@
-# Arquitectura del SOP
+# SOP Architecture
 
-## Filosofía
+## Philosophy
 
-El SOP (Sistema Operativo Personal) se desarrollará como un software modular, escalable y fácil de mantener.
+The SOP (Personal Operating System) will be developed as a modular, scalable, and easy-to-maintain software product.
 
-Cada carpeta tiene una responsabilidad específica y el código debe organizarse siguiendo esa estructura.
+Each folder has a specific responsibility, and the code should be organized according to that structure.
 
 ---
 
-# Estructura del proyecto
+# Project Structure
 
 app/
-Páginas y navegación.
+Pages and navigation.
 
 components/
-Componentes reutilizables de la interfaz.
+Reusable user interface components.
 
 lib/
-Funciones reutilizables y lógica de negocio.
+Reusable functions and business logic.
 
 docs/
-Documentación del proyecto.
+Project documentation.
 
 public/
-Imágenes, íconos y archivos estáticos.
+Images, icons, and static assets.
 
 ---
 
-# Principios
+# Principles
 
-- Un componente = una responsabilidad.
-- Evitar duplicar código.
-- Priorizar claridad sobre complejidad.
-- Diseñar antes de programar.
-- Documentar las decisiones importantes.
+- One component = one responsibility.
+- Avoid duplicating code.
+- Prioritize clarity over complexity.
+- Design before coding.
+- Document important decisions.
+
+---
+
+## Component Hierarchy
+
+Views
+↓
+Sections
+↓
+UI Components
+
+- Views represent complete screens.
+- Sections represent blocks within a screen.
+- UI Components are reusable throughout the application.
+
+---
+

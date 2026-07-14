@@ -1,297 +1,314 @@
 # DECISIONS
 
-> Registro de las decisiones importantes de producto, diseño y arquitectura de Proyecto SER.
+> Record of the important product, design, and architecture decisions for Proyecto SER.
 >
-> Cada decisión debe responder tres preguntas:
+> Each decision should answer three questions:
 >
-> - ¿Qué decidimos?
-> - ¿Por qué lo decidimos?
-> - ¿Qué impacto tendrá en el proyecto?
+> - What did we decide?
+> - Why did we decide it?
+> - What impact will it have on the project?
 
 ---
 
 # 2026-06-29
 
-## D-001 · Nacimiento de Proyecto SER
+## D-001 · Birth of Proyecto SER
 
-### Decisión
+### Decision
 
-El proyecto adopta oficialmente el nombre **Proyecto SER**.
+The project officially adopts the name **Proyecto SER**.
 
-SER significa:
+SER means:
 
-- Sentimientos
-- Espiritualidad
-- Reencontrados
+- Feelings
+- Spirituality
+- Reconnected
 
-### Motivo
+### Reason
 
-El proyecto dejó de ser una aplicación de productividad y pasó a ser un sistema para acompañar el crecimiento personal.
+The project moved beyond being a productivity app and became a system for supporting personal growth.
 
-El nombre debía representar una transformación, no una herramienta.
+The name had to represent a transformation, not a tool.
 
-### Impacto
+### Impact
 
-Toda la identidad visual, filosofía y experiencia de usuario girarán alrededor del concepto de "ser antes que hacer".
-
----
-
-## D-002 · Filosofía del producto
-
-### Decisión
-
-El principio rector del proyecto será:
-
-> **Ser antes que hacer.**
-
-Lema oficial:
-
-> **Un día a la vez. Una vida con propósito.**
-
-### Motivo
-
-Las acciones, hábitos y resultados son consecuencia de la identidad.
-
-Proyecto SER ayudará primero a recordar quién quiere ser el usuario antes de mostrar qué tiene que hacer.
-
-### Impacto
-
-Todas las futuras funcionalidades deberán reforzar este principio.
+All visual identity, philosophy, and user experience will revolve around the concept of "be before doing".
 
 ---
 
-## D-003 · Pantalla principal
+## D-002 · Product philosophy
 
-### Decisión
+### Decision
 
-La pantalla principal del producto se llamará **Hoy**.
+The guiding principle of the project will be:
 
-Internamente podrá seguir llamándose Dashboard durante el desarrollo.
+> **Be before doing.**
 
-### Motivo
+Official slogan:
 
-La palabra "Dashboard" describe una interfaz.
+> **One day at a time. A life with purpose.**
 
-La palabra "Hoy" describe una forma de vivir.
+### Reason
 
-### Impacto
+Actions, habits, and results are a consequence of identity.
 
-La navegación y la experiencia de usuario estarán centradas en el presente.
+Proyecto SER will first help the user remember who they want to become before showing them what they need to do.
 
----
+### Impact
 
-## D-004 · Filosofía de diseño
-
-### Decisión
-
-Proyecto SER adoptará un diseño minimalista inspirado en Apple, Linear y Raycast.
-
-Principios:
-
-- Mucho espacio en blanco.
-- Tipografía protagonista.
-- Eliminar elementos innecesarios.
-- Priorizar la calma sobre la cantidad de información.
-
-### Motivo
-
-La aplicación debe sentirse como un espacio de reflexión, no como un panel de control.
-
-### Impacto
-
-Cada decisión de diseño deberá responder a la pregunta:
-
-> ¿Esto transmite paz?
+All future features will need to reinforce this principle.
 
 ---
 
-## D-005 · Arquitectura de componentes
+## D-003 · Main screen
 
-### Decisión
+### Decision
 
-Los componentes reutilizables vivirán en:
+The main screen of the product will be called **Today**.
+
+Internally it may still be called Dashboard during development.
+
+### Reason
+
+The word "Dashboard" describes an interface.
+
+The word "Today" describes a way of living.
+
+### Impact
+
+Navigation and the user experience will be centered on the present.
+
+---
+
+## D-004 · Design philosophy
+
+### Decision
+
+Proyecto SER will adopt a minimalist design inspired by Apple, Linear, and Raycast.
+
+Principles:
+
+- Plenty of whitespace.
+- Typography as the main element.
+- Remove unnecessary elements.
+- Prioritize calm over the amount of information.
+
+### Reason
+
+The application should feel like a space for reflection, not a control panel.
+
+### Impact
+
+Each design decision should answer the question:
+
+> Does this convey peace?
+
+---
+
+## D-005 · Component architecture
+
+### Decision
+
+Reusable components will live in:
 
 components/ui
 
-Los componentes específicos de un módulo vivirán dentro de la carpeta de ese módulo.
+Module-specific components will live inside the folder of that module.
 
-### Motivo
+### Reason
 
-Separar la lógica compartida de la lógica específica mejora la escalabilidad y el mantenimiento del proyecto.
+Separating shared logic from module-specific logic improves scalability and maintainability.
 
-### Impacto
+### Impact
 
-Todos los módulos futuros seguirán la misma estructura.
+All future modules will follow the same structure.
 
 ---
 
 ## D-006 · Design System
 
-### Decisión
+### Decision
 
-Todo estilo repetido tres o más veces deberá convertirse en un componente reutilizable.
+Any repeated style used three or more times should become a reusable component.
 
-Ejemplos:
+Examples:
 
 - Container
 - Section
 - SectionTitle
 
-### Motivo
+### Reason
 
-Evitar duplicación de código y mantener una única fuente de verdad para el diseño.
+Avoid code duplication and maintain a single source of truth for design.
 
-### Impacto
+### Impact
 
-El mantenimiento del proyecto será más sencillo y consistente.
-
----
-
-## D-007 · Filosofía de desarrollo
-
-### Decisión
-
-Los commits se realizarán únicamente cuando una funcionalidad completa esté terminada.
-
-No se harán commits por cambios pequeños.
-
-### Motivo
-
-El historial de Git debe contar la evolución del producto y no una secuencia de modificaciones sin contexto.
-
-### Impacto
-
-Cada commit representará un hito del proyecto.
+Project maintenance will be simpler and more consistent.
 
 ---
 
-## D-008 · Contexto del día
+## D-007 · Development philosophy
 
-### Decisión
+### Decision
 
-La pantalla **Hoy** mostrará dos referencias temporales:
+Commits will only be made when a complete feature is finished.
 
-- La fecha del calendario.
-- El progreso dentro del proceso personal (semana y día).
+Small changes will not be committed individually.
 
-### Motivo
+### Reason
 
-La fecha responde qué día es.
+The Git history should tell the story of the product, not a sequence of meaningless modifications.
 
-El progreso responde dónde estoy en mi camino.
+### Impact
 
-Proyecto SER debe recordar ambas cosas.
-
-### Impacto
-
-El usuario siempre tendrá contexto sobre su avance personal antes de comenzar sus actividades.
----
-
-## D-009 · La vida proviene del contenido, no de los efectos
-
-### Decisión
-
-Proyecto SER utilizará animaciones y efectos visuales únicamente para reforzar la experiencia del usuario.
-
-La sensación de "vida" deberá provenir principalmente del contenido dinámico y del progreso personal del usuario.
-
-### Motivo
-
-Los efectos visuales generan impacto momentáneo.
-
-El contenido con significado genera conexión a largo plazo.
-
-Proyecto SER buscará transmitir calma, propósito y progreso mediante la evolución diaria de la aplicación.
-
-### Impacto
-
-La aplicación cobrará vida gracias a elementos como:
-
-- Saludo dinámico.
-- Fecha dinámica.
-- Día y semana del proceso.
-- Reflexión del día.
-- Objetivo del día.
-- Tareas correspondientes al día.
-
-Las animaciones serán sutiles y solo servirán para acompañar la experiencia, nunca para convertirse en el centro de atención.
----
-
-## D-010 · Proyecto SER se basa en rituales
-
-### Decisión
-
-Proyecto SER utilizará el concepto de **Ritual** para agrupar actividades con una intención común.
-
-### Motivo
-
-Una rutina describe repetición.
-
-Un ritual describe intención.
-
-El objetivo del proyecto no es únicamente ayudar al usuario a completar tareas, sino acompañarlo en prácticas con significado.
-
-### Impacto
-
-En el futuro existirán rituales como:
-
-- Ritual de la Mañana.
-- Ritual de la Noche.
-- Ritual de Lectura.
-- Ritual de Gratitud.
-- Ritual de Domingo.
-
-Cada ritual podrá contener varias actividades y tendrá un propósito específico dentro del crecimiento personal.
+Each commit will represent a milestone of the project.
 
 ---
 
----
+## D-008 · Day context
 
-## D-011 · Una sola fuente de verdad por pantalla
+### Decision
 
-### Decisión
+The **Today** screen will show two temporal references:
 
-Cada pantalla será responsable de obtener la información que necesita desde el dominio.
+- The calendar date.
+- Progress within the personal process (week and day).
 
-Los componentes de interfaz no consultarán directamente funciones de negocio; recibirán los datos mediante `props`.
+### Reason
 
-### Motivo
+The date answers what day it is.
 
-Separar la obtención de datos de la presentación permite mantener una arquitectura más limpia, reutilizable y escalable.
+Progress answers where the user is on their path.
 
-La pantalla conoce el contexto completo del día; los componentes únicamente representan una parte de ese contexto.
+Proyecto SER must remember both.
 
-### Impacto
+### Impact
 
-El flujo de datos seguirá siempre el mismo patrón:
-
-Página → Motor del Día → Componentes
-
-Esto evitará duplicar llamadas a la lógica de negocio y facilitará futuras integraciones con bases de datos, APIs e inteligencia artificial.
+The user will always have context for their personal progress before beginning their activities.
 
 ---
 
-## D-012 · Los componentes reflejan el dominio
+## D-009 · Life comes from content, not effects
 
-### Decisión
+### Decision
 
-Los componentes principales utilizarán nombres que representen conceptos del dominio de Proyecto SER y no términos genéricos de interfaz.
+Proyecto SER will use animations and visual effects only to reinforce the user experience.
 
-### Motivo
+The feeling of "life" should come mainly from dynamic content and the user’s personal progress.
 
-Los nombres del código deben hablar el mismo idioma que el producto.
+### Reason
 
-Esto facilita la comprensión del proyecto y mantiene coherencia entre la documentación, el dominio y la implementación.
+Visual effects provide only momentary impact.
 
-### Impacto
+Meaningful content creates long-term connection.
 
-Se adoptan los siguientes nombres:
+Proyecto SER seeks to convey calm, purpose, and progress through the app’s daily evolution.
+
+### Impact
+
+The application will feel alive thanks to elements such as:
+
+- Dynamic greeting.
+- Dynamic date.
+- Day and week of the process.
+- Daily reflection.
+- Daily intention.
+- Activities for the day.
+
+Animations will be subtle and only accompany the experience, never become the center of attention.
+
+---
+
+## D-010 · Proyecto SER is built on rituals
+
+### Decision
+
+Proyecto SER will use the concept of **Ritual** to group activities around a shared intention.
+
+### Reason
+
+A routine describes repetition.
+
+A ritual describes intention.
+
+The goal of the project is not only to help the user complete tasks, but to accompany them in practices with meaning.
+
+### Impact
+
+In the future there will be rituals such as:
+
+- Morning Ritual.
+- Evening Ritual.
+- Reading Ritual.
+- Gratitude Ritual.
+- Sunday Ritual.
+
+Each ritual can contain several activities and will have a specific purpose in personal growth.
+
+---
+
+## D-011 · One source of truth per screen
+
+### Decision
+
+Each screen will be responsible for obtaining the information it needs from the domain.
+
+Interface components will not directly consult business logic; they will receive data through `props`.
+
+### Reason
+
+Separating data retrieval from presentation keeps the architecture cleaner, more reusable, and more scalable.
+
+The screen knows the full context of the day; components only represent part of that context.
+
+### Impact
+
+The data flow will always follow the same pattern:
+
+Page → Day Engine → Components
+
+This will prevent duplicate calls to business logic and make future integrations with databases, APIs, and artificial intelligence easier.
+
+---
+
+## D-012 · Components reflect the domain
+
+### Decision
+
+The main components will use names that represent concepts from the Proyecto SER domain rather than generic interface terms.
+
+### Reason
+
+The code names should speak the same language as the product.
+
+This makes the project easier to understand and maintains consistency between documentation, the domain, and implementation.
+
+### Impact
+
+The following names are adopted:
 
 - QuoteSection → ReflectionSection
 - GoalSection → IntentionSection
 - TodaySection → RitualSection
 
-Los nombres de los componentes deberán representar conceptos del dominio siempre que sea posible.
+Component names should represent domain concepts whenever possible.
+
+---
+
+## DEC-006 · Floating bottom navigation
+
+Status: Approved
+
+La navegación principal en dispositivos móviles utilizará un contenedor flotante centrado en la parte inferior de la pantalla.
+
+Motivos:
+
+- Refuerza una identidad visual propia.
+- Mejora la percepción de ligereza.
+- Mantiene la atención en el contenido.
+- Diferencia a Proyecto SER de interfaces convencionales.
+
+La navegación utilizará iconografía minimalista y un botón central destinado a acciones rápidas, no a una pantalla específica.
 
 ---
 

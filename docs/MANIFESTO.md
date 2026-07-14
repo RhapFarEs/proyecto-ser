@@ -1,95 +1,95 @@
 # MANIFESTO
 
-> Proyecto SER no nació para organizar tareas.
+> Proyecto SER was not born to organize tasks.
 >
-> Nació para acompañar personas.
+> It was born to accompany people.
 
 ---
 
-## Creemos que...
+## We believe that...
 
-Una vida no cambia en un día.
+A life does not change in a day.
 
-Cambia viviendo bien el día de hoy.
-
----
-
-Creemos que el crecimiento personal no consiste en hacer más.
-
-Consiste en convertirse, poco a poco, en la persona que uno desea ser.
+It changes by living the day well.
 
 ---
 
-No buscamos la perfección.
+We believe that personal growth is not about doing more.
 
-Buscamos presencia.
-
-No buscamos controlar el futuro.
-
-Buscamos vivir conscientemente el presente.
+It is about becoming, little by little, the person one wants to be.
 
 ---
 
-Antes de mostrar tareas...
+We do not seek perfection.
 
-Queremos recordar una intención.
+We seek presence.
 
-Antes de medir resultados...
+We do not seek to control the future.
 
-Queremos celebrar el camino.
-
-Antes de hablar de productividad...
-
-Queremos hablar de propósito.
+We seek to live consciously in the present.
 
 ---
 
-Proyecto SER existe para recordarnos algo muy sencillo.
+Before showing tasks...
 
-Cada día tenemos una nueva oportunidad.
+We want to remember an intention.
 
-No para empezar desde cero.
+Before measuring results...
 
-Sino para continuar el camino.
+We want to honor the path.
 
----
+Before talking about productivity...
 
-## Nuestra filosofía
-
-Ser antes que hacer.
-
-Un día a la vez.
-
-Una vida con propósito.
+We want to speak of purpose.
 
 ---
 
-## Nuestra promesa
+Proyecto SER exists to remind us of something very simple.
 
-Proyecto SER nunca utilizará el miedo, la culpa o la presión como herramientas de motivación.
+Each day offers a new opportunity.
 
-Queremos construir una experiencia que inspire serenidad, claridad y esperanza.
+Not to start from zero.
 
-La aplicación debe sentirse como un espacio seguro.
-
-Un lugar al que siempre valga la pena regresar.
+But to continue the path.
 
 ---
 
-## Nuestra responsabilidad
+## Our philosophy
 
-Cada decisión de diseño.
+Be before doing.
 
-Cada línea de código.
+One day at a time.
 
-Cada palabra.
+A life with purpose.
 
-Cada pantalla.
+---
 
-Debe responder una única pregunta.
+## Our promise
 
-> ¿Esto ayuda a la persona a convertirse en quien quiere ser?
+Proyecto SER will never use fear, guilt, or pressure as tools of motivation.
 
-Si la respuesta es no...
+We want to build an experience that inspires serenity, clarity, and hope.
 
-No pertenece a Proyecto SER.
+The application should feel like a safe space.
+
+A place worth returning to.
+
+---
+
+## Our responsibility
+
+Every design decision.
+
+Every line of code.
+
+Every word.
+
+Every screen.
+
+Must answer one question.
+
+> Does this help the person become who they want to be?
+
+If the answer is no...
+
+It does not belong to Proyecto SER.

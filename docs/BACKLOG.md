@@ -1,65 +1,95 @@
 # BACKLOG
 
-> Lista priorizada de trabajo para Proyecto SER.
+> Prioritized work list for Proyecto SER.
 >
-> Solo contiene tareas pendientes o en progreso.
-> Cuando una tarea se completa, se elimina de este documento.
+> It contains only pending or in-progress tasks.
+> When a task is completed, it is removed from this document.
 
 ---
 
-# Sprint 5 · Contenido Vivo
+# Sprint 5 · Living Content
 
-## En progreso
+## In Progress
 
-- [ ] Hacer que RitualSection consuma `today`.
-- [ ] Mostrar "Semana X · Día Y" debajo de la fecha.
-- [ ] Eliminar el último contenido hardcodeado de la pantalla Hoy.
-- [ ] Refinar el diseño del Ritual para que deje de parecer un checklist.
-- [ ] Revisar la jerarquía visual de la pantalla Hoy.
-
----
-
-## Próximo Sprint
-
-### Experiencia
-
-- [ ] Revisar espaciados y ritmo visual.
-- [ ] Mejorar tipografía y jerarquía.
-- [ ] Refinar el footer.
-- [ ] Hacer la pantalla "Hoy" memorable.
+- [ ] Make RitualSection consume `today`.
+- [ ] Show "Week X · Day Y" below the date.
+- [ ] Remove the last hardcoded content from the Today screen.
+- [ ] Refine the Ritual design so it no longer feels like a checklist.
+- [ ] Review the visual hierarchy of the Today screen.
 
 ---
 
-### Desarrollo
+## Next Sprint
 
-- [ ] Primer commit del proyecto.
-- [ ] Primer push al repositorio.
-- [ ] Preparar estructura para Supabase.
+### Experience
+
+- [ ] Review spacing and visual rhythm.
+- [ ] Improve typography and hierarchy.
+- [ ] Refine the footer.
+- [ ] Make the "Today" screen memorable.
 
 ---
 
-## Futuro
+### Development
 
-### Diario
+- [ ] First project commit.
+- [ ] First push to the repository.
+- [ ] Prepare the structure for Supabase.
 
-- [ ] Crear la experiencia del Diario.
-- [ ] Modelo de Journal.
-- [ ] Guardado de entradas.
+---
 
-### Rituales
+## Future
 
-- [ ] Rituales dinámicos.
-- [ ] Actividades completables.
-- [ ] Persistencia del progreso.
+### Journal
 
-### Progreso
+- [ ] Create the Journal experience.
+- [ ] Journal model.
+- [ ] Entry saving.
 
-- [ ] Camino del usuario.
-- [ ] Estadísticas.
-- [ ] Calendario.
+### Rituals
 
-### IA
+- [ ] Dynamic rituals.
+- [ ] Checkable activities.
+- [ ] Progress persistence.
 
-- [ ] Reflexiones personalizadas.
-- [ ] Revisión del diario.
-- [ ] Recomendaciones.
+### Progress
+
+- [ ] User path.
+- [ ] Statistics.
+- [ ] Calendar.
+
+### AI
+
+- [ ] Personalized reflections.
+- [ ] Journal review.
+- [ ] Recommendations.
+
+# Sprint 6 · Navigation
+
+## In Progress
+
+- [ ] Define the navigation architecture.
+- [ ] Design the main application layout.
+- [ ] Create navigation between screens.
+- [ ] Create the base pages:
+  - Today
+  - Journal
+  - Progress
+  - Settings
+- [ ] Define the mobile and desktop experience.
+
+## Goal
+
+Build the complete navigation structure of Proyecto SER so future features can be integrated on a solid foundation.
+
+---
+
+## Sprint 7 · Design System
+
+- Define design tokens.
+- Create base UI components.
+- Define the official typography.
+- Define the color system.
+- Create the spacing system.
+- Create the state system.
+- Refine premium navigation.

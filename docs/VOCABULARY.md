@@ -1,55 +1,55 @@
 # VOCABULARY
 
-> Proyecto SER utiliza un lenguaje propio para reforzar su filosofía.
+> Proyecto SER uses its own language to reinforce its philosophy.
 >
-> Cada palabra que aparece en la interfaz debe ser una decisión consciente.
+> Every word that appears in the interface should be a conscious decision.
 
 ---
 
-# Principio
+# Principle
 
-Las palabras no solo describen la aplicación.
+Words do not only describe the application.
 
-Las palabras construyen la experiencia.
+Words shape the experience.
 
-Siempre preferiremos términos que transmitan intención, crecimiento y humanidad.
-
----
-
-| Evitamos | Preferimos | Motivo |
-|----------|------------|--------|
-| Dashboard | Hoy | Habla del presente. |
-| Rutina | Ritual | Habla de intención. |
-| Objetivo | Intención | Describe cómo quiero vivir, no solo qué quiero lograr. |
-| Checklist | Ritual | No es una lista de pendientes, es una práctica consciente. |
-| Productividad | Progreso | El crecimiento es más importante que producir. |
-| Racha | Camino | Se prioriza el proceso sobre la acumulación de días. |
+We will always prefer terms that convey intention, growth, and humanity.
 
 ---
 
-# Tono de Proyecto SER
-
-Proyecto SER debe sentirse:
-
-- Sereno.
-- Cercano.
-- Humano.
-- Reflexivo.
-- Claro.
-- Atemporal.
-
-Nunca deberá sentirse:
-
-- Agresivo.
-- Militar.
-- Competitivo.
-- Saturado.
-- Culpabilizador.
+| Avoid | Prefer | Reason |
+|------|--------|--------|
+| Dashboard | Today | It speaks to the present. |
+| Routine | Ritual | It speaks to intention. |
+| Goal | Intention | It describes how I want to live, not only what I want to achieve. |
+| Checklist | Ritual | It is not a list of tasks, but a conscious practice. |
+| Productivity | Progress | Growth is more important than output. |
+| Streak | Path | The process is prioritized over the accumulation of days. |
 
 ---
 
-# Regla
+# Tone of Proyecto SER
 
-Antes de agregar cualquier texto a la aplicación debemos preguntarnos:
+Proyecto SER should feel:
 
-> ¿Esta palabra representa la filosofía de Proyecto SER?
+- Serene.
+- Close.
+- Human.
+- Reflective.
+- Clear.
+- Timeless.
+
+It should never feel:
+
+- Aggressive.
+- Militaristic.
+- Competitive.
+- Saturated.
+- Guilt-inducing.
+
+---
+
+# Rule
+
+Before adding any text to the application, we should ask:
+
+> Does this word represent the philosophy of Proyecto SER?

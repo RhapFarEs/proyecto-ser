@@ -1,31 +1,31 @@
 # CHANGELOG
 
-Todas las mejoras importantes de Proyecto SER quedarán registradas aquí.
+All major improvements to Proyecto SER will be recorded here.
 
-El objetivo de este documento es poder responder una pregunta:
+The purpose of this document is to answer one question:
 
-> ¿Cómo evolucionó el proyecto?
+> How did the project evolve?
 
 ---
 
-# v0.1 — Fundación
+# v0.1 — Foundation
 
-**Fecha:** 2026-06-29
+**Date:** 2026-06-29
 
-## Objetivo
+## Goal
 
-Crear la base técnica y filosófica del proyecto.
+Create the technical and philosophical foundation of the project.
 
-## Agregado
+## Added
 
-- Configuración inicial con Next.js.
-- Integración de Tailwind CSS.
-- Arquitectura inicial del proyecto.
-- Organización de componentes.
-- Carpeta `ui` para componentes reutilizables.
-- Carpeta `dashboard` para la pantalla principal.
-- Sistema de saludo dinámico.
-- Primeros componentes:
+- Initial setup with Next.js.
+- Tailwind CSS integration.
+- Initial project architecture.
+- Component organization.
+- `ui` folder for reusable components.
+- `dashboard` folder for the main screen.
+- Dynamic greeting system.
+- Initial components:
   - GreetingSection
   - QuoteSection
   - TodaySection
@@ -34,9 +34,9 @@ Crear la base técnica y filosófica del proyecto.
   - Section
   - SectionTitle
 
-## Documentación
+## Documentation
 
-Se crean los documentos base:
+The base documents were created:
 
 - PROJECT.md
 - ROADMAP.md
@@ -45,32 +45,99 @@ Se crean los documentos base:
 - DECISIONS.md
 - CHANGELOG.md
 
-## Producto
+## Product
 
-Se define oficialmente la identidad del proyecto.
+The project identity was officially defined.
 
-Nombre:
+Name:
 
 **Proyecto SER**
 
-(Sentimientos y Espiritualidad Reencontrados)
+(Feelings and Spirituality Reconnected)
 
-Lema:
+Tagline:
 
-> Ser antes que hacer.
+> Be before doing.
 >
-> Un día a la vez.
+> One day at a time.
 >
-> Una vida con propósito.
+> A life with purpose.
 
 ---
 
-# Próxima versión
+# Next version
 
-## v0.2 — Hoy
+## v0.2 — Today
 
-Objetivo:
+Goal:
 
-Construir la primera experiencia completa de la pantalla principal.
+Build the first complete experience for the main screen.
 
-Pendiente.
+Pending.
+
+---
+
+## v0.1.0 — "Today" Screen v1
+
+### Added
+
+- Day engine (`getToday`).
+- Domain models (`Today`, `Day`, `Ritual`, `Activity`).
+- Reusable components (`Section`, `Card`, `ChecklistItem`).
+- Fully dynamic "Today" screen.
+
+### Improved
+
+- Visual hierarchy.
+- Spacing.
+- Component organization.
+
+---
+
+## v0.2.0 — Start of Sprint 6
+
+### Added
+
+- `USER_FLOW.md` document.
+- Definition of the main navigation flow of Proyecto SER.
+- Initial screen architecture.
+- Navigation philosophy centered on the "Today" screen.
+- The official navigation specification for Proyecto SER was added (`NAVIGATION.md`).
+
+### Decisions
+
+- The "Today" screen will be the entry point of the application.
+- Navigation will be designed and documented before implementing any functionality.
+
+---
+
+### Infrastructure
+
+- The global application layout was implemented.
+- The base navigation components were added.
+- The application was prepared to support mobile and desktop navigation.
+
+---
+
+### Dependencies
+
+- `lucide-react` was added as the official iconography library for the project.
+
+---
+
+### Navigation
+
+- The first version of the Bottom Navigation was implemented.
+- The `components/navigation` module was created.
+- NavigationItem, navigation.ts, and types.ts were added.
+
+---
+
+### Architecture
+
+- The `components/views` layer was introduced.
+- The first View (`TodayView`) was implemented.
+- `app/page.tsx` was simplified by delegating the screen composition to the corresponding View.
+
+---
+

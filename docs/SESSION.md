@@ -1,27 +1,27 @@
 # CURRENT SPRINT
 
-## Sprint 5 · Contenido Vivo
+## Sprint 5 · Living Content
 
-### Objetivo
+### Goal
 
-Conseguir que toda la pantalla "Hoy" dependa del Motor del Día (`getToday()`), eliminando el contenido hardcodeado y dejando una base sólida para el crecimiento del proyecto.
+Ensure the entire "Today" screen depends on the Day Engine (`getToday()`), removing hardcoded content and creating a solid foundation for the project’s growth.
 
 ---
 
-# Estado actual
+# Current Status
 
-## Arquitectura
+## Architecture
 
-✅ Motor del Día (`getToday`)
+✅ Day Engine (`getToday`)
 
-✅ Modelos:
+✅ Models:
 
 - Today
 - Day
 - Ritual
 - Activity
 
-✅ Separación de responsabilidades:
+✅ Separation of responsibilities:
 
 - greeting.ts
 - date.ts
@@ -31,39 +31,64 @@ Conseguir que toda la pantalla "Hoy" dependa del Motor del Día (`getToday()`), 
 
 ---
 
-## Interfaz
+## Interface
 
-### Completado
+### Completed
 
-- GreetingSection consume `today`.
-- ReflectionSection consume `today`.
-- IntentionSection consume `today`.
-- FooterSection creado.
-- Componentes renombrados para reflejar el dominio:
+- GreetingSection consumes `today`.
+- ReflectionSection consumes `today`.
+- IntentionSection consumes `today`.
+- FooterSection created.
+- Components renamed to reflect the domain:
   - ReflectionSection
   - RitualSection
   - IntentionSection
-- RitualSection ahora consume `today` y renderiza dinámicamente las actividades mediante `.map()`.
+- RitualSection now consumes `today` and renders its activities dynamically with `.map()`.
+- The reusable `Card` component was created.
+- It was decided that reflection remains free-form and that cards are used only for action-oriented elements.
+- `ChecklistItem` was created as a reusable component.
+- The visual hierarchy of the "Today" screen was refined.
+- The V1 of the "Today" screen is considered complete.
+- The first project commit was made: `feat(today): complete Today screen v1`.
+- The project was first pushed to the remote repository.
+- Sprint 6 began, focused on navigation architecture.
+- The main screens of Proyecto SER were defined.
+- `USER_FLOW.md` was created as the official reference for the navigation flow.
+- It was established that the "Today" screen would be the center of the user experience.
+- `NAVIGATION.md` was created as the official document for navigation architecture.
+- The base infrastructure for the global layout was created.
+- AppLayout, AppHeader, Sidebar, and BottomNavigation were added.
+- AppLayout was integrated with RootLayout.
+- The architecture was validated with no lint errors.
+- Lucide React was adopted as the official iconography system for the project.
+- The first version of the navigation module was completed.
+- Navigation was modularized into reusable components.
+- Lucide React was integrated as the iconography system.
+- The architecture was prepared to support active states and future routes.
+- The concept of Views as representations of complete screens was introduced.
+- TodayView was created to encapsulate the logic of the main screen.
+- `app/page.tsx` was reduced to the responsibility of mounting the main view.
 
+### Pending
 
-### Pendiente
-
-- Mostrar "Semana X · Día Y" debajo de la fecha.
-- Refinar la experiencia visual de la pantalla Hoy.
+- Show "Week X · Day Y" below the date.
+- Refine the visual experience of the Today screen.
 
 ---
 
-# Criterio para cerrar el Sprint
+# Sprint close criteria
 
-La pantalla Hoy deberá:
+The Today screen must:
 
-- Obtener toda su información desde `getToday()`.
-- No contener contenido hardcodeado en los componentes.
-- Tener una jerarquía visual clara y coherente con la filosofía de Proyecto SER.
-- Estar lista para realizar el primer commit del proyecto.
+- Obtain all its information from `getToday()`.
+- Contain no hardcoded content in the components.
+- Have a clear visual hierarchy consistent with the philosophy of Proyecto SER.
+- Be ready for the first project commit.
 
 ---
 
-# Próxima tarea
+# Next task
 
-Convertir `RitualSection` para que renderice dinámicamente las actividades del ritual usando la información proporcionada por `today.day.ritual`.
+Convert `RitualSection` to render the ritual activities dynamically using the information provided by `today.day.ritual`.
+Prepare the first project commit and begin the next sprint.
+- Design the visual navigation of the application (`NAVIGATION.md`) before implementation begins.

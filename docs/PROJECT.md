@@ -1,30 +1,30 @@
-# SOP — Sistema Operativo Personal
+# SOP — Personal Operating System
 
-## Visión
+## Vision
 
-El SOP (Sistema Operativo Personal) es una aplicación diseñada para ayudar a construir una vida con propósito mediante sistemas, hábitos, reflexión, crecimiento personal y espiritual.
+The SOP (Personal Operating System) is an application designed to help build a life with purpose through systems, habits, reflection, personal growth, and spirituality.
 
-El objetivo no es únicamente registrar información, sino ayudar al usuario a convertirse, día a día, en la persona que quiere ser.
-
----
-
-## Objetivos
-
-- Centralizar toda la información personal.
-- Dar seguimiento al crecimiento diario.
-- Integrar el Proyecto de Vida.
-- Integrar el programa de los 12 Pasos.
-- Administrar hábitos y rutinas.
-- Llevar control del entrenamiento y nutrición.
-- Gestionar finanzas personales.
-- Servir como un segundo cerebro.
-- Integrar Inteligencia Artificial como asistente personal.
+The goal is not only to record information, but to help the user become, day by day, the person they want to be.
 
 ---
 
-## Estado del Proyecto
+## Goals
 
-Versión actual: v0.1
+- Centralize all personal information.
+- Track daily growth.
+- Integrate the Life Project.
+- Integrate the Twelve Steps program.
+- Manage habits and routines.
+- Track training and nutrition.
+- Manage personal finances.
+- Serve as a second brain.
+- Integrate Artificial Intelligence as a personal assistant.
 
-Estado:
-- En desarrollo
+---
+
+## Project Status
+
+Current version: v0.1
+
+Status:
+- In development

@@ -1,11 +1,1 @@
-export type Day = {
-  reflection: string;
-
-  intention: string;
-
-  ritual: {
-    name: string;
-
-    activities: string[];
-  };
-};
+export type { Day } from "../domain/today/Day";
