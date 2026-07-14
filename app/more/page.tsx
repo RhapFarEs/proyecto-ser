@@ -15,21 +15,27 @@ export default function MorePage() {
 
   return (
     <Page title="Más" subtitle="Otras cosas que puedes revisar.">
-      <div className="space-y-3">
-        <SectionTitle>Cuenta</SectionTitle>
+      <div className="space-y-6">
+        <Link href="/feedback" className={rowClassName}>
+          <Body className="text-zinc-100">Ayudar a mejorar Proyecto SER</Body>
+        </Link>
 
         <div className="space-y-3">
-          <Link href="/profile" className={rowClassName}>
-            <Body className="text-zinc-100">Perfil</Body>
-          </Link>
+          <SectionTitle>Cuenta</SectionTitle>
 
-          <button type="button" className={rowClassName} onClick={() => void changeAccount()}>
-            <Body className="text-zinc-100">Cambiar de cuenta</Body>
-          </button>
+          <div className="space-y-3">
+            <Link href="/profile" className={rowClassName}>
+              <Body className="text-zinc-100">Perfil</Body>
+            </Link>
 
-          <button type="button" className={rowClassName} onClick={() => void signOut()}>
-            <Body className="text-zinc-100">Cerrar sesión</Body>
-          </button>
+            <button type="button" className={rowClassName} onClick={() => void changeAccount()}>
+              <Body className="text-zinc-100">Cambiar de cuenta</Body>
+            </button>
+
+            <button type="button" className={rowClassName} onClick={() => void signOut()}>
+              <Body className="text-zinc-100">Cerrar sesión</Body>
+            </button>
+          </div>
         </div>
       </div>
     </Page>

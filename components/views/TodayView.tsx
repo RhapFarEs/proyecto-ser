@@ -15,8 +15,10 @@ import { getWeek } from "@/lib/domain/week/week-storage";
 import { getLifeArea } from "@/lib/domain/life-area/life-area-storage";
 import { useClientState } from "@/lib/hooks/useClientState";
 import { useHydrated } from "@/lib/hooks/useHydrated";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function TodayView() {
+  const { profile } = useAuth();
   const today = getToday();
   const todayDate = getLocalDateKey();
   const todayWeekday = getWeekdayOfKey(todayDate) as Weekday;
@@ -79,6 +81,7 @@ export default function TodayView() {
           onSaveIntention: handleSaveIntention,
           insight,
           weeklyFocusAreaTitle,
+          displayName: profile?.displayName,
         };
 
         // Once real client data replaces the hydration-safe fallback, the

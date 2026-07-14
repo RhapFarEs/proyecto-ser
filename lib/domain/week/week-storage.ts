@@ -1,34 +1,99 @@
-import storage from "@/lib/storage/storage";
+import { createSyncedStore } from "@/lib/sync/createSyncedStore";
 import { createWeek, type Week } from "./week";
+import { normalizeWeek } from "./week-migrations";
 
 export const WEEK_STORAGE_KEY = "ser.weeks";
 
-function getWeeksStore(): Record<string, Week> {
-  const storedValue = storage.get<Record<string, Week>>(WEEK_STORAGE_KEY, {});
-
-  if (!storedValue || typeof storedValue !== "object") {
-    return {};
-  }
-
-  return storedValue;
+interface WeekRow {
+  id: string;
+  user_id: string;
+  reflection: Week["reflection"];
+  focus_life_area_id: string | null;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-function setWeeksStore(weeks: Record<string, Week>): void {
-  storage.set(WEEK_STORAGE_KEY, weeks);
+function fromRow(row: WeekRow): Week {
+  return {
+    id: row.id,
+    reflection: row.reflection,
+    focusLifeAreaId: row.focus_life_area_id ?? undefined,
+    deletedAt: row.deleted_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
+
+function toRow(week: Week, userId: string): WeekRow {
+  return {
+    id: week.id,
+    user_id: userId,
+    reflection: week.reflection,
+    focus_life_area_id: week.focusLifeAreaId ?? null,
+    deleted_at: week.deletedAt,
+    created_at: week.createdAt,
+    updated_at: week.updatedAt,
+  };
+}
+
+/**
+ * Week follows the same `createSyncedStore` wiring as Habit/Journal/Day —
+ * see `lib/domain/habit/habit-storage.ts` for the reference. Like Day,
+ * `id` is a calendar key (the week-start date), unique only *within* one
+ * user's data — the `weeks` table's primary key is `(id, user_id)`, not
+ * `id` alone (see the migration SQL).
+ *
+ * Unlike Day, Week never had a legacy key-format problem, so there's no
+ * custom one-time import step here: `migrateWeeksToCloud` is exactly as
+ * simple as Habit's, relying entirely on the generic engine's own
+ * legacy-key adoption + `normalizeWeek`.
+ */
+const store = createSyncedStore<Week, WeekRow>({
+  storageKey: WEEK_STORAGE_KEY,
+  table: "weeks",
+  normalize: normalizeWeek,
+  fromRow,
+  toRow,
+});
 
 export function getWeek(id: string): Week {
-  const weeks = getWeeksStore();
-  return weeks[id] ?? createWeek(id);
+  return store.getOne(id) ?? createWeek(id);
 }
 
+export function getWeeks(): Week[] {
+  return store.getAll();
+}
+
+/**
+ * Always succeeds, even for a week with no existing record — the same
+ * "create on first write" contract Day's `updateDay` preserves, and that
+ * WeeklyReviewView already relies on for both focus-area selection and
+ * reflection saves.
+ */
 export function updateWeek(id: string, updater: (week: Week) => Week): Week {
   const current = getWeek(id);
   const next: Week = { ...updater(current), updatedAt: new Date().toISOString() };
-
-  const weeks = getWeeksStore();
-  weeks[id] = next;
-  setWeeksStore(weeks);
-
+  store.save(next);
   return next;
+}
+
+export function removeWeek(id: string): void {
+  store.remove(id);
+}
+
+export function subscribeToWeeks(listener: () => void): () => void {
+  return store.subscribe(listener);
+}
+
+export function setWeekSyncUserId(userId: string | null): void {
+  store.setUserId(userId);
+}
+
+export function pullWeeks(): Promise<void> {
+  return store.pull();
+}
+
+export function migrateWeeksToCloud(): Promise<void> {
+  return store.runInitialMigration();
 }

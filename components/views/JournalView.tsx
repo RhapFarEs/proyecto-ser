@@ -40,8 +40,7 @@ const storedDays = useMemo(() => {
 
   return getAllDays().filter(
     (day) =>
-      day.entries.some((entry) => entry.type === "journal") ||
-      hasClosingReflection(day),
+      getJournalNotesForDay(day).length > 0 || hasClosingReflection(day),
   );
 }, [hydrated, day]);
 
@@ -77,7 +76,7 @@ const storedDays = useMemo(() => {
       </Link>
 
       {activeTab === "write" ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {visibleModules.map((module) => {
             const ModuleComponent = module.component;
 

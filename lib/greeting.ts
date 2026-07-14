@@ -11,3 +11,8 @@ export function getGreeting() {
 
   return "Buenas noches";
 }
+
+export function formatGreeting(base: string, displayName?: string | null): string {
+  const trimmed = displayName?.trim();
+  return trimmed ? `${base}, ${trimmed}` : base;
+}

@@ -44,7 +44,7 @@ export default function HabitListModule({
   onToggleActive,
 }: HabitListModuleProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Button type="button" variant="primary" onClick={onCreateNew}>
         Nuevo hábito
       </Button>
@@ -64,7 +64,7 @@ export default function HabitListModule({
           {habits.map((habit) => (
             <Card
               key={habit.id}
-              className={`space-y-3 ${habit.active ? "" : "opacity-60"}`.trim()}
+              className={`space-y-2 ${habit.active ? "" : "opacity-60"}`.trim()}
             >
               <div className="flex items-start justify-between gap-4">
                 <Body className="text-zinc-100">{habit.title}</Body>

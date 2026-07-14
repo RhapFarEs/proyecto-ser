@@ -15,7 +15,7 @@ export default function AppLayout({
         <Sidebar />
 
         <div className="flex flex-1 flex-col">
-          <main className="flex-1 pb-28 md:pb-0">
+          <main className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-0">
             {children}
           </main>
 

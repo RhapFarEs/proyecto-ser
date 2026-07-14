@@ -4,6 +4,7 @@ export interface LifeArea {
   whyItMatters: string;
   active: boolean;
   inFocus: boolean;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,6 +18,7 @@ export function createLifeArea(title: string, whyItMatters: string): LifeArea {
     whyItMatters,
     active: true,
     inFocus: false,
+    deletedAt: null,
     createdAt: now,
     updatedAt: now,
   };

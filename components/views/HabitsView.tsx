@@ -85,7 +85,7 @@ export default function HabitsView() {
       subtitle="Pequeñas prácticas, sostenidas con intención."
     >
       {mode === "list" ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <HabitSuggestionsModule habits={habits} onSelect={openSuggestionForm} />
           <HabitListModule
             habits={habits}

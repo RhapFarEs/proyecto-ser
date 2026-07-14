@@ -67,7 +67,7 @@ export default function HabitFormModule({
   };
 
   return (
-    <Card className="space-y-5">
+    <Card className="space-y-4">
       <ModuleHeader
         title={isEditing ? "Editar hábito" : "Nuevo hábito"}
         subtitle="Elige algo pequeño y sostenible."
@@ -82,8 +82,8 @@ export default function HabitFormModule({
       <TextArea
         value={purpose}
         onChange={(event) => setPurpose(event.target.value)}
-        placeholder="¿Para qué quieres sostener este hábito?"
-        className="min-h-[96px]"
+        placeholder="¿Para qué quieres sostener este hábito? En una frase."
+        className="!min-h-[64px]"
       />
 
       <div className="flex flex-wrap gap-2">

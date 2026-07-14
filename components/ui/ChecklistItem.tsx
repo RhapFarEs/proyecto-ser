@@ -17,7 +17,7 @@ export default function ChecklistItem({
       <button
         type="button"
         onClick={onClick}
-        className="flex w-full items-center gap-3 py-1 text-left transition-colors duration-200 sm:gap-4"
+        className="flex w-full items-center gap-3 py-2 text-left transition-colors duration-200 sm:gap-4"
       >
         <div
           className={`h-4 w-4 shrink-0 rounded border transition-colors ${
@@ -37,7 +37,7 @@ export default function ChecklistItem({
   }
 
   return (
-    <div className="group flex items-center gap-3 py-1 transition-colors duration-200 sm:gap-4">
+    <div className="group flex items-center gap-3 py-2 transition-colors duration-200 sm:gap-4">
       <div className="h-4 w-4 shrink-0 rounded border border-zinc-600 transition-colors group-hover:border-zinc-300" />
 
       <Body className="text-base leading-6 text-zinc-100 transition-colors group-hover:text-white sm:text-lg sm:leading-7">

@@ -71,12 +71,12 @@ export default function HabitSuggestionsModule({
       <div className="flex items-center justify-between gap-3">
         <Caption>¿Buscas inspiración?</Caption>
         <Button type="button" variant="ghost" onClick={toggleExpanded}>
-          {expanded ? "Ocultar sugerencias" : "Ver sugerencias"}
+          {expanded ? "Ocultar ideas" : "Ver ideas"}
         </Button>
       </div>
 
       {expanded ? (
-        <div className="space-y-4 rounded-[1.75rem] border border-zinc-800/60 bg-zinc-950/40 p-5">
+        <div className="space-y-3 rounded-[1.75rem] border border-zinc-800/60 bg-zinc-950/40 p-4">
           {CATEGORY_ORDER.map((category) => {
             const items = availableSuggestions.filter(
               (suggestion) => suggestion.category === category,

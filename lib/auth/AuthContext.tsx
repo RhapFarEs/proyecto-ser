@@ -17,16 +17,87 @@ import {
   pullHabits,
   setHabitSyncUserId,
 } from "@/lib/domain/habit/habit-storage";
+import {
+  migrateJournalToCloud,
+  pullJournalNotes,
+  setJournalSyncUserId,
+} from "@/lib/domain/journal/journal-storage";
+import {
+  migrateDaysToCloud,
+  pullDays,
+  setDaySyncUserId,
+} from "@/lib/domain/day/day-storage";
+import {
+  migrateWeeksToCloud,
+  pullWeeks,
+  setWeekSyncUserId,
+} from "@/lib/domain/week/week-storage";
+import {
+  migrateLifeAreasToCloud,
+  pullLifeAreas,
+  setLifeAreaSyncUserId,
+} from "@/lib/domain/life-area/life-area-storage";
+import {
+  migrateLifeDirectionToCloud,
+  pullLifeDirection,
+  setLifeDirectionSyncUserId,
+} from "@/lib/domain/direction/direction-storage";
+
+interface SyncedDomain {
+  setUserId: (userId: string | null) => void;
+  migrateToCloud: () => Promise<void>;
+  pull: () => Promise<void>;
+}
+
+/**
+ * Every cloud-synced domain, in one place — the single source of truth
+ * for bootstrap order, so `setUserId`/migrate/pull can't drift out of
+ * sync with each other the way three separately-maintained call lists
+ * would. Adding a seventh synced domain later means adding one entry
+ * here, not editing three different blocks below.
+ *
+ * Order matters only for the reasons noted: Day must migrate before
+ * Journal, because Journal's own migration reads `getAllDays()` to lift
+ * notes out of legacy Day records. Every other domain is independent of
+ * this order and of each other — Week, Life Area, and Direction are
+ * simply grouped with Day as the other domains Today reads directly.
+ */
+const SYNCED_DOMAINS: SyncedDomain[] = [
+  { setUserId: setDaySyncUserId, migrateToCloud: migrateDaysToCloud, pull: pullDays },
+  { setUserId: setWeekSyncUserId, migrateToCloud: migrateWeeksToCloud, pull: pullWeeks },
+  { setUserId: setLifeAreaSyncUserId, migrateToCloud: migrateLifeAreasToCloud, pull: pullLifeAreas },
+  { setUserId: setLifeDirectionSyncUserId, migrateToCloud: migrateLifeDirectionToCloud, pull: pullLifeDirection },
+  { setUserId: setHabitSyncUserId, migrateToCloud: migrateHabitsToCloud, pull: pullHabits },
+  { setUserId: setJournalSyncUserId, migrateToCloud: migrateJournalToCloud, pull: pullJournalNotes },
+];
+
+function setAllSyncUserIds(userId: string | null): void {
+  for (const domain of SYNCED_DOMAINS) {
+    domain.setUserId(userId);
+  }
+}
+
+async function migrateAllDomainsToCloud(): Promise<void> {
+  for (const domain of SYNCED_DOMAINS) {
+    await domain.migrateToCloud();
+  }
+}
+
+async function pullAllDomains(): Promise<void> {
+  for (const domain of SYNCED_DOMAINS) {
+    await domain.pull();
+  }
+}
 
 /**
  * Runs once per session start (login, session restore, or a completed
- * "cambiar de cuenta"): ensures a profile exists, then wires the Habit
- * sync store to this user. The one-time historical upload only fires
+ * "cambiar de cuenta"): ensures a profile exists, then wires every synced
+ * domain's store to this user. The one-time historical upload only fires
  * while `profile.migrationCompleted` is still false, and is never run
- * again once it flips to true — `migrateHabitsToCloud`'s upsert is itself
+ * again once it flips to true — each domain's upload is itself
  * idempotent, but gating on the flag avoids re-uploading on every login.
- * `pullHabits` then reconciles whatever's already in Supabase (from this
- * upload, from another device, or both) into the local cache.
+ * `pullAllDomains` then reconciles whatever's already in Supabase (from
+ * this upload, from another device, or both) into each local cache.
  *
  * `onProfileReady` hands the resolved profile back to the component so it
  * can be exposed via context — `OnboardingGate` reads it from there rather
@@ -45,10 +116,10 @@ async function bootstrapUserData(
     return;
   }
 
-  setHabitSyncUserId(user.id);
+  setAllSyncUserIds(user.id);
 
   if (!profile.migrationCompleted) {
-    await migrateHabitsToCloud();
+    await migrateAllDomainsToCloud();
     profile =
       (await updateProfile(user.id, (current) => ({
         ...current,
@@ -58,7 +129,7 @@ async function bootstrapUserData(
 
   onProfileReady(profile);
 
-  await pullHabits();
+  await pullAllDomains();
 }
 
 function ensureProfile(
@@ -126,7 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (data.session?.user) {
         ensureProfile(data.session.user, handleProfileReady);
       } else {
-        setHabitSyncUserId(null);
+        setAllSyncUserIds(null);
         handleProfileReady(null);
       }
     });
@@ -141,7 +212,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setProfileLoading(true);
         ensureProfile(nextSession.user, handleProfileReady);
       } else {
-        setHabitSyncUserId(null);
+        setAllSyncUserIds(null);
         handleProfileReady(null);
       }
     });

@@ -301,3 +301,45 @@ export function mergeDays(base: Day, incoming: Day): Day {
     intention: incoming.intention.trim() ? incoming.intention : base.intention,
   };
 }
+
+/**
+ * Normalizes one raw stored record already in the current Day shape — the
+ * `createSyncedStore` `normalize` hook (same role as `migrateHabit` /
+ * `migrateJournalNote`). Assumes a canonical key/id already: the legacy
+ * key-format cleanup and cross-key merge (`migrateDay`/`mergeDays` above)
+ * only ever run once, during the one-time cloud migration — see
+ * `importLegacyDays` in `day-storage.ts`.
+ */
+export function normalizeDay(raw: unknown): Day | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+
+  if (typeof raw.id !== "string" || typeof raw.date !== "string") {
+    return null;
+  }
+
+  const journalSource = isRecord(raw.journal) ? raw.journal : undefined;
+  const ritualsSource = isRecord(raw.rituals) ? raw.rituals : undefined;
+  const ritualChecks = ritualsSource?.checks;
+
+  return {
+    id: raw.id,
+    date: raw.date,
+    entries: Array.isArray(raw.entries)
+      ? (raw.entries.filter(isRecord) as unknown as Entry[])
+      : [],
+    journal: {
+      mood: getStringField(journalSource, "mood", "calm"),
+      entry: getStringField(journalSource, "entry", ""),
+      closing: getStringField(journalSource, "closing", ""),
+    },
+    rituals: {
+      checks: Array.isArray(ritualChecks) ? (ritualChecks as boolean[]) : [],
+    },
+    intention: typeof raw.intention === "string" ? raw.intention : "",
+    deletedAt: typeof raw.deletedAt === "string" ? raw.deletedAt : null,
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString(),
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date().toISOString(),
+  };
+}

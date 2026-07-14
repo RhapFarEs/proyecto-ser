@@ -18,9 +18,14 @@ export interface Day {
   journal: DayJournal;
   rituals: DayRituals;
   intention: string;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function createDay(date: string): Day {
+  const now = new Date().toISOString();
+
   return {
     id: date,
     date,
@@ -35,5 +40,8 @@ export function createDay(date: string): Day {
       checks: [],
     },
     intention: "",
+    deletedAt: null,
+    createdAt: now,
+    updatedAt: now,
   };
 }

@@ -44,10 +44,7 @@ export default function LifeAreaListModule({
           {activeAreas.map((area) => (
             <Card key={area.id} className="space-y-3">
               <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <Body className="text-zinc-100">{area.title}</Body>
-                  {area.whyItMatters ? <Caption>{area.whyItMatters}</Caption> : null}
-                </div>
+                <Body className="text-zinc-100">{area.title}</Body>
 
                 {area.inFocus ? (
                   <Caption className="whitespace-nowrap uppercase tracking-[0.2em] text-zinc-500">
@@ -86,10 +83,7 @@ export default function LifeAreaListModule({
 
           {archivedAreas.map((area) => (
             <Card key={area.id} className="space-y-3 opacity-60">
-              <div className="space-y-1">
-                <Body className="text-zinc-100">{area.title}</Body>
-                {area.whyItMatters ? <Caption>{area.whyItMatters}</Caption> : null}
-              </div>
+              <Body className="text-zinc-100">{area.title}</Body>
 
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={() => onEdit(area)}>

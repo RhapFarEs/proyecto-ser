@@ -79,7 +79,7 @@ export default function JournalNotesModule({
   const notesNewestFirst = [...todayNotes].reverse();
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-2">
       <ModuleHeader
         title="¿Cómo llegas hoy?"
         subtitle="Escribe lo que sientes, con tus propias palabras. Nunca estás limitado a una lista."
@@ -111,7 +111,7 @@ export default function JournalNotesModule({
         <>
           <Divider />
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <SectionTitle>Notas de hoy</SectionTitle>
 
             <div className="space-y-2">

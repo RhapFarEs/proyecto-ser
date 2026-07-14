@@ -33,13 +33,12 @@ function getMetadataString(
 }
 
 export default function ProfileView() {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<"viewing" | "editing">("viewing");
   const [displayName, setDisplayName] = useState("");
   const [birthday, setBirthday] = useState("");
-  const [timezone, setTimezone] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -67,7 +66,6 @@ export default function ProfileView() {
         setProfile(loaded);
         setDisplayName(loaded.displayName);
         setBirthday(loaded.birthday ?? "");
-        setTimezone(loaded.timezone);
       })
       .catch(() => {
         if (active) {
@@ -87,7 +85,6 @@ export default function ProfileView() {
 
     setDisplayName(profile.displayName);
     setBirthday(profile.birthday ?? "");
-    setTimezone(profile.timezone);
     setSaveError(null);
     setMode("editing");
   };
@@ -98,26 +95,22 @@ export default function ProfileView() {
     }
 
     const trimmedName = displayName.trim();
-    const trimmedTimezone = timezone.trim();
 
     if (!trimmedName) {
       setSaveError("El nombre no puede estar vacío.");
       return;
     }
 
-    if (!trimmedTimezone) {
-      setSaveError("La zona horaria no puede estar vacía.");
-      return;
-    }
-
     setSaveError(null);
     setSaving(true);
 
+    // Timezone isn't part of this form — spreading `current` first keeps
+    // whatever value is already stored untouched, it's just never shown or
+    // editable here anymore.
     updateProfile(user.id, (current) => ({
       ...current,
       displayName: trimmedName,
       birthday: birthday.trim() ? birthday.trim() : null,
-      timezone: trimmedTimezone,
     }))
       .then((next) => {
         if (!next) {
@@ -128,8 +121,11 @@ export default function ProfileView() {
         setProfile(next);
         setDisplayName(next.displayName);
         setBirthday(next.birthday ?? "");
-        setTimezone(next.timezone);
         setMode("viewing");
+
+        // Keeps AuthContext's own profile (which Today's greeting reads)
+        // from going stale after a save — same pattern OnboardingFlow uses.
+        void refreshProfile();
       })
       .catch(() => {
         setSaveError("No pudimos guardar los cambios. Vuelve a intentarlo.");
@@ -146,7 +142,6 @@ export default function ProfileView() {
 
     setDisplayName(profile.displayName);
     setBirthday(profile.birthday ?? "");
-    setTimezone(profile.timezone);
     setSaveError(null);
     setMode("viewing");
   };
@@ -214,8 +209,8 @@ export default function ProfileView() {
 
   return (
     <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
-      <Card className="space-y-6">
-        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+      <Card className="space-y-4">
+        <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
           <button
             type="button"
             onClick={handlePhotoClick}
@@ -264,7 +259,7 @@ export default function ProfileView() {
             )}
 
             <Caption>{user.email}</Caption>
-            <Caption>
+            <Caption className="text-zinc-500">
               Comenzaste este camino el {formatDateKeyLongLabel(profile.startedAt)}.
             </Caption>
           </div>
@@ -272,7 +267,7 @@ export default function ProfileView() {
 
         {photoError ? <Body className="text-zinc-400">{photoError}</Body> : null}
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Caption>Cumpleaños</Caption>
           {mode === "editing" ? (
             <Input
@@ -287,22 +282,9 @@ export default function ProfileView() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <Caption>Zona horaria</Caption>
-          {mode === "editing" ? (
-            <Input
-              value={timezone}
-              onChange={(event) => setTimezone(event.target.value)}
-              placeholder="America/Mexico_City"
-            />
-          ) : (
-            <Body className="text-zinc-100">{profile.timezone}</Body>
-          )}
-        </div>
-
         {saveError ? <Body className="text-zinc-400">{saveError}</Body> : null}
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2">
           {mode === "editing" ? (
             <>
               <Button type="button" variant="primary" onClick={handleSave} disabled={saving}>
