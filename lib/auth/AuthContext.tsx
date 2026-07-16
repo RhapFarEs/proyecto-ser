@@ -224,6 +224,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signInWithGoogle = async () => {
+    // TEMPORARY diagnostic instrumentation — remove after root-cause is confirmed.
+    console.log("href:", window.location.href);
+    console.log("origin:", window.location.origin);
+    console.log("redirectTo:", window.location.origin);
+    alert(window.location.origin);
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
