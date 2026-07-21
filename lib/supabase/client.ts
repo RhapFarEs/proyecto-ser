@@ -1,21 +1,21 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 // TEMPORARY diagnostic instrumentation — remove once the deployed env var
 // values have been confirmed against .env.local. Never logs the full key.
 console.log("[AUTH-TRACE-ENV] NEXT_PUBLIC_SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-console.log("[AUTH-TRACE-ENV] NEXT_PUBLIC_SUPABASE_ANON_KEY (partial):", {
-  first12: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 12) ?? null,
-  last6: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(-6) ?? null,
-  length: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length ?? 0,
+console.log("[AUTH-TRACE-ENV] NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (partial):", {
+  first12: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.slice(0, 12) ?? null,
+  last6: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.slice(-6) ?? null,
+  length: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.length ?? 0,
 });
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
     "Missing Supabase configuration. Set NEXT_PUBLIC_SUPABASE_URL and " +
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local (Project Settings -> API " +
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local (Project Settings -> API " +
       "in the Supabase dashboard).",
   );
 }
