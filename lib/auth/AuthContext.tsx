@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/client";
+import { supabase, snapshotAuthStorage } from "@/lib/supabase/client";
 import { runInitialMigration } from "@/lib/domain/profile/profile-migrations";
 import { getProfile, updateProfile } from "@/lib/domain/profile/profile-storage";
 import type { Profile } from "@/lib/domain/profile/profile";
@@ -181,6 +181,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     let active = true;
 
+    // TEMPORARY diagnostic instrumentation — remove once the OAuth
+    // session-loss root cause is confirmed.
+    console.log("[AUTH-TRACE] AuthProvider effect start", {
+      href: window.location.href,
+      hash: window.location.hash,
+    });
+    snapshotAuthStorage("effect start (before getSession)");
+
     const handleProfileReady = (loaded: Profile | null) => {
       if (active) {
         setProfile(loaded);
@@ -188,7 +196,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
-    supabase.auth.getSession().then(({ data }) => {
+    console.log("[AUTH-TRACE] getSession() called");
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log("[AUTH-TRACE] getSession() resolved", {
+        hasSession: !!data.session,
+        userId: data.session?.user?.id ?? null,
+        error,
+        href: window.location.href,
+        hash: window.location.hash,
+      });
+      snapshotAuthStorage("after getSession() resolved");
+
+      supabase.auth.getUser().then(({ data: userData, error: userError }) => {
+        console.log("[AUTH-TRACE] getUser() resolved", {
+          user: userData.user,
+          error: userError,
+        });
+      });
+
       if (active) {
         setSession(data.session);
         setLoading(false);
@@ -205,6 +230,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      console.log("[AUTH-TRACE] onAuthStateChange()", {
+        event: _event,
+        hasSession: !!nextSession,
+        userId: nextSession?.user?.id ?? null,
+        href: window.location.href,
+        hash: window.location.hash,
+      });
+      snapshotAuthStorage(`onAuthStateChange:${_event}`);
+
       setSession(nextSession);
       setLoading(false);
 
@@ -224,18 +258,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signInWithGoogle = async () => {
-    // TEMPORARY diagnostic instrumentation — remove after root-cause is confirmed.
-    console.log("href:", window.location.href);
-    console.log("origin:", window.location.origin);
-    console.log("redirectTo:", window.location.origin);
-    alert(window.location.origin);
+    // TEMPORARY diagnostic instrumentation — remove once the OAuth
+    // session-loss root cause is confirmed.
+    console.log("[AUTH-TRACE] signInWithGoogle() called", {
+      href: window.location.href,
+      hash: window.location.hash,
+      redirectTo: window.location.origin,
+    });
+    snapshotAuthStorage("before signInWithOAuth (pre-redirect)");
 
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
       },
     });
+
+    if (error) {
+      console.log("[AUTH-TRACE] signInWithOAuth() returned error", error);
+    }
   };
 
   /**
