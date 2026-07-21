@@ -47,35 +47,4 @@ if (typeof window !== "undefined") {
     hash: window.location.hash,
   });
   snapshotAuthStorage("module init (createClient just returned)");
-
-  // TEMPORARY diagnostic instrumentation — remove once the OAuth
-  // session-loss root cause is confirmed. Reads the access_token straight
-  // out of the raw hash (before the SDK's own internal processing can clear
-  // it) and replays the exact same public call the SDK makes internally
-  // (auth-js's _getSessionFromURL calls this.getUser(access_token), and
-  // getUser(jwt) with an explicit jwt argument is a direct passthrough to
-  // the same private _getUser(jwt) — see node_modules/@supabase/auth-js/
-  // src/GoTrueClient.ts). This only uses the public SDK API from app code;
-  // node_modules is untouched.
-  if (window.location.hash.includes("access_token=")) {
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    const accessTokenFromHash = hashParams.get("access_token");
-    console.log("[AUTH-TRACE-REPRO] access_token found in raw hash", {
-      tokenPrefix: accessTokenFromHash ? `${accessTokenFromHash.slice(0, 12)}...` : null,
-      tokenLength: accessTokenFromHash?.length ?? 0,
-    });
-
-    if (accessTokenFromHash) {
-      supabase.auth.getUser(accessTokenFromHash).then(({ data, error }) => {
-        console.log("[AUTH-TRACE-REPRO] getUser(access_token_from_hash) result", {
-          data,
-          error,
-          errorName: error?.name,
-          errorMessage: error?.message,
-          errorStatus: (error as { status?: number } | null)?.status,
-          errorCode: (error as { code?: string } | null)?.code,
-        });
-      });
-    }
-  }
 }
