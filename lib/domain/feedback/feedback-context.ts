@@ -1,8 +1,10 @@
 /**
- * Hardcoded for now, per the milestone's explicit instruction — bump this
- * by hand until a real release/build-versioning process exists.
+ * Hardcoded for now — bump this by hand until a real release/build
+ * versioning process exists (tracked in docs/BACKLOG.md). Shown to the
+ * user on the Más screen and attached to every feedback submission, so
+ * incoming feedback can be tied to the version it was written against.
  */
-export const APP_VERSION = "0.1.0";
+export const APP_VERSION = "1.0.0";
 
 export interface FeedbackContext {
   route: string;
