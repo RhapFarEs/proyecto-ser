@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
+/*
+  Proyecto SER is a dark product, always — every screen sets `bg-black`.
+  The palette used to define a white default with a dark-mode override,
+  which meant a device in light mode painted white for the first frame,
+  before React mounted. One value, no media query, no flash.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +18,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /*
+    This said `Arial, Helvetica, sans-serif`, which silently overrode the
+    Geist font the app downloads on every page load — the whole product
+    rendered in Arial while paying for a typeface it never showed.
+  */
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/*
+  Motion here is only ever a settling-in, never a performance. Anyone who
+  has asked their system to reduce motion gets the same interface without
+  any of it.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+  Screens settle in rather than snapping into place. Short and subtle on
+  purpose: enough to soften arriving somewhere, never enough to make
+  someone wait for the interface.
+*/
+@keyframes ser-settle-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ser-settle-in {
+  animation: ser-settle-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }

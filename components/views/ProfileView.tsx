@@ -3,15 +3,21 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 
+import Link from "next/link";
+
 import Page from "@/components/ui/Page";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import SectionTitle from "@/components/ui/SectionTitle";
 import { Body, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getProfile, updateProfile } from "@/lib/domain/profile/profile-storage";
 import { uploadAvatar } from "@/lib/domain/profile/avatar-storage";
 import type { Profile } from "@/lib/domain/profile/profile";
+import { getLifeAreas } from "@/lib/domain/life-area/life-area-storage";
+import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 import { formatDateKeyLabel, formatDateKeyLongLabel } from "@/lib/date";
 
 function getMetadataString(
@@ -34,6 +40,7 @@ function getMetadataString(
 
 export default function ProfileView() {
   const { user, refreshProfile } = useAuth();
+  const hydrated = useHydrated();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<"viewing" | "editing">("viewing");
@@ -207,8 +214,15 @@ export default function ProfileView() {
     profile.avatarUrl ?? getMetadataString(user.user_metadata, "avatar_url", "picture");
   const initial = profile.displayName.trim().charAt(0).toUpperCase();
 
+  // A profile that only shows a name, an email and a birthday describes an
+  // account. What the person actually cares about — the areas they chose to
+  // tend, the direction they wrote for themselves — is what makes this page
+  // theirs. Read-only here; both are edited where they're created.
+  const caredForAreas = hydrated ? getLifeAreas().filter((area) => area.active) : [];
+  const directionStatement = hydrated ? getLifeDirection().statement.trim() : "";
+
   return (
-    <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
+    <Page title="Perfil" subtitle="Quién eres aquí, y qué te importa.">
       <Card className="space-y-4">
         <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
           <button
@@ -301,6 +315,39 @@ export default function ProfileView() {
           )}
         </div>
       </Card>
+
+      {directionStatement ? (
+        <div className="space-y-3">
+          <SectionTitle>Hacia dónde caminas</SectionTitle>
+          <Card>
+            <Body className="text-zinc-200">{directionStatement}</Body>
+          </Card>
+        </div>
+      ) : null}
+
+      {caredForAreas.length > 0 ? (
+        <div className="space-y-3">
+          <SectionTitle>Lo que cuidas</SectionTitle>
+          <Card className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {caredForAreas.map((area) => (
+                <span
+                  key={area.id}
+                  className="rounded-full border border-zinc-800/80 px-3 py-1.5 text-sm text-zinc-300"
+                >
+                  {area.title}
+                </span>
+              ))}
+            </div>
+
+            <Link href="/direction" className="inline-block w-fit">
+              <Caption className="underline-offset-4 transition-colors hover:text-zinc-300 hover:underline">
+                Revisar tus áreas de vida
+              </Caption>
+            </Link>
+          </Card>
+        </div>
+      ) : null}
     </Page>
   );
 }

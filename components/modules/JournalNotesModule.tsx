@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Card from "@/components/ui/Card";
 import Divider from "@/components/ui/Divider";
@@ -72,6 +72,17 @@ export default function JournalNotesModule({
     setMood(suggestion?.label ?? moodId);
   };
 
+  // "Guardado." used to sit there until the next keystroke, so a note saved
+  // and left alone kept announcing itself. It says its one word and goes.
+  useEffect(() => {
+    if (!justSaved) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setJustSaved(false), 2600);
+    return () => window.clearTimeout(timer);
+  }, [justSaved]);
+
   const toggleExpanded = (noteId: string) => {
     setExpandedNoteId((current) => (current === noteId ? null : noteId));
   };
@@ -107,7 +118,12 @@ export default function JournalNotesModule({
           Guardar nota
         </Button>
 
-        {justSaved ? <Caption>Guardado.</Caption> : null}
+        {/* Polite, not assertive: a confirmation should never interrupt. */}
+        {justSaved ? (
+          <Caption className="ser-settle-in" role="status" aria-live="polite">
+            Guardado.
+          </Caption>
+        ) : null}
       </div>
 
       {notesNewestFirst.length > 0 ? (

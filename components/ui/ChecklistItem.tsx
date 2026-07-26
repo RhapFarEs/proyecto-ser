@@ -23,12 +23,20 @@ export default function ChecklistItem({
         // attribute meaningful on a <button>.
         role="checkbox"
         aria-checked={checked}
-        className="flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 sm:gap-4"
+        className="group flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 active:scale-[0.99] sm:gap-4"
       >
+        {/*
+          Marking a practice is the gesture this app asks for most often, so
+          it is the one that most deserves to feel like something. The box
+          eases into its filled state and swells very slightly on press —
+          the confirmation is physical, not a message.
+        */}
         <div
           aria-hidden="true"
-          className={`h-4 w-4 shrink-0 rounded border transition-colors ${
-            checked ? "border-zinc-200 bg-zinc-200" : "border-zinc-600"
+          className={`h-4 w-4 shrink-0 rounded border transition-all duration-300 ease-out group-active:scale-110 ${
+            checked
+              ? "border-zinc-200 bg-zinc-200"
+              : "border-zinc-600 group-hover:border-zinc-400"
           }`}
         />
 

@@ -37,17 +37,71 @@ export function getClosingReflectionStatusToday(day: Day): boolean {
   return hasClosingReflection(day);
 }
 
+export type TimeOfDay = "morning" | "afternoon" | "evening";
+
+/** Same boundaries as the greeting, so the two never disagree about the hour. */
+export function getTimeOfDay(now: Date = new Date()): TimeOfDay {
+  const hour = now.getHours();
+
+  if (hour < 12) {
+    return "morning";
+  }
+
+  return hour < 19 ? "afternoon" : "evening";
+}
+
 /**
- * Selects at most one calm, qualitative insight for today — never a count,
- * streak, or percentage. Returns null when nothing meaningful has happened
- * yet today, which is a valid, ordinary state, not a gap to fill.
+ * Selects at most one calm observation for today — never a count, streak,
+ * or percentage. Returns null when there is nothing true to say, which is
+ * an ordinary state, not a gap to fill.
  *
- * Priority order is deliberate: an action taken (a practice sustained)
- * outranks words written, which outrank an intention declared — the quiet
- * acknowledgment always names the most tangible true thing about the day.
+ * The engine reads the hour because the product's whole arc does: mornings
+ * are for setting a direction, evenings for looking back at it. The same
+ * day state therefore produces a different line at 8am and at 10pm.
+ *
+ * In the evening it prefers a *question* over an acknowledgment. A question
+ * invites the person to notice something themselves, which is the entire
+ * point of the product; an acknowledgment only tells them what the app
+ * already knows. The question never evaluates — "¿cómo se sostuvo?" has no
+ * wrong answer, and no answer at all is also fine.
  */
-export function getTodayInsight(day: Day, habits: Habit[]): Insight | null {
+export function getTodayInsight(
+  day: Day,
+  habits: Habit[],
+  now: Date = new Date(),
+): Insight | null {
   const completedHabits = getCompletedHabitsToday(day, habits);
+  const hasIntention = day.intention.trim().length > 0;
+  const hasJournal = getJournalStatusToday(day);
+  const hasClosing = getClosingReflectionStatusToday(day);
+  const timeOfDay = getTimeOfDay(now);
+
+  if (timeOfDay === "evening" && !hasClosing) {
+    // The day is ending and there is something from this morning to look
+    // back at — the most useful thing the app can do is point at it.
+    if (hasIntention) {
+      return {
+        id: "evening-intention-question",
+        message: "Esta mañana dejaste una intención. ¿Cómo se sostuvo?",
+      };
+    }
+
+    if (completedHabits.length > 0) {
+      return {
+        id: "evening-sustained-question",
+        message: `Hoy sostuviste ${joinNaturally(
+          completedHabits.map((habit) => habit.title),
+        )}. ¿Qué te deja este día?`,
+      };
+    }
+
+    if (hasJournal) {
+      return {
+        id: "evening-journal-question",
+        message: "Hoy escribiste algo. ¿Queda algo más por decir antes de cerrar?",
+      };
+    }
+  }
 
   if (completedHabits.length > 0) {
     return {
@@ -58,21 +112,21 @@ export function getTodayInsight(day: Day, habits: Habit[]): Insight | null {
     };
   }
 
-  if (getJournalStatusToday(day)) {
+  if (hasJournal) {
     return {
       id: "journal-written-today",
       message: "Hoy ya dedicaste un momento para escribir.",
     };
   }
 
-  if (getClosingReflectionStatusToday(day)) {
+  if (hasClosing) {
     return {
       id: "closing-reflection-today",
       message: "Hoy ya cerraste este día con una reflexión.",
     };
   }
 
-  if (day.intention.trim().length > 0) {
+  if (hasIntention) {
     return {
       id: "intention-set-today",
       message: "Hoy ya dejaste clara tu intención. Con eso basta para empezar.",
