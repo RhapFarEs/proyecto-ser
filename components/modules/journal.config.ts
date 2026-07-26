@@ -8,6 +8,7 @@ import type { JournalEntry } from "@/lib/domain/entry/entry";
 export interface JournalModuleProps {
   todayNotes?: JournalEntry[];
   onSaveNote?: (mood: string, content: string) => void;
+  onDeleteNote?: (noteId: string) => void;
 }
 
 export interface JournalModule {

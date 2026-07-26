@@ -10,7 +10,11 @@ import { Caption } from "@/components/ui/Typography";
 import { createDay, type Day } from "@/lib/domain/day/day";
 import { getAllDays, getDay, updateDay } from "@/lib/domain/day/day-storage";
 import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
-import { addJournalNote, getJournalNotesForDay } from "@/lib/domain/day/day-journal";
+import {
+  addJournalNote,
+  deleteJournalNote,
+  getJournalNotesForDay,
+} from "@/lib/domain/day/day-journal";
 import { getLocalDateKey } from "@/lib/date";
 import { useClientState } from "@/lib/hooks/useClientState";
 import { useHydrated } from "@/lib/hooks/useHydrated";
@@ -26,6 +30,11 @@ export default function JournalView() {
 
   const handleSaveNote = (mood: string, content: string) => {
     const next = updateDay(todayDate, (current) => addJournalNote(current, mood, content));
+    setDayState(next);
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    const next = updateDay(todayDate, (current) => deleteJournalNote(current, noteId));
     setDayState(next);
   };
 
@@ -90,6 +99,7 @@ export default function JournalView() {
                 key={`${module.id}:${hydrated}`}
                 todayNotes={todayNotes}
                 onSaveNote={handleSaveNote}
+                onDeleteNote={handleDeleteNote}
               />
             );
           })}

@@ -36,16 +36,19 @@ function getPreview(value: string): string {
 type JournalNotesModuleProps = {
   todayNotes?: JournalEntry[];
   onSaveNote?: (mood: string, content: string) => void;
+  onDeleteNote?: (noteId: string) => void;
 };
 
 export default function JournalNotesModule({
   todayNotes = [],
   onSaveNote,
+  onDeleteNote,
 }: JournalNotesModuleProps) {
   const [mood, setMood] = useState("");
   const [content, setContent] = useState("");
   const [justSaved, setJustSaved] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const canSave = content.trim().length > 0;
 
@@ -118,12 +121,15 @@ export default function JournalNotesModule({
               {notesNewestFirst.map((note) => {
                 const isExpanded = expandedNoteId === note.id;
 
+                const isConfirmingDelete = confirmingDeleteId === note.id;
+
                 return (
                   <Card key={note.id} className="space-y-1">
                     <button
                       type="button"
                       onClick={() => toggleExpanded(note.id)}
-                      className="w-full text-left"
+                      aria-expanded={isExpanded}
+                      className="w-full rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40"
                     >
                       <div className="flex items-center gap-2">
                         <Caption>{TIME_FORMAT.format(new Date(note.createdAt))}</Caption>
@@ -133,6 +139,44 @@ export default function JournalNotesModule({
                         {isExpanded ? note.content : getPreview(note.content)}
                       </Body>
                     </button>
+
+                    {/*
+                      Two-step rather than a modal: deleting is irreversible,
+                      so it needs a deliberate confirmation, but a dialog
+                      box would be louder than anything else in this product.
+                    */}
+                    {onDeleteNote ? (
+                      isConfirmingDelete ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Caption>¿Eliminar esta nota?</Caption>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => {
+                              onDeleteNote(note.id);
+                              setConfirmingDeleteId(null);
+                            }}
+                          >
+                            Eliminar
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setConfirmingDeleteId(null)}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setConfirmingDeleteId(note.id)}
+                        >
+                          Eliminar
+                        </Button>
+                      )
+                    ) : null}
                   </Card>
                 );
               })}

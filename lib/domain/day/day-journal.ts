@@ -1,6 +1,10 @@
 import type { Day } from "./day";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
-import { getJournalNotesForDayKey, saveJournalNote } from "@/lib/domain/journal/journal-storage";
+import {
+  getJournalNotesForDayKey,
+  removeJournalNote,
+  saveJournalNote,
+} from "@/lib/domain/journal/journal-storage";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 
 // Extension point for a future Journey domain: a growing list of
@@ -46,5 +50,19 @@ export function getJournalNotesForDay(day: Day): JournalEntry[] {
  */
 export function addJournalNote(day: Day, mood: string, content: string): Day {
   saveJournalNote(day.date, mood, content);
+  return { ...day };
+}
+
+/**
+ * Removes a note the person no longer wants to keep. Writes a tombstone
+ * rather than dropping the record (see `SyncableEntity.deletedAt`), so the
+ * deletion propagates to their other devices instead of the note
+ * reappearing on the next pull.
+ *
+ * Same adapter shape as `addJournalNote`: the returned `Day` is unchanged
+ * apart from being a new object, which is what makes React re-render.
+ */
+export function deleteJournalNote(day: Day, noteId: string): Day {
+  removeJournalNote(noteId);
   return { ...day };
 }
