@@ -27,6 +27,51 @@ export interface SyncedStore<T extends SyncableEntity> {
   setUserId(userId: string | null): void;
   pull(): Promise<void>;
   runInitialMigration(): Promise<void>;
+  /** How many of this domain's writes have not reached Supabase yet. */
+  pendingCount(): number;
+  /** Re-attempts every pending write. Safe to call at any time. */
+  retryPending(): Promise<void>;
+}
+
+/**
+ * Every store created by `createSyncedStore`, so the app can ask one
+ * question across all domains at once ("is anything still only on this
+ * device?") instead of six. Registration happens at module load, since
+ * each domain creates its store as a module-level singleton.
+ */
+const registeredStores: { pendingCount(): number; retryPending(): Promise<void> }[] = [];
+const syncStateListeners = new Set<Listener>();
+
+function notifySyncStateChanged(): void {
+  for (const listener of syncStateListeners) {
+    listener();
+  }
+}
+
+/** Total writes across every domain that haven't reached Supabase yet. */
+export function getPendingWriteCount(): number {
+  return registeredStores.reduce((total, store) => total + store.pendingCount(), 0);
+}
+
+/** Notifies whenever the pending count may have changed. */
+export function subscribeToSyncState(listener: Listener): () => void {
+  syncStateListeners.add(listener);
+  return () => syncStateListeners.delete(listener);
+}
+
+/**
+ * Re-attempts pending writes across every domain. Called on reconnect and
+ * available to the UI; previously the only retry path was the next login,
+ * so a write made while offline could sit queued for days.
+ */
+export async function retryAllPendingWrites(): Promise<void> {
+  await Promise.all(registeredStores.map((store) => store.retryPending()));
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    void retryAllPendingWrites();
+  });
 }
 
 /**
@@ -170,6 +215,7 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     const pending = getPendingIds();
     pending.add(id);
     setPendingIds(pending);
+    notifySyncStateChanged();
   }
 
   function clearPending(id: string): void {
@@ -177,6 +223,7 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
 
     if (pending.delete(id)) {
       setPendingIds(pending);
+      notifySyncStateChanged();
     }
   }
 
@@ -264,12 +311,23 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
    * switching accounts.
    */
   function setUserId(nextUserId: string | null): void {
-    if (nextUserId !== userId) {
+    const changed = nextUserId !== userId;
+
+    if (changed) {
       memory = null;
       cachedSnapshot = null;
     }
 
     userId = nextUserId;
+
+    // The pending queue is per-user and unreadable until a user is known,
+    // so `pendingCount()` answers 0 for every domain until this runs. It
+    // lands well after first paint (AuthContext only calls it once the
+    // profile bootstrap finishes), so without this notification anything
+    // already queued from a previous visit would stay invisible.
+    if (changed) {
+      notifySyncStateChanged();
+    }
   }
 
   /**
@@ -284,17 +342,7 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
       return;
     }
 
-    const pendingIds = getPendingIds();
-
-    for (const id of pendingIds) {
-      const entity = getOne(id);
-
-      if (entity) {
-        await pushOne(entity);
-      } else {
-        clearPending(id);
-      }
-    }
+    await retryPending();
 
     const { data, error } = await supabase.from(config.table).select("*").eq("user_id", userId);
 
@@ -339,7 +387,31 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     }
   }
 
-  return {
+  function pendingCount(): number {
+    return userId ? getPendingIds().size : 0;
+  }
+
+  /**
+   * Retries every queued write. Entities that no longer exist locally are
+   * dropped from the queue rather than retried forever.
+   */
+  async function retryPending(): Promise<void> {
+    if (!userId) {
+      return;
+    }
+
+    for (const id of getPendingIds()) {
+      const entity = getOne(id);
+
+      if (entity) {
+        await pushOne(entity);
+      } else {
+        clearPending(id);
+      }
+    }
+  }
+
+  const store: SyncedStore<T> = {
     getAll,
     getOne,
     save,
@@ -349,5 +421,11 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     setUserId,
     pull,
     runInitialMigration,
+    pendingCount,
+    retryPending,
   };
+
+  registeredStores.push(store);
+
+  return store;
 }

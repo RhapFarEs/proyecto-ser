@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import SyncStatusNotice from "@/components/sync/SyncStatusNotice";
 import Sidebar from "./Sidebar";
 
 type AppLayoutProps = {
@@ -17,6 +18,8 @@ export default function AppLayout({
         <div className="flex flex-1 flex-col">
           <main className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-0">
             {children}
+
+            <SyncStatusNotice />
           </main>
 
           <BottomNavigation />
