@@ -76,7 +76,10 @@ export default function DirectionView() {
   };
 
   return (
-    <Page title="Dirección" subtitle="Un lugar tranquilo para recordar lo que te importa.">
+    <Page
+      title="Dirección personal"
+      subtitle="Un lugar tranquilo para recordar lo que te importa."
+    >
       <DirectionStatementModule
         key={`statement:${hydrated}`}
         statement={direction.statement}

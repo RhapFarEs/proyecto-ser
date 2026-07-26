@@ -49,7 +49,12 @@ export default function FeedbackView() {
         setMessage("");
       })
       .catch(() => {
-        setError("No pudimos enviar tu comentario. Vuelve a intentarlo.");
+        // The message stays in the textarea on purpose — losing what
+        // someone just wrote because the network failed would be worse
+        // than the failure itself.
+        setError(
+          "No pudimos enviar tu comentario. Tu texto sigue aquí; puedes volver a intentarlo.",
+        );
       })
       .finally(() => {
         setSending(false);

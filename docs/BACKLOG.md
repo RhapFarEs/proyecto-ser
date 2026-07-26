@@ -7,89 +7,50 @@
 
 ---
 
-# Sprint 5 · Living Content
-
-## In Progress
-
-- [ ] Make RitualSection consume `today`.
-- [ ] Show "Week X · Day Y" below the date.
-- [ ] Remove the last hardcoded content from the Today screen.
-- [ ] Refine the Ritual design so it no longer feels like a checklist.
-- [ ] Review the visual hierarchy of the Today screen.
-
----
-
-## Next Sprint
+## Next
 
 ### Experience
 
-- [ ] Review spacing and visual rhythm.
-- [ ] Improve typography and hierarchy.
-- [ ] Refine the footer.
-- [ ] Make the "Today" screen memorable.
+- [ ] Notification/reminder system (design constraints already written in
+      `LANGUAGE_GUIDE.md` § Notification tone — never reference absence, never
+      imply urgency, no streak-preservation language).
+- [ ] Monthly reflection, as a calmer counterpart to Revisión semanal
+      (`ROADMAP.md` M5 lists it; only the weekly review exists today).
+- [ ] Accessibility pass: focus-visible states on every interactive element,
+      `aria-live` on save confirmations, keyboard-only walkthrough of each screen.
 
----
+### Product
 
-### Development
+- [ ] Data export ("everything you've written, as a file you keep") — a trust
+      feature for a product that holds someone's private reflections.
+- [ ] Account deletion from inside the app, not just the dashboard.
 
-- [ ] First project commit.
-- [ ] First push to the repository.
-- [ ] Prepare the structure for Supabase.
+### Technical
+
+- [ ] Automated tests. There is currently no test suite at all; the highest-value
+      first targets are the pure domain functions (`lib/date.ts`,
+      `insight-engine.ts`, `daily-reflections.ts`, each domain's migrations).
+- [ ] Real app versioning. `APP_VERSION` in `lib/domain/feedback/feedback-context.ts`
+      is still bumped by hand.
+- [ ] Retire the legacy compatibility fields on `Day` (`journal`, `rituals`) once
+      no stored record still relies on them — everything reads `entries` now.
 
 ---
 
 ## Future
 
-### Journal
+### AI companion
 
-- [ ] Create the Journal experience.
-- [ ] Journal model.
-- [ ] Entry saving.
+- [ ] Personalized reflections drawn from what the person has actually written.
+- [ ] Pattern recognition across weeks (gentle observations, never diagnoses).
+- [ ] Recommendations that stay invitations, never instructions.
 
-### Rituals
-
-- [ ] Dynamic rituals.
-- [ ] Checkable activities.
-- [ ] Progress persistence.
+Constraint for all three: whatever ships must preserve privacy and must never
+grade, score, or compare the person. A deterministic, local, on-device
+implementation is preferred over sending private reflections to a third party;
+if a model is ever involved, it must be an explicit, revocable opt-in.
 
 ### Progress
 
-- [ ] User path.
-- [ ] Statistics.
-- [ ] Calendar.
-
-### AI
-
-- [ ] Personalized reflections.
-- [ ] Journal review.
-- [ ] Recommendations.
-
-# Sprint 6 · Navigation
-
-## In Progress
-
-- [ ] Define the navigation architecture.
-- [ ] Design the main application layout.
-- [ ] Create navigation between screens.
-- [ ] Create the base pages:
-  - Today
-  - Journal
-  - Progress
-  - Settings
-- [ ] Define the mobile and desktop experience.
-
-## Goal
-
-Build the complete navigation structure of Proyecto SER so future features can be integrated on a solid foundation.
-
----
-
-## Sprint 7 · Design System
-
-- Define design tokens.
-- Create base UI components.
-- Define the official typography.
-- Define the color system.
-- Create the spacing system.
-- Create the state system.
-- Refine premium navigation.
+- [ ] A longer-range view of the journey (months, seasons) that still refuses
+      counts and percentages.
