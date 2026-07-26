@@ -13,7 +13,11 @@ export default function ReflectionModule({
   return (
     <Section>
       <Card className="space-y-5 border-0 bg-transparent p-0 shadow-none sm:space-y-6">
-        <Display className="text-[1.8rem] font-light leading-[1.45] text-zinc-100 sm:text-[2.15rem]">
+        {/* A quotation, not the page's heading — see Display's `as`. */}
+        <Display
+          as="blockquote"
+          className="text-[1.8rem] font-light leading-[1.45] text-zinc-100 sm:text-[2.15rem]"
+        >
           {today.day.reflection}
         </Display>
 

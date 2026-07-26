@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import OnboardingGate from "@/components/auth/OnboardingGate";
 import LoginScreen from "@/components/auth/LoginScreen";
+import FullScreenLoader from "@/components/ui/FullScreenLoader";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 type AuthGateProps = {
@@ -23,7 +24,7 @@ export default function AuthGate({ children }: AuthGateProps) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen bg-black" />;
+    return <FullScreenLoader />;
   }
 
   if (!user) {

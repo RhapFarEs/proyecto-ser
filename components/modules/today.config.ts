@@ -19,6 +19,7 @@ export interface TodayModuleProps {
   insight?: Insight | null;
   weeklyFocusAreaTitle?: string | null;
   displayName?: string | null;
+  hydrated?: boolean;
 }
 
 export interface TodayModule {

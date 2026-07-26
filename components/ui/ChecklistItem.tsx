@@ -17,9 +17,16 @@ export default function ChecklistItem({
       <button
         type="button"
         onClick={onClick}
-        className="flex w-full items-center gap-3 py-2 text-left transition-colors duration-200 sm:gap-4"
+        // The checked state is purely visual (a filled square), so without
+        // `aria-checked` a screen reader can't tell a sustained practice
+        // from one not yet done today. `role="checkbox"` is what makes that
+        // attribute meaningful on a <button>.
+        role="checkbox"
+        aria-checked={checked}
+        className="flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 sm:gap-4"
       >
         <div
+          aria-hidden="true"
           className={`h-4 w-4 shrink-0 rounded border transition-colors ${
             checked ? "border-zinc-200 bg-zinc-200" : "border-zinc-600"
           }`}

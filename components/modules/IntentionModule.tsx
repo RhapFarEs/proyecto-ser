@@ -60,10 +60,22 @@ export default function IntentionModule({
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               placeholder="Escribe tu intención para hoy"
+              aria-label="Intención del día"
               className="min-h-[96px]"
             />
 
-            <Button type="button" variant="primary" onClick={handleSave}>
+            {/*
+              Disabled while empty rather than silently doing nothing on
+              click — the same rule the Journal's save button already
+              follows (LANGUAGE_GUIDE: a save button stays quietly disabled
+              when there is nothing to save).
+            */}
+            <Button
+              type="button"
+              variant="primary"
+              disabled={!draft.trim()}
+              onClick={handleSave}
+            >
               Guardar intención
             </Button>
           </>

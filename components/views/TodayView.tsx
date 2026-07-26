@@ -82,6 +82,7 @@ export default function TodayView() {
           insight,
           weeklyFocusAreaTitle,
           displayName: profile?.displayName,
+          hydrated,
         };
 
         // Once real client data replaces the hydration-safe fallback, the

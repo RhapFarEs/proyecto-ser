@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import AppLayout from "@/components/layout/AppLayout";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import FullScreenLoader from "@/components/ui/FullScreenLoader";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 type OnboardingGateProps = {
@@ -25,7 +26,7 @@ export default function OnboardingGate({ children }: OnboardingGateProps) {
   }
 
   if (profileLoading) {
-    return <div className="min-h-screen bg-black" />;
+    return <FullScreenLoader />;
   }
 
   if (profile && !profile.onboardingCompleted) {

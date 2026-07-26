@@ -46,7 +46,9 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      // Every user-facing string in this product is Spanish. With `en`,
+      // screen readers pronounce all of it with English phonetics.
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">

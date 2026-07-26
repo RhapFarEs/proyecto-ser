@@ -15,14 +15,20 @@ export default function NavigationItem({
   return (
     <Link
       href={item.href}
-      className={`flex h-11 items-center justify-center rounded-full px-3 py-2 transition-all duration-200 ease-out ${
+      // An inactive item renders its icon only, so without an explicit name
+      // a screen reader announces the app's primary navigation as five
+      // unnamed links. `aria-current` is what tells assistive tech which
+      // one is the current page — the visual pill can't convey that.
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
+      className={`flex h-11 items-center justify-center rounded-full px-3 py-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 ${
         active
           ? "min-w-[96px] bg-zinc-800/80 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
           : "flex-1 text-zinc-500 hover:bg-zinc-900/70 hover:text-zinc-200"
       }`}
     >
       <div className={`flex items-center ${active ? "gap-2" : "gap-0"}`}>
-        <Icon strokeWidth={1.75} size={20} />
+        <Icon strokeWidth={1.75} size={20} aria-hidden="true" />
 
         {active && (
           <span className="whitespace-nowrap text-sm font-medium">

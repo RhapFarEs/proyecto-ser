@@ -223,13 +223,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
+  /**
+   * Rejects on failure so the caller can say something. Previously the
+   * error was swallowed, so a failed sign-in looked exactly like a button
+   * that does nothing — the worst possible first impression.
+   */
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
       },
     });
+
+    if (error) {
+      throw error;
+    }
   };
 
   /**

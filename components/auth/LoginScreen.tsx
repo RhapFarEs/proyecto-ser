@@ -1,11 +1,27 @@
 "use client";
 
+import { useState } from "react";
+
 import Button from "@/components/ui/Button";
 import { Display, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function LoginScreen() {
   const { signInWithGoogle } = useAuth();
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSignIn = () => {
+    setStarting(true);
+    setError(null);
+
+    signInWithGoogle().catch(() => {
+      // Without this the button simply did nothing on failure, which reads
+      // as a broken app on the very first screen a person ever sees.
+      setError("No pudimos conectar con Google. Inténtalo de nuevo.");
+      setStarting(false);
+    });
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black px-6">
@@ -15,14 +31,23 @@ export default function LoginScreen() {
           <Caption>Un lugar tranquilo para volver cada día.</Caption>
         </div>
 
-        <Button
-          type="button"
-          variant="primary"
-          className="w-full"
-          onClick={() => void signInWithGoogle()}
-        >
-          Continuar con Google
-        </Button>
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full"
+            disabled={starting}
+            onClick={handleSignIn}
+          >
+            {starting ? "Conectando…" : "Continuar con Google"}
+          </Button>
+
+          {error ? (
+            <Caption className="text-zinc-400" role="alert">
+              {error}
+            </Caption>
+          ) : null}
+        </div>
       </div>
     </div>
   );
