@@ -1,1 +1,0 @@
-export type { Day } from "../domain/today/Day";

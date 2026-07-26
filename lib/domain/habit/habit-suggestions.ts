@@ -119,16 +119,18 @@ export const HABIT_SUGGESTIONS: HabitSuggestion[] = [
     category: "Relaciones",
   },
 
-  // Espíritu
+  // Espíritu — universal on purpose: each suggestion here should make sense
+  // to someone of any faith and to someone of none (PRODUCT mandate:
+  // spirituality without assuming a specific belief system).
   {
-    title: "Orar",
+    title: "Orar o meditar",
     purpose: "Para volver a lo que sostiene tu día.",
     weekdays: ALL_WEEKDAYS,
     category: "Espíritu",
   },
   {
-    title: "Leer la Biblia",
-    purpose: "Para nutrir tu vida espiritual con calma.",
+    title: "Leer algo que te inspire",
+    purpose: "Para nutrir tu interior con calma.",
     weekdays: ALL_WEEKDAYS,
     category: "Espíritu",
   },

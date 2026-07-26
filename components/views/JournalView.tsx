@@ -33,16 +33,21 @@ export default function JournalView() {
     .filter((module) => module.enabled)
     .sort((left, right) => left.order - right.order);
 
-const storedDays = useMemo(() => {
-  if (!hydrated) {
-    return [];
-  }
+  const storedDays = useMemo(() => {
+    if (!hydrated) {
+      return [];
+    }
 
-  return getAllDays().filter(
-    (day) =>
-      getJournalNotesForDay(day).length > 0 || hasClosingReflection(day),
-  );
-}, [hydrated, day]);
+    // `day` is the live copy of today's record — swap it in over the stored
+    // snapshot so a note saved a moment ago shows up in the history tab
+    // immediately, without waiting for a storage re-read.
+    return getAllDays()
+      .map((stored) => (stored.id === day.id ? day : stored))
+      .filter(
+        (candidate) =>
+          getJournalNotesForDay(candidate).length > 0 || hasClosingReflection(candidate),
+      );
+  }, [hydrated, day]);
 
   return (
     <Page title="Diario" subtitle="Escribe con honestidad. Nadie te está juzgando.">

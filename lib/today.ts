@@ -1,14 +1,14 @@
 import { getGreeting } from "./greeting";
 import { getFormattedDate } from "./date";
-import { getCurrentProgress } from "./progress";
-import { getCurrentDay } from "./day";
+import { getDailyReflection } from "./domain/reflections/daily-reflections";
 import type { Today } from "./models/Today";
 
 export function getToday(): Today {
   return {
     greeting: getGreeting(),
     date: getFormattedDate(),
-    progress: getCurrentProgress(),
-    day: getCurrentDay(),
+    day: {
+      reflection: getDailyReflection(),
+    },
   };
 }
