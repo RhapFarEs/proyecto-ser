@@ -7,6 +7,8 @@ import { createDay, type Day } from "@/lib/domain/day/day";
 import { getAllDays, getDay, updateDay } from "@/lib/domain/day/day-storage";
 import { isHabitCompleted, setHabitCompletion } from "@/lib/domain/day/day-habits";
 import { getTodayInsight } from "@/lib/domain/insights/insight-engine";
+import { selectEcho } from "@/lib/domain/memory/echo";
+import { gatherEchoSources } from "@/lib/domain/memory/echo-sources";
 import { getToday } from "@/lib/today";
 import { isHabitScheduledOn, type Habit, type Weekday } from "@/lib/domain/habit/habit";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
@@ -35,6 +37,7 @@ export default function TodayView() {
   // History is only read so the insight engine can recognise a return; it
   // is never displayed here.
   const insight = getTodayInsight(day, habits, new Date(), hydrated ? getAllDays() : []);
+  const echo = hydrated ? selectEcho(gatherEchoSources(), todayDate) : null;
 
   // Reused, not duplicated: the same Week record Weekly Review writes
   // `focusLifeAreaId` to (via WeeklyFocusAreaModule) is only read here.
@@ -82,6 +85,7 @@ export default function TodayView() {
           intention,
           onSaveIntention: handleSaveIntention,
           insight,
+          echo,
           weeklyFocusAreaTitle,
           displayName: profile?.displayName,
           hydrated,

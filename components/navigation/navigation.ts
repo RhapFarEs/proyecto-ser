@@ -24,7 +24,12 @@ export const navigation: NavigationItem[] = [
     icon: Target,
   },
   {
-    label: "Progreso",
+    // "Progreso" was the last productivity word left in the product: it
+    // names a rate toward a destination, which is exactly what this screen
+    // refuses to measure. VOCABULARY.md had already chosen the right word
+    // for this idea — "Streak → Camino" — and then never used it for the
+    // screen the idea belongs to.
+    label: "Camino",
     href: "/progress",
     icon: ChartColumn,
   },

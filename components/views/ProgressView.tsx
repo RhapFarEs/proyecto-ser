@@ -110,7 +110,7 @@ export default function ProgressView() {
   );
 
   return (
-    <Page title="Progreso" subtitle="Una mirada calmada a tu camino.">
+    <Page title="Tu camino" subtitle="Lo que has vivido, en tus propias palabras.">
       {profile ? (
         <Caption>
           Comenzaste este camino el {formatDateKeyLongLabel(profile.startedAt)}.
