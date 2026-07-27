@@ -26,10 +26,17 @@ export default function ReflectionModule({
           This used to read "· PROYECTO SER ·" — the product signing its own
           wisdom, every morning, in the largest type on the screen. For an
           app whose principle is that the interface disappears behind the
-          experience, a brand credit under each truth is the opposite of
-          that. The line belongs to whoever is reading it.
+          experience, a brand credit under each truth is the opposite of that.
+
+          When the line is the person's own, the label says so and stops
+          there. No date, no "hace un año", no observation about how they've
+          changed — that is the echo's job, and it earns the explanation by
+          being rare. Here the sentence simply belongs to them, the way a
+          note in a margin belongs to whoever wrote it.
         */}
-        <Caption className="text-stone-600">Para hoy</Caption>
+        <Caption className="text-stone-600">
+          {today.day.reflectionIsOwn ? "Tus palabras" : "Para hoy"}
+        </Caption>
       </Card>
     </Section>
   );

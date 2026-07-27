@@ -13,7 +13,12 @@ import MoodSelector from "@/components/ui/MoodSelector";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
 
-const MOOD_SUGGESTIONS = [
+/**
+ * Only what a new installation offers, before it knows anything. The moment
+ * someone has words of their own, theirs are the ones on screen — see
+ * `ownMoods` below.
+ */
+const DEFAULT_MOOD_SUGGESTIONS = [
   { id: "calm", label: "Tranquilo" },
   { id: "grateful", label: "Agradecido" },
   { id: "tired", label: "Cansado" },
@@ -37,12 +42,15 @@ type JournalNotesModuleProps = {
   todayNotes?: JournalEntry[];
   onSaveNote?: (mood: string, content: string) => void;
   onDeleteNote?: (noteId: string) => void;
+  /** The words this person actually uses, most-used first. */
+  ownMoods?: string[];
 };
 
 export default function JournalNotesModule({
   todayNotes = [],
   onSaveNote,
   onDeleteNote,
+  ownMoods = [],
 }: JournalNotesModuleProps) {
   const [mood, setMood] = useState("");
   const [content, setContent] = useState("");
@@ -67,8 +75,31 @@ export default function JournalNotesModule({
     setJustSaved(true);
   };
 
+  /**
+   * Six words the product picked, until there are six the person picked.
+   *
+   * This is the difference between customization and ownership: nobody edits
+   * a list, and there is no setting to find. Someone writes "en paz" often
+   * enough and eventually "en paz" is simply there, where "Motivado" used to
+   * be — and the emotional vocabulary on the screen is theirs rather than
+   * ours. Two people who both write every night end up with two different
+   * rows of words, which is what a well-worn object looks like.
+   *
+   * The defaults fill any remaining slots, so a first week is never a
+   * near-empty row, and the transition is gradual instead of a switch.
+   */
+  const moodOptions = (() => {
+    const fromTheirWords = ownMoods.slice(0, 6).map((label) => ({ id: label, label }));
+    const used = new Set(fromTheirWords.map((option) => option.label.toLowerCase()));
+    const filler = DEFAULT_MOOD_SUGGESTIONS.filter(
+      (option) => !used.has(option.label.toLowerCase()),
+    );
+
+    return [...fromTheirWords, ...filler].slice(0, 6);
+  })();
+
   const handleMoodSuggestion = (moodId: string) => {
-    const suggestion = MOOD_SUGGESTIONS.find((option) => option.id === moodId);
+    const suggestion = moodOptions.find((option) => option.id === moodId);
     setMood(suggestion?.label ?? moodId);
   };
 
@@ -105,7 +136,7 @@ export default function JournalNotesModule({
         placeholder="¿Cómo te sientes en este momento?"
       />
 
-      <MoodSelector moods={MOOD_SUGGESTIONS} onChange={handleMoodSuggestion} />
+      <MoodSelector moods={moodOptions} onChange={handleMoodSuggestion} />
 
       <TextArea
         value={content}

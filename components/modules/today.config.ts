@@ -23,6 +23,7 @@ export interface TodayModuleProps {
   weeklyFocusAreaTitle?: string | null;
   displayName?: string | null;
   hydrated?: boolean;
+  personalMotto?: string | null;
 }
 
 export interface TodayModule {

@@ -56,17 +56,84 @@ const DAILY_REFLECTIONS: string[] = [
   "Un momento de quietud puede cambiar el tono de todo el día.",
 ];
 
+export interface DailyReflection {
+  text: string;
+  /** True when the line came from the person rather than from the collection above. */
+  isOwn: boolean;
+}
+
+/**
+ * Long enough to be a thought, short enough to hold at display size. The
+ * floor is what keeps "Entrenar" out of a slot meant for a sentence.
+ */
+const OWN_LINE_MIN_LENGTH = 30;
+const OWN_LINE_MAX_LENGTH = 190;
+
+/**
+ * Days before something a person wrote is eligible to come back as a line
+ * for today. Below this it is still what they said recently, not something
+ * they once wrote — and the difference is the whole effect.
+ */
+const OWN_LINE_MIN_AGE_DAYS = 60;
+
+/**
+ * Filters a person's own writing down to what can stand in this slot.
+ *
+ * This is the margin of the book. The forty-two lines above were written by
+ * the product; everything this returns was written by whoever is reading
+ * it, and both go into the same pool. Nobody configures this and nobody
+ * chooses which line lands on which morning — it happens because a person
+ * kept writing, which is the only way an object earns the marks that make
+ * it theirs.
+ *
+ * The pool grows only in one direction, so the arithmetic does the aging by
+ * itself: a new installation is entirely the product's voice, a first year
+ * is mostly the product's voice with the person's showing through, and after
+ * five years of writing the line at the top of the screen is more often
+ * theirs than ours. Two people who never change a setting end up with
+ * different products.
+ */
+export function selectOwnReflectionLines(
+  written: { dateKey: string; text: string }[],
+  todayKey: string = getLocalDateKey(),
+): string[] {
+  const today = parseLocalDateKey(todayKey).getTime();
+
+  return written
+    .filter((entry) => {
+      const text = entry.text.trim();
+      const ageInDays = (today - parseLocalDateKey(entry.dateKey).getTime()) / 86_400_000;
+
+      return (
+        text.length >= OWN_LINE_MIN_LENGTH &&
+        text.length <= OWN_LINE_MAX_LENGTH &&
+        ageInDays >= OWN_LINE_MIN_AGE_DAYS
+      );
+    })
+    .map((entry) => entry.text.trim())
+    // Stable order regardless of how storage happened to return them, so the
+    // deterministic pick below stays deterministic across reloads.
+    .sort((left, right) => left.localeCompare(right));
+}
+
 /**
  * Day-granular deterministic pick: the date key's components are folded
- * into an index so consecutive days move through the collection without
- * repeating until the whole list cycles. Pure — same key, same line.
+ * into an index so consecutive days move through the pool without repeating
+ * until the whole thing cycles. Pure — same key and same pool, same line.
  */
-export function getDailyReflection(dateKey: string = getLocalDateKey()): string {
+export function getDailyReflection(
+  dateKey: string = getLocalDateKey(),
+  ownLines: string[] = [],
+): DailyReflection {
+  const pool = [...DAILY_REFLECTIONS, ...ownLines];
   const date = parseLocalDateKey(dateKey);
   const dayOfYear = Math.floor(
     (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86_400_000,
   );
-  const index = (date.getFullYear() + dayOfYear) % DAILY_REFLECTIONS.length;
+  const index = (date.getFullYear() + dayOfYear) % pool.length;
 
-  return DAILY_REFLECTIONS[index];
+  return {
+    text: pool[index],
+    isOwn: index >= DAILY_REFLECTIONS.length,
+  };
 }

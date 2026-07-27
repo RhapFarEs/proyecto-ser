@@ -9,5 +9,11 @@ export type Today = {
   date: string;
   day: {
     reflection: string;
+    /**
+     * Whether today's line came from the person's own writing rather than
+     * the product's collection. Only changes the label under it — the line
+     * itself is presented the same either way.
+     */
+    reflectionIsOwn: boolean;
   };
 };

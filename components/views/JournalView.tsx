@@ -15,6 +15,7 @@ import {
   deleteJournalNote,
   getJournalNotesForDay,
 } from "@/lib/domain/day/day-journal";
+import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
 import { getLocalDateKey } from "@/lib/date";
 import { useClientState } from "@/lib/hooks/useClientState";
 import { useHydrated } from "@/lib/hooks/useHydrated";
@@ -37,6 +38,9 @@ export default function JournalView() {
     const next = updateDay(todayDate, (current) => deleteJournalNote(current, noteId));
     setDayState(next);
   };
+
+  // Their words replace the product's suggested ones once they have any.
+  const ownMoods = hydrated ? getOwnMoodVocabulary() : [];
 
   const visibleModules = [...journalModules]
     .filter((module) => module.enabled)
@@ -100,6 +104,7 @@ export default function JournalView() {
                 todayNotes={todayNotes}
                 onSaveNote={handleSaveNote}
                 onDeleteNote={handleDeleteNote}
+                ownMoods={ownMoods}
               />
             );
           })}
