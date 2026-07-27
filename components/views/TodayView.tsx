@@ -4,7 +4,7 @@ import Page from "@/components/ui/Page";
 import todayModules from "@/components/modules/today.config";
 import { getLocalDateKey, getWeekStartKey, getWeekdayOfKey } from "@/lib/date";
 import { createDay, type Day } from "@/lib/domain/day/day";
-import { getDay, updateDay } from "@/lib/domain/day/day-storage";
+import { getAllDays, getDay, updateDay } from "@/lib/domain/day/day-storage";
 import { isHabitCompleted, setHabitCompletion } from "@/lib/domain/day/day-habits";
 import { getTodayInsight } from "@/lib/domain/insights/insight-engine";
 import { getToday } from "@/lib/today";
@@ -32,7 +32,9 @@ export default function TodayView() {
   );
 
   const intention = day.intention;
-  const insight = getTodayInsight(day, habits);
+  // History is only read so the insight engine can recognise a return; it
+  // is never displayed here.
+  const insight = getTodayInsight(day, habits, new Date(), hydrated ? getAllDays() : []);
 
   // Reused, not duplicated: the same Week record Weekly Review writes
   // `focusLifeAreaId` to (via WeeklyFocusAreaModule) is only read here.

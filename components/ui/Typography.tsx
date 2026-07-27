@@ -41,14 +41,20 @@ export function Display({
   );
 }
 
-export function Body({ children, className = "", ...props }: ParagraphProps) {
+/** `as="span"` for the cases where this text sits inside another element that may not contain a <p>. */
+export function Body({
+  children,
+  className = "",
+  as: Element = "p",
+  ...props
+}: ParagraphProps & { as?: "p" | "span" }) {
   return (
-    <p
-      className={`text-base leading-7 text-zinc-300 sm:text-[1.02rem] ${className}`}
+    <Element
+      className={`block text-base leading-7 text-zinc-300 sm:text-[1.02rem] ${className}`}
       {...props}
     >
       {children}
-    </p>
+    </Element>
   );
 }
 

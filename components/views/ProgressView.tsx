@@ -35,8 +35,8 @@ const MAX_PATH_DAYS = 30;
 
 type PathDay = {
   day: Day;
+  intention: string;
   wroteJournal: boolean;
-  hadIntention: boolean;
   closedDay: boolean;
   sustained: string[];
 };
@@ -65,15 +65,18 @@ function buildPathDays(days: Day[], habits: Habit[]): PathDay[] {
 
       return {
         day,
+        // The person's own words, not the fact that words existed — a list
+        // that only says "dejaste una intención" is a log of events, and
+        // three hundred of those look identical after a year.
+        intention: day.intention.trim(),
         wroteJournal: getJournalNotesForDay(day).length > 0,
-        hadIntention: day.intention.trim().length > 0,
         closedDay: hasClosingReflection(day),
         sustained,
       };
     })
     .filter(
       (item) =>
-        item.wroteJournal || item.hadIntention || item.closedDay || item.sustained.length > 0,
+        item.wroteJournal || item.intention || item.closedDay || item.sustained.length > 0,
     )
     .sort((left, right) => right.day.date.localeCompare(left.day.date))
     .slice(0, MAX_PATH_DAYS);
@@ -154,25 +157,27 @@ export default function ProgressView() {
             />
           ) : (
             <div className="space-y-2">
-              {pathDays.map(({ day, wroteJournal, hadIntention, closedDay, sustained }) => (
-                <Card key={day.id} className="space-y-1.5">
+              {pathDays.map(({ day, intention, wroteJournal, closedDay, sustained }) => (
+                <Card key={day.id} className="space-y-2">
                   <Caption>{formatDateKeyLabel(day.date)}</Caption>
 
-                  {hadIntention ? (
-                    <Body className="text-zinc-200">Dejaste una intención.</Body>
-                  ) : null}
-
-                  {wroteJournal ? (
-                    <Body className="text-zinc-200">Escribiste en tu diario.</Body>
+                  {/*
+                    The intention leads and is quoted verbatim: it is the
+                    most personal thing the person made that day, and
+                    reading it back months later is the whole reason this
+                    screen is worth opening.
+                  */}
+                  {intention ? (
+                    <Body className="text-zinc-100">“{intention}”</Body>
                   ) : null}
 
                   {sustained.length > 0 ? (
-                    <Body className="text-zinc-200">Sostuviste: {sustained.join(", ")}.</Body>
+                    <Caption>Sostuviste: {sustained.join(", ")}.</Caption>
                   ) : null}
 
-                  {closedDay ? (
-                    <Body className="text-zinc-200">Cerraste el día con una reflexión.</Body>
-                  ) : null}
+                  {wroteJournal ? <Caption>Escribiste en tu diario.</Caption> : null}
+
+                  {closedDay ? <Caption>Cerraste el día con una reflexión.</Caption> : null}
                 </Card>
               ))}
             </div>

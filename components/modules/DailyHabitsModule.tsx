@@ -61,6 +61,7 @@ export default function DailyHabitsModule({
           <ChecklistItem
             key={habit.id}
             checked={completed}
+            note={habit.purpose}
             onClick={() => onHabitToggle?.(habit.id)}
           >
             {habit.title}

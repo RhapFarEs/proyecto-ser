@@ -21,8 +21,15 @@ export default function ReflectionModule({
           {today.day.reflection}
         </Display>
 
-        <Caption className="uppercase tracking-[0.2em] text-zinc-500/90">
-          · Proyecto SER ·
+        {/*
+          This used to read "· PROYECTO SER ·" — the product signing its own
+          wisdom, every morning, in the largest type on the screen. For an
+          app whose principle is that the interface disappears behind the
+          experience, a brand credit under each truth is the opposite of
+          that. The line belongs to whoever is reading it.
+        */}
+        <Caption className="uppercase tracking-[0.2em] text-zinc-600">
+          Para hoy
         </Caption>
       </Card>
     </Section>

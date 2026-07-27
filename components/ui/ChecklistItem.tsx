@@ -1,16 +1,19 @@
 import { ReactNode } from "react";
-import { Body } from "@/components/ui/Typography";
+import { Body, Caption } from "@/components/ui/Typography";
 
 type ChecklistItemProps = {
   children: ReactNode;
   checked?: boolean;
   onClick?: () => void;
+  /** The person's own reason for this practice, shown only while it is still ahead of them. */
+  note?: string;
 };
 
 export default function ChecklistItem({
   children,
   checked = false,
   onClick,
+  note,
 }: ChecklistItemProps) {
   if (onClick) {
     return (
@@ -40,13 +43,29 @@ export default function ChecklistItem({
           }`}
         />
 
-        <Body
-          className={`text-base leading-6 transition-colors sm:text-lg sm:leading-7 ${
-            checked ? "text-zinc-400" : "text-zinc-100"
-          }`}
-        >
-          {children}
-        </Body>
+        <span className="min-w-0">
+          <Body
+            className={`text-base leading-6 transition-colors sm:text-lg sm:leading-7 ${
+              checked ? "text-zinc-400" : "text-zinc-100"
+            }`}
+            // A <p> can't live inside the <button>'s accessible label
+            // without adding noise; the reason is decoration for the eye.
+            as="span"
+          >
+            {children}
+          </Body>
+
+          {/*
+            The one thing separating a ritual from a checklist is the
+            reason the person attached to it — which the app asks for at
+            creation and then never showed again. It appears while the
+            practice is still ahead of them, and steps out of the way once
+            it's sustained: the "why" is for the moment of choosing.
+          */}
+          {note && !checked ? (
+            <Caption className="mt-0.5 block text-zinc-600">{note}</Caption>
+          ) : null}
+        </span>
       </button>
     );
   }
