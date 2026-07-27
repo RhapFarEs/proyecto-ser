@@ -12,11 +12,12 @@ export default function ReflectionModule({
 }: ReflectionModuleProps) {
   return (
     <Section>
-      <Card className="space-y-5 border-0 bg-transparent p-0 shadow-none sm:space-y-6">
+      {/* `ser-breathe-in`: this arrives a beat after the rest of the page. */}
+      <Card className="ser-breathe-in space-y-5 border-0 bg-transparent p-0 shadow-none sm:space-y-6">
         {/* A quotation, not the page's heading — see Display's `as`. */}
         <Display
           as="blockquote"
-          className="text-[1.8rem] font-light leading-[1.45] text-zinc-100 sm:text-[2.15rem]"
+          className="text-[1.8rem] font-light leading-[1.45] text-stone-100 sm:text-[2.15rem]"
         >
           {today.day.reflection}
         </Display>
@@ -28,9 +29,7 @@ export default function ReflectionModule({
           experience, a brand credit under each truth is the opposite of
           that. The line belongs to whoever is reading it.
         */}
-        <Caption className="uppercase tracking-[0.2em] text-zinc-600">
-          Para hoy
-        </Caption>
+        <Caption className="text-stone-600">Para hoy</Caption>
       </Card>
     </Section>
   );

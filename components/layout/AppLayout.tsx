@@ -11,7 +11,7 @@ export default function AppLayout({
   children,
 }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-stone-950 text-white">
       <div className="flex min-h-screen">
         <Sidebar />
 

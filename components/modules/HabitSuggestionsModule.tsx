@@ -76,7 +76,7 @@ export default function HabitSuggestionsModule({
       </div>
 
       {expanded ? (
-        <div className="space-y-3 rounded-[1.75rem] border border-zinc-800/60 bg-zinc-950/40 p-4">
+        <div className="space-y-3 rounded-[1.75rem] border border-stone-800/60 bg-stone-950/40 p-4">
           {CATEGORY_ORDER.map((category) => {
             const items = availableSuggestions.filter(
               (suggestion) => suggestion.category === category,
@@ -95,7 +95,7 @@ export default function HabitSuggestionsModule({
                       key={suggestion.title}
                       type="button"
                       onClick={() => onSelect(suggestion)}
-                      className="rounded-full border border-zinc-800/60 bg-zinc-950/60 px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-900/60 hover:text-zinc-100"
+                      className="rounded-full border border-stone-800/60 bg-stone-950/60 px-4 py-2 text-sm text-stone-400 transition-colors hover:bg-stone-900/60 hover:text-stone-100"
                     >
                       {suggestion.title}
                     </button>

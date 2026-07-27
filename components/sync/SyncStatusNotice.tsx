@@ -38,7 +38,7 @@ export default function SyncStatusNotice() {
 
   return (
     <div className="px-6 pb-2 pt-1 sm:px-8">
-      <Caption className="text-zinc-600">
+      <Caption className="text-stone-600">
         Guardado en este dispositivo. Se guardará en tu cuenta cuando vuelva la conexión.
       </Caption>
     </div>

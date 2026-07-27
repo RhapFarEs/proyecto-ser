@@ -102,7 +102,7 @@ export default function WeeklyReviewView() {
       />
 
       <Link href="/direction" className="inline-block w-fit">
-        <Caption className="underline-offset-4 hover:text-zinc-300 hover:underline">
+        <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
           Dirección personal
         </Caption>
       </Link>

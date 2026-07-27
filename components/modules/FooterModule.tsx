@@ -12,9 +12,13 @@ export default function FooterModule() {
         that means something stays; the signature goes.
       */}
       <Card className="border-0 bg-transparent p-0 shadow-none">
-        <Caption className="text-center uppercase tracking-[0.25em] text-zinc-600">
-          Ser antes que hacer.
-        </Caption>
+        {/*
+          Said quietly rather than set in spaced capitals. Uppercase made the
+          product's own motto read as a slogan on a wall; lowercase makes it
+          read as a thought — which is what it is, and the last thing on the
+          screen every morning.
+        */}
+        <Caption className="text-center text-stone-600">Ser antes que hacer.</Caption>
       </Card>
     </Section>
   );

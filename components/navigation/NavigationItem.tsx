@@ -21,10 +21,10 @@ export default function NavigationItem({
       // one is the current page — the visual pill can't convey that.
       aria-label={item.label}
       aria-current={active ? "page" : undefined}
-      className={`flex h-11 items-center justify-center rounded-full px-3 py-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 ${
+      className={`flex h-11 items-center justify-center rounded-full px-3 py-2 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 ${
         active
-          ? "min-w-[96px] bg-zinc-800/80 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-          : "flex-1 text-zinc-500 hover:bg-zinc-900/70 hover:text-zinc-200"
+          ? "min-w-[96px] bg-stone-800/80 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          : "flex-1 text-stone-500 hover:bg-stone-900/70 hover:text-stone-200"
       }`}
     >
       <div className={`flex items-center ${active ? "gap-2" : "gap-0"}`}>

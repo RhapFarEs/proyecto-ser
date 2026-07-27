@@ -67,7 +67,7 @@ export default function HabitListModule({
               className={`space-y-2 ${habit.active ? "" : "opacity-60"}`.trim()}
             >
               <div className="flex items-start justify-between gap-4">
-                <Body className="text-zinc-100">{habit.title}</Body>
+                <Body className="text-stone-100">{habit.title}</Body>
                 <Caption className="whitespace-nowrap">
                   {formatWeekdays(habit.weekdays)}
                   {habit.active ? "" : " · Archivado"}

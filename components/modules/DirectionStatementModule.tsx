@@ -34,7 +34,7 @@ export default function DirectionStatementModule({
       <Card className="space-y-4 sm:space-y-5">
         <SectionTitle>Dirección personal</SectionTitle>
 
-        <Body className="text-zinc-100">¿Hacia qué tipo de vida quiero caminar?</Body>
+        <Body className="text-stone-100">¿Hacia qué tipo de vida quiero caminar?</Body>
 
         <TextArea
           value={draft}
@@ -48,7 +48,7 @@ export default function DirectionStatementModule({
             Guardar
           </Button>
 
-          {isSaved ? <Caption className="text-zinc-500">Guardado.</Caption> : null}
+          {isSaved ? <Caption className="text-stone-500">Guardado.</Caption> : null}
         </div>
       </Card>
     </Section>

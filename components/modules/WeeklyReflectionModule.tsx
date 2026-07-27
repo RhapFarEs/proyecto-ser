@@ -89,7 +89,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
             Guardar
           </Button>
 
-          {isSaved ? <Caption className="text-zinc-500">Guardado.</Caption> : null}
+          {isSaved ? <Caption className="text-stone-500">Guardado.</Caption> : null}
         </div>
       </Card>
     </Section>

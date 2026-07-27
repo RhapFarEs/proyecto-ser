@@ -194,7 +194,7 @@ export default function ProfileView() {
     return (
       <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
         <Card>
-          <Body className="text-zinc-400">{error}</Body>
+          <Body className="text-stone-400">{error}</Body>
         </Card>
       </Page>
     );
@@ -204,7 +204,7 @@ export default function ProfileView() {
     return (
       <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
         <Card>
-          <Body className="text-zinc-400">Cargando tu perfil...</Body>
+          <Body className="text-stone-400">Cargando tu perfil...</Body>
         </Card>
       </Page>
     );
@@ -229,7 +229,7 @@ export default function ProfileView() {
             type="button"
             onClick={handlePhotoClick}
             disabled={uploadingPhoto}
-            className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-zinc-800/80 bg-zinc-900/70 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-zinc-400/40 disabled:cursor-not-allowed"
+            className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-stone-800/80 bg-stone-900/70 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-stone-400/40 disabled:cursor-not-allowed"
           >
             {avatarUrl ? (
               <Image
@@ -241,13 +241,13 @@ export default function ProfileView() {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <span className="flex h-full w-full items-center justify-center text-xl text-zinc-400">
+              <span className="flex h-full w-full items-center justify-center text-xl text-stone-400">
                 {initial || "?"}
               </span>
             )}
 
             {uploadingPhoto ? (
-              <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs text-zinc-200">
+              <span className="absolute inset-0 flex items-center justify-center bg-stone-950/50 text-xs text-stone-200">
                 Subiendo...
               </span>
             ) : null}
@@ -269,17 +269,17 @@ export default function ProfileView() {
                 placeholder="Tu nombre"
               />
             ) : (
-              <Body className="text-lg text-zinc-100">{profile.displayName}</Body>
+              <Body className="text-lg text-stone-100">{profile.displayName}</Body>
             )}
 
             <Caption>{user.email}</Caption>
-            <Caption className="text-zinc-500">
+            <Caption className="text-stone-500">
               Comenzaste este camino el {formatDateKeyLongLabel(profile.startedAt)}.
             </Caption>
           </div>
         </div>
 
-        {photoError ? <Body className="text-zinc-400">{photoError}</Body> : null}
+        {photoError ? <Body className="text-stone-400">{photoError}</Body> : null}
 
         <div className="space-y-1.5">
           <Caption>Cumpleaños</Caption>
@@ -290,13 +290,13 @@ export default function ProfileView() {
               onChange={(event) => setBirthday(event.target.value)}
             />
           ) : (
-            <Body className="text-zinc-100">
+            <Body className="text-stone-100">
               {profile.birthday ? formatDateKeyLabel(profile.birthday) : "No indicado"}
             </Body>
           )}
         </div>
 
-        {saveError ? <Body className="text-zinc-400">{saveError}</Body> : null}
+        {saveError ? <Body className="text-stone-400">{saveError}</Body> : null}
 
         <div className="flex gap-2">
           {mode === "editing" ? (
@@ -320,7 +320,7 @@ export default function ProfileView() {
         <div className="space-y-3">
           <SectionTitle>Hacia dónde caminas</SectionTitle>
           <Card>
-            <Body className="text-zinc-200">{directionStatement}</Body>
+            <Body className="text-stone-200">{directionStatement}</Body>
           </Card>
         </div>
       ) : null}
@@ -333,7 +333,7 @@ export default function ProfileView() {
               {caredForAreas.map((area) => (
                 <span
                   key={area.id}
-                  className="rounded-full border border-zinc-800/80 px-3 py-1.5 text-sm text-zinc-300"
+                  className="rounded-full border border-stone-800/80 px-3 py-1.5 text-sm text-stone-300"
                 >
                   {area.title}
                 </span>
@@ -341,7 +341,7 @@ export default function ProfileView() {
             </div>
 
             <Link href="/direction" className="inline-block w-fit">
-              <Caption className="underline-offset-4 transition-colors hover:text-zinc-300 hover:underline">
+              <Caption className="underline-offset-4 transition-colors hover:text-stone-300 hover:underline">
                 Revisar tus áreas de vida
               </Caption>
             </Link>

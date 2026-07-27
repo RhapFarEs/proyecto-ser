@@ -72,7 +72,7 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
             <div className="space-y-1">
               <Caption>{dateLabel}</Caption>
               {latestNote ? (
-                <Body className="line-clamp-3 text-zinc-300">{latestNote.content.trim()}</Body>
+                <Body className="line-clamp-3 text-stone-300">{latestNote.content.trim()}</Body>
               ) : null}
               {hasClosing ? <Caption>Cierre del día registrado</Caption> : null}
             </div>
@@ -90,7 +90,7 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
             ) : null}
 
             {isExpanded && notes.length > 0 ? (
-              <div id={notesId} className="border-t border-zinc-800/80 pt-3">
+              <div id={notesId} className="border-t border-stone-800/80 pt-3">
                 {notes.map((note, index) => (
                   <div key={note.id} className={index > 0 ? "mt-3" : ""}>
                     {index > 0 ? <Divider className="mb-3" /> : null}
@@ -99,7 +99,7 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
                         <Caption>{TIME_FORMAT.format(new Date(note.createdAt))}</Caption>
                         {note.mood ? <Caption>· {note.mood}</Caption> : null}
                       </div>
-                      <Body className="text-zinc-200">{note.content.trim()}</Body>
+                      <Body className="text-stone-200">{note.content.trim()}</Body>
                     </div>
                   </div>
                 ))}

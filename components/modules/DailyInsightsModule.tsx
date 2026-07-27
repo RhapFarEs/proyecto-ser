@@ -15,7 +15,7 @@ export default function DailyInsightsModule({ insight }: DailyInsightsModuleProp
   return (
     <Section>
       <Card className="border-0 bg-transparent p-0 shadow-none">
-        <Body className="text-zinc-400">{insight.message}</Body>
+        <Body className="text-stone-400">{insight.message}</Body>
       </Card>
     </Section>
   );

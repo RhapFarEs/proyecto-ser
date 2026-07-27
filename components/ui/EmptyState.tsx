@@ -13,9 +13,9 @@ export default function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-zinc-800/80 bg-zinc-950/50 px-6 py-10 text-center">
+    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-stone-800/80 bg-stone-950/50 px-6 py-10 text-center">
       <div className="max-w-sm space-y-3">
-        <Body className="text-zinc-100">{title}</Body>
+        <Body className="text-stone-100">{title}</Body>
         {description ? <Caption>{description}</Caption> : null}
       </div>
       {action ? <div className="mt-6">{action}</div> : null}

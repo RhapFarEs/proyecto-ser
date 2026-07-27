@@ -61,12 +61,12 @@ export default function JournalView() {
   return (
     <Page title="Diario" subtitle="Escribe con honestidad. Nadie te está juzgando.">
       <div className="flex justify-center">
-        <div className="inline-flex gap-2 rounded-full border border-zinc-800/80 bg-zinc-950/70 p-1">
+        <div className="inline-flex gap-2 rounded-full border border-stone-800/80 bg-stone-950/70 p-1">
           <button
             type="button"
             onClick={() => setActiveTab("write")}
             className={`rounded-full px-4 py-2 text-sm transition-colors ${
-              activeTab === "write" ? "bg-zinc-100 text-zinc-950" : "text-zinc-400"
+              activeTab === "write" ? "bg-stone-100 text-stone-950" : "text-stone-400"
             }`}
           >
             Escribir
@@ -75,7 +75,7 @@ export default function JournalView() {
             type="button"
             onClick={() => setActiveTab("history")}
             className={`rounded-full px-4 py-2 text-sm transition-colors ${
-              activeTab === "history" ? "bg-zinc-100 text-zinc-950" : "text-zinc-400"
+              activeTab === "history" ? "bg-stone-100 text-stone-950" : "text-stone-400"
             }`}
           >
             Historial
@@ -84,7 +84,7 @@ export default function JournalView() {
       </div>
 
       <Link href="/weekly-review" className="inline-block w-fit">
-        <Caption className="underline-offset-4 hover:text-zinc-300 hover:underline">
+        <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
           Revisión semanal
         </Caption>
       </Link>

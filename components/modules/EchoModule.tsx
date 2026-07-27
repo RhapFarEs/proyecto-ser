@@ -1,5 +1,4 @@
 import Section from "@/components/ui/Section";
-import Card from "@/components/ui/Card";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { Echo } from "@/lib/domain/memory/echo";
 import { formatDateKeyLongLabel } from "@/lib/date";
@@ -34,19 +33,27 @@ export default function EchoModule({ echo }: EchoModuleProps) {
 
   return (
     <Section>
-      <Card className="space-y-3 border-zinc-800/60 bg-zinc-950/40">
-        <Caption className="text-zinc-600">{getLabel(echo)}</Caption>
+      {/*
+        No card, no border, no surface. This was framed in a bordered panel
+        when it was first built, which was a mistake: a memory presented in a
+        container reads as a widget the product is showing you, and the whole
+        effect depends on it reading as something found. Text on the page,
+        held only by the space around it. Extra room above and below so it
+        sits apart from the day's business without being announced.
+      */}
+      <div className="space-y-3 py-4 sm:py-6">
+        <Caption className="text-stone-600">{getLabel(echo)}</Caption>
 
         {/*
           Their words, verbatim and unabridged — never trimmed to a preview.
-          A memory shown in fragments is a citation; this has to be the
-          thing itself. Set slightly larger and lighter than body text so it
-          reads as a voice rather than as interface copy.
+          A memory shown in fragments is a citation; this has to be the thing
+          itself. Light weight and open leading so it reads as a voice rather
+          than as interface copy.
         */}
-        <Body className="text-lg font-light leading-8 text-zinc-200 sm:text-xl sm:leading-9">
+        <Body className="text-xl font-light leading-[1.6] text-stone-200 sm:text-2xl">
           {echo.text}
         </Body>
-      </Card>
+      </div>
     </Section>
   );
 }

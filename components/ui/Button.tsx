@@ -18,11 +18,11 @@ export default function Button({
 }: ButtonProps) {
   const variantClasses = {
     primary:
-      "border border-zinc-700/80 bg-zinc-800/90 text-white hover:bg-zinc-700/90 disabled:border-zinc-800 disabled:bg-zinc-900/70 disabled:text-zinc-600",
+      "border border-stone-700/80 bg-stone-800/90 text-white hover:bg-stone-700/90 disabled:border-stone-800 disabled:bg-stone-900/70 disabled:text-stone-600",
     secondary:
-      "border border-zinc-700/80 bg-transparent text-zinc-200 hover:bg-zinc-900/70 hover:text-white disabled:border-zinc-800 disabled:text-zinc-600",
+      "border border-stone-700/80 bg-transparent text-stone-200 hover:bg-stone-900/70 hover:text-white disabled:border-stone-800 disabled:text-stone-600",
     ghost:
-      "bg-transparent text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100 disabled:text-zinc-600",
+      "bg-transparent text-stone-400 hover:bg-stone-900/70 hover:text-stone-100 disabled:text-stone-600",
   };
 
   return (
@@ -31,7 +31,7 @@ export default function Button({
       disabled={disabled}
       // `active:scale` gives a press something to answer with on touch,
       // where there is no hover state to confirm the tap landed.
-      className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/40 active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
       {...props}
     >
       {children}

@@ -24,7 +24,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-6">
+    <div className="flex min-h-screen items-center justify-center bg-stone-950 px-6">
       <div className="w-full max-w-sm space-y-8 text-center">
         <div className="space-y-3">
           <Display>Proyecto SER</Display>
@@ -43,7 +43,7 @@ export default function LoginScreen() {
           </Button>
 
           {error ? (
-            <Caption className="text-zinc-400" role="alert">
+            <Caption className="text-stone-400" role="alert">
               {error}
             </Caption>
           ) : null}
