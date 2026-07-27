@@ -151,7 +151,8 @@ export default function JournalNotesModule({
                         <Caption>{TIME_FORMAT.format(new Date(note.createdAt))}</Caption>
                         {note.mood ? <Caption>· {note.mood}</Caption> : null}
                       </div>
-                      <Body className="text-stone-100">
+                      {/* Written in serif, so read back in serif. */}
+                      <Body className="ser-voice text-stone-100">
                         {isExpanded ? note.content : getPreview(note.content)}
                       </Body>
                     </button>

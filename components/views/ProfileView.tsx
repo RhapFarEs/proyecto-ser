@@ -320,7 +320,9 @@ export default function ProfileView() {
         <div className="space-y-3">
           <SectionTitle>Hacia dónde caminas</SectionTitle>
           <Card>
-            <Body className="text-stone-200">{directionStatement}</Body>
+            <Body className="ser-voice text-lg leading-[1.65] text-stone-200">
+              {directionStatement}
+            </Body>
           </Card>
         </div>
       ) : null}

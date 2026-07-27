@@ -32,8 +32,15 @@ export function Display({
   ...props
 }: DisplayProps) {
   return (
+    // Serif, and this is the product's visual signature. Display carries the
+    // largest text on every screen — the greeting that says your name, the
+    // sentence offered for today, each page's title — and all of it is
+    // addressed to a person rather than reporting on a system. Tracking goes
+    // back to normal: the negative letter-spacing was compensating for a
+    // grotesque sans, and a serif at this size needs its own rhythm left
+    // alone.
     <Element
-      className={`text-4xl font-light leading-[0.95] tracking-[-0.02em] text-stone-50 sm:text-5xl ${className}`}
+      className={`ser-voice text-4xl font-light leading-[1.1] text-stone-50 sm:text-5xl ${className}`}
       {...props}
     >
       {children}

@@ -17,7 +17,7 @@ export default function ReflectionModule({
         {/* A quotation, not the page's heading — see Display's `as`. */}
         <Display
           as="blockquote"
-          className="text-[1.8rem] font-light leading-[1.45] text-stone-100 sm:text-[2.15rem]"
+          className="text-[1.75rem] font-light leading-[1.5] text-stone-100 sm:text-[2.05rem]"
         >
           {today.day.reflection}
         </Display>

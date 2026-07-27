@@ -25,6 +25,22 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/*
+  The human voice.
+  See the note on Newsreader in app/layout.tsx for why this distinction
+  exists at all.
+
+  Declared as its own utility rather than by overriding Tailwind's
+  `--font-serif` theme value: that route silently lost to the framework's
+  default serif stack, so the utility resolved to Georgia while the
+  Newsreader files downloaded and went unused. A named class also says what
+  it means at the call site — `ser-voice` on a piece of text is a claim that
+  a person wrote it, which is exactly the rule being applied.
+*/
+.ser-voice {
+  font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

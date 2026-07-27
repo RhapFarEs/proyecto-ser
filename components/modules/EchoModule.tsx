@@ -50,7 +50,7 @@ export default function EchoModule({ echo }: EchoModuleProps) {
           itself. Light weight and open leading so it reads as a voice rather
           than as interface copy.
         */}
-        <Body className="text-xl font-light leading-[1.6] text-stone-200 sm:text-2xl">
+        <Body className="ser-voice text-xl font-light leading-[1.6] text-stone-200 sm:text-2xl">
           {echo.text}
         </Body>
       </div>

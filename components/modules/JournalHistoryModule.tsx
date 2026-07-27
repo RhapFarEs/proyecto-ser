@@ -72,7 +72,9 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
             <div className="space-y-1">
               <Caption>{dateLabel}</Caption>
               {latestNote ? (
-                <Body className="line-clamp-3 text-stone-300">{latestNote.content.trim()}</Body>
+                <Body className="line-clamp-3 ser-voice text-stone-300">
+                  {latestNote.content.trim()}
+                </Body>
               ) : null}
               {hasClosing ? <Caption>Cierre del día registrado</Caption> : null}
             </div>
@@ -99,7 +101,7 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
                         <Caption>{TIME_FORMAT.format(new Date(note.createdAt))}</Caption>
                         {note.mood ? <Caption>· {note.mood}</Caption> : null}
                       </div>
-                      <Body className="text-stone-200">{note.content.trim()}</Body>
+                      <Body className="ser-voice text-stone-200">{note.content.trim()}</Body>
                     </div>
                   </div>
                 ))}

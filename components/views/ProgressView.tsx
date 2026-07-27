@@ -123,7 +123,9 @@ export default function ProgressView() {
 
           {statement ? (
             <Card className="space-y-3">
-              <Body className="text-stone-200">{statement}</Body>
+              <Body className="ser-voice text-lg leading-[1.65] text-stone-200">
+                {statement}
+              </Body>
               <Link href="/direction" className="inline-block w-fit">
                 <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
                   Revisar tu dirección
@@ -167,8 +169,11 @@ export default function ProgressView() {
                     reading it back months later is the whole reason this
                     screen is worth opening.
                   */}
+                  {/* Their words, so: serif. */}
                   {intention ? (
-                    <Body className="text-stone-100">“{intention}”</Body>
+                    <Body className="ser-voice text-lg leading-[1.6] text-stone-100">
+                      “{intention}”
+                    </Body>
                   ) : null}
 
                   {sustained.length > 0 ? (
@@ -215,21 +220,21 @@ export default function ProgressView() {
                     {week.reflection.wentWell.trim() ? (
                       <div className="space-y-0.5">
                         <Caption className="text-stone-500">Qué estuvo bien</Caption>
-                        <Body className="text-stone-200">{week.reflection.wentWell.trim()}</Body>
+                        <Body className="ser-voice text-stone-200">{week.reflection.wentWell.trim()}</Body>
                       </div>
                     ) : null}
 
                     {week.reflection.difficult.trim() ? (
                       <div className="space-y-0.5">
                         <Caption className="text-stone-500">Qué fue difícil</Caption>
-                        <Body className="text-stone-200">{week.reflection.difficult.trim()}</Body>
+                        <Body className="ser-voice text-stone-200">{week.reflection.difficult.trim()}</Body>
                       </div>
                     ) : null}
 
                     {week.reflection.nextWeekFocus.trim() ? (
                       <div className="space-y-0.5">
                         <Caption className="text-stone-500">Hacia la siguiente semana</Caption>
-                        <Body className="text-stone-200">
+                        <Body className="ser-voice text-stone-200">
                           {week.reflection.nextWeekFocus.trim()}
                         </Body>
                       </div>
