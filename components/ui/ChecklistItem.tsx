@@ -26,7 +26,7 @@ export default function ChecklistItem({
         // attribute meaningful on a <button>.
         role="checkbox"
         aria-checked={checked}
-        className="group flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 active:scale-[0.99] sm:gap-4"
+        className="group flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.99] sm:gap-4"
       >
         {/*
           Marking a practice is the gesture this app asks for most often, so
@@ -38,15 +38,15 @@ export default function ChecklistItem({
           aria-hidden="true"
           className={`h-4 w-4 shrink-0 rounded border transition-all duration-300 ease-out group-active:scale-110 ${
             checked
-              ? "border-stone-200 bg-stone-200"
-              : "border-stone-600 group-hover:border-stone-400"
+              ? "border-ink-strong bg-ink-strong"
+              : "border-ink-faint group-hover:border-ink-soft"
           }`}
         />
 
         <span className="min-w-0">
           <Body
             className={`text-base leading-6 transition-colors sm:text-lg sm:leading-7 ${
-              checked ? "text-stone-400" : "text-stone-100"
+              checked ? "text-ink-soft" : "text-ink"
             }`}
             // A <p> can't live inside the <button>'s accessible label
             // without adding noise; the reason is decoration for the eye.
@@ -63,7 +63,7 @@ export default function ChecklistItem({
             it's sustained: the "why" is for the moment of choosing.
           */}
           {note && !checked ? (
-            <Caption className="mt-0.5 block text-stone-600">{note}</Caption>
+            <Caption className="mt-0.5 block text-ink-faint">{note}</Caption>
           ) : null}
         </span>
       </button>
@@ -72,9 +72,9 @@ export default function ChecklistItem({
 
   return (
     <div className="group flex items-center gap-3 py-2 transition-colors duration-200 sm:gap-4">
-      <div className="h-4 w-4 shrink-0 rounded border border-stone-600 transition-colors group-hover:border-stone-300" />
+      <div className="h-4 w-4 shrink-0 rounded border border-ink-faint transition-colors group-hover:border-ink-soft" />
 
-      <Body className="text-base leading-6 text-stone-100 transition-colors group-hover:text-white sm:text-lg sm:leading-7">
+      <Body className="text-base leading-6 text-ink transition-colors group-hover:text-ink-strong sm:text-lg sm:leading-7">
         {children}
       </Body>
     </div>

@@ -44,10 +44,10 @@ export default function LifeAreaListModule({
           {activeAreas.map((area) => (
             <Card key={area.id} className="space-y-3">
               <div className="flex items-start justify-between gap-4">
-                <Body className="text-stone-100">{area.title}</Body>
+                <Body className="text-ink">{area.title}</Body>
 
                 {area.inFocus ? (
-                  <Caption className="whitespace-nowrap text-stone-500">En foco</Caption>
+                  <Caption className="whitespace-nowrap text-ink-faint">En foco</Caption>
                 ) : null}
               </div>
 
@@ -81,7 +81,7 @@ export default function LifeAreaListModule({
 
           {archivedAreas.map((area) => (
             <Card key={area.id} className="space-y-3 opacity-60">
-              <Body className="text-stone-100">{area.title}</Body>
+              <Body className="text-ink">{area.title}</Body>
 
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={() => onEdit(area)}>

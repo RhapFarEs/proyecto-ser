@@ -17,7 +17,7 @@ export default function ReflectionModule({
         {/* A quotation, not the page's heading — see Display's `as`. */}
         <Display
           as="blockquote"
-          className="text-[1.75rem] font-light leading-[1.5] text-stone-100 sm:text-[2.05rem]"
+          className="text-[1.75rem] leading-[1.5] text-ink sm:text-[2.05rem]"
         >
           {today.day.reflection}
         </Display>
@@ -34,7 +34,7 @@ export default function ReflectionModule({
           being rare. Here the sentence simply belongs to them, the way a
           note in a margin belongs to whoever wrote it.
         */}
-        <Caption className="text-stone-600">
+        <Caption className="text-ink-faint">
           {today.day.reflectionIsOwn ? "Tus palabras" : "Para hoy"}
         </Caption>
       </Card>

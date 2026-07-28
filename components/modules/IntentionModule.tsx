@@ -46,7 +46,7 @@ export default function IntentionModule({
 
         {mode === "saved" ? (
           <>
-            <Body className="text-xl font-light leading-8 text-stone-100 sm:text-2xl sm:leading-9">
+            <Body className="text-xl font-light leading-8 text-ink sm:text-2xl sm:leading-9">
               {intention}
             </Body>
 

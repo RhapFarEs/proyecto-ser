@@ -39,8 +39,12 @@ export function Display({
     // back to normal: the negative letter-spacing was compensating for a
     // grotesque sans, and a serif at this size needs its own rhythm left
     // alone.
+    // Weight comes from the atmosphere, not from here. Light text on a dark
+    // ground reads optically heavier than it is, so the 300 that is elegant
+    // in Tinta looks anaemic as dark-on-light and Papel carries 400 to
+    // *appear* the same. A theme would swap the colour and leave this broken.
     <Element
-      className={`ser-voice text-4xl font-light leading-[1.1] text-stone-50 sm:text-5xl ${className}`}
+      className={`ser-voice ser-display-weight text-4xl leading-[1.1] text-ink-strong sm:text-5xl ${className}`}
       {...props}
     >
       {children}
@@ -65,7 +69,7 @@ export function Body({
 }: ParagraphProps & { as?: "p" | "span" }) {
   return (
     <Element
-      className={`block text-[1.0625rem] leading-[1.75] text-stone-300 ${className}`}
+      className={`block text-[1.0625rem] leading-[1.75] text-ink-soft ${className}`}
       {...props}
     >
       {children}
@@ -75,7 +79,7 @@ export function Body({
 
 export function Caption({ children, className = "", ...props }: ParagraphProps) {
   return (
-    <p className={`text-sm leading-6 text-stone-500 ${className}`} {...props}>
+    <p className={`text-sm leading-6 text-ink-faint ${className}`} {...props}>
       {children}
     </p>
   );

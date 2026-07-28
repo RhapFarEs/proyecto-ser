@@ -82,6 +82,26 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
+      <head>
+        {/*
+          Applies the chosen atmosphere before the first paint.
+
+          Without this, someone who reads in Papel would get a full frame of
+          Tinta on every cold start — a flash of the wrong room, which is
+          exactly the kind of unfinished detail this product cannot afford.
+          It has to be a blocking inline script in <head>: any React effect
+          runs after paint, by definition too late.
+
+          Deliberately tiny and failure-tolerant. If localStorage is
+          unavailable the catch leaves the CSS default (Tinta) in place,
+          which is a correct outcome rather than an error.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var a=localStorage.getItem('ser.atmosphere');if(a==='papel'||a==='tinta'){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',a==='papel'?'#f5f2ec':'#0c0a09')}}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full">
         <ServiceWorkerRegistration />
         <AuthProvider>

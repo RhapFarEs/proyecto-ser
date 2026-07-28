@@ -80,8 +80,8 @@ export default function FeedbackView() {
         {sent ? (
           <div className="space-y-4 text-center">
             <div className="space-y-1">
-              <Body className="text-stone-100">Gracias.</Body>
-              <Body className="text-stone-100">Tu comentario fue enviado correctamente.</Body>
+              <Body className="text-ink">Gracias.</Body>
+              <Body className="text-ink">Tu comentario fue enviado correctamente.</Body>
             </div>
 
             <Button type="button" variant="secondary" onClick={handleSendAnother}>
@@ -106,7 +106,7 @@ export default function FeedbackView() {
               className="min-h-[160px]"
             />
 
-            {error ? <Caption className="text-stone-400">{error}</Caption> : null}
+            {error ? <Caption className="text-ink-soft">{error}</Caption> : null}
 
             <Button type="button" variant="primary" disabled={!canSubmit} onClick={handleSubmit}>
               {sending ? "Enviando..." : "Enviar comentario"}

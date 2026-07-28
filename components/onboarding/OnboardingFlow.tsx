@@ -61,21 +61,21 @@ export default function OnboardingFlow({ user, profile }: OnboardingFlowProps) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-950 px-6">
+    <div className="flex min-h-screen items-center justify-center bg-ground px-6">
       <div className="w-full max-w-sm space-y-8">
         {step === "welcome" ? (
           <div className="space-y-8 text-center">
             <Display>Proyecto SER</Display>
 
             <div className="space-y-4 text-left">
-              <Body className="text-stone-300">
+              <Body className="text-ink-soft">
                 Proyecto SER es un lugar tranquilo para volver cada día.
               </Body>
-              <Body className="text-stone-300">
+              <Body className="text-ink-soft">
                 No mide tu productividad ni compara tus días. Solo te acompaña
                 mientras vives, escribes y sostienes lo que te importa.
               </Body>
-              <Body className="text-stone-300">
+              <Body className="text-ink-soft">
                 No hay prisa aquí. Puedes ir a tu propio ritmo.
               </Body>
             </div>
@@ -125,22 +125,22 @@ export default function OnboardingFlow({ user, profile }: OnboardingFlowProps) {
 
             <div className="space-y-5 text-left">
               <div className="space-y-1">
-                <Body className="text-stone-100">Hoy</Body>
+                <Body className="text-ink">Hoy</Body>
                 <Caption>Tu intención y tus prácticas de cada día.</Caption>
               </div>
 
               <div className="space-y-1">
-                <Body className="text-stone-100">Diario</Body>
+                <Body className="text-ink">Diario</Body>
                 <Caption>Un espacio para escribir con honestidad, sin juicio.</Caption>
               </div>
 
               <div className="space-y-1">
-                <Body className="text-stone-100">Hábitos</Body>
+                <Body className="text-ink">Hábitos</Body>
                 <Caption>Prácticas pequeñas que sostienes con constancia.</Caption>
               </div>
             </div>
 
-            {finishError ? <Caption className="text-stone-400">{finishError}</Caption> : null}
+            {finishError ? <Caption className="text-ink-soft">{finishError}</Caption> : null}
 
             <Button
               type="button"

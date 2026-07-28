@@ -3,5 +3,5 @@ type DividerProps = {
 };
 
 export default function Divider({ className = "" }: DividerProps) {
-  return <div className={`h-px w-full bg-stone-800/80 ${className}`.trim()} />;
+  return <div className={`h-px w-full bg-surface-raised ${className}`.trim()} />;
 }

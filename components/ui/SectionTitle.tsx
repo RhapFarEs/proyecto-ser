@@ -23,7 +23,7 @@ export default function SectionTitle({
 }: SectionTitleProps) {
   return (
     <h2
-      className={`mb-3 text-sm font-normal text-stone-500 sm:mb-4 ${className}`.trim()}
+      className={`mb-3 text-sm font-normal text-ink-faint sm:mb-4 ${className}`.trim()}
     >
       {children}
     </h2>

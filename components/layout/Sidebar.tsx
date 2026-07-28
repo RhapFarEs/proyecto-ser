@@ -18,13 +18,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-stone-800/80 md:block">
+    <aside className="hidden w-64 shrink-0 border-r border-line md:block">
       <div className="sticky top-0 flex h-screen flex-col gap-8 px-6 py-10">
         <Link
           href="/"
-          className="rounded-2xl px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40"
+          className="rounded-2xl px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint"
         >
-          <Caption className="uppercase tracking-[0.25em] text-stone-500">
+          <Caption className="uppercase tracking-[0.25em] text-ink-faint">
             Proyecto SER
           </Caption>
         </Link>
@@ -40,10 +40,10 @@ export default function Sidebar() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 ${
+                    className={`flex items-center gap-3 rounded-full px-4 py-2.5 text-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint ${
                       active
-                        ? "bg-stone-800/80 text-white"
-                        : "text-stone-500 hover:bg-stone-900/70 hover:text-stone-200"
+                        ? "bg-surface-raised text-ink-strong"
+                        : "text-ink-faint hover:bg-surface-raised hover:text-ink"
                     }`}
                   >
                     <Icon strokeWidth={1.75} size={18} aria-hidden="true" />
@@ -55,7 +55,7 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        <Caption className="mt-auto text-xs text-stone-700">
+        <Caption className="mt-auto text-xs text-ink-faint">
           Ser antes que hacer.
         </Caption>
       </div>

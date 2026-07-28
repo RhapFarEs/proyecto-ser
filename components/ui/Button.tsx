@@ -17,12 +17,17 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const variantClasses = {
+    // Inverted rather than raised. A raised surface reads as "primary" only
+    // on a dark ground; on paper it is indistinguishable from the secondary
+    // hover state. Inverting ink and ground is the one emphasis that means
+    // the same thing in both polarities — and it matches the segmented
+    // control in the journal, which already worked this way.
     primary:
-      "border border-stone-700/80 bg-stone-800/90 text-white hover:bg-stone-700/90 disabled:border-stone-800 disabled:bg-stone-900/70 disabled:text-stone-600",
+      "border border-transparent bg-ink-strong text-ground hover:opacity-90 disabled:border-line disabled:bg-transparent disabled:text-ink-faint",
     secondary:
-      "border border-stone-700/80 bg-transparent text-stone-200 hover:bg-stone-900/70 hover:text-white disabled:border-stone-800 disabled:text-stone-600",
+      "border border-line bg-transparent text-ink hover:bg-surface-raised hover:text-ink-strong disabled:border-line disabled:text-ink-faint",
     ghost:
-      "bg-transparent text-stone-400 hover:bg-stone-900/70 hover:text-stone-100 disabled:text-stone-600",
+      "bg-transparent text-ink-soft hover:bg-surface-raised hover:text-ink disabled:text-ink-faint",
   };
 
   return (
@@ -31,7 +36,7 @@ export default function Button({
       disabled={disabled}
       // `active:scale` gives a press something to answer with on touch,
       // where there is no hover state to confirm the tap landed.
-      className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40 active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
       {...props}
     >
       {children}

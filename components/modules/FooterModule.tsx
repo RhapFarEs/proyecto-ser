@@ -32,7 +32,7 @@ export default function FooterModule({ personalMotto }: FooterModuleProps) {
         read as a slogan on a wall, and this should read as a thought.
       */}
       <Card className="border-0 bg-transparent p-0 shadow-none">
-        <Caption className={`text-center text-stone-600 ${motto ? "ser-voice" : ""}`.trim()}>
+        <Caption className={`text-center text-ink-faint ${motto ? "ser-voice" : ""}`.trim()}>
           {motto || PRODUCT_MOTTO}
         </Caption>
       </Card>

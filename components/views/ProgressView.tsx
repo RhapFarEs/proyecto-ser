@@ -123,11 +123,11 @@ export default function ProgressView() {
 
           {statement ? (
             <Card className="space-y-3">
-              <Body className="ser-voice text-lg leading-[1.65] text-stone-200">
+              <Body className="ser-voice text-lg leading-[1.65] text-ink">
                 {statement}
               </Body>
               <Link href="/direction" className="inline-block w-fit">
-                <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
+                <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
                   Revisar tu dirección
                 </Caption>
               </Link>
@@ -138,7 +138,7 @@ export default function ProgressView() {
               description="Unas líneas sobre hacia dónde quieres caminar. Puedes escribirlas cuando sientas que es el momento."
               action={
                 <Link href="/direction" className="inline-block w-fit">
-                  <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
+                  <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
                     Ir a Dirección personal
                   </Caption>
                 </Link>
@@ -171,7 +171,7 @@ export default function ProgressView() {
                   */}
                   {/* Their words, so: serif. */}
                   {intention ? (
-                    <Body className="ser-voice text-lg leading-[1.6] text-stone-100">
+                    <Body className="ser-voice text-lg leading-[1.6] text-ink">
                       “{intention}”
                     </Body>
                   ) : null}
@@ -200,7 +200,7 @@ export default function ProgressView() {
               description="Cuando cierres una semana con calma, tu reflexión quedará guardada aquí."
               action={
                 <Link href="/weekly-review" className="inline-block w-fit">
-                  <Caption className="underline-offset-4 hover:text-stone-300 hover:underline">
+                  <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
                     Ir a Revisión semanal
                   </Caption>
                 </Link>
@@ -219,22 +219,22 @@ export default function ProgressView() {
 
                     {week.reflection.wentWell.trim() ? (
                       <div className="space-y-0.5">
-                        <Caption className="text-stone-500">Qué estuvo bien</Caption>
-                        <Body className="ser-voice text-stone-200">{week.reflection.wentWell.trim()}</Body>
+                        <Caption className="text-ink-faint">Qué estuvo bien</Caption>
+                        <Body className="ser-voice text-ink">{week.reflection.wentWell.trim()}</Body>
                       </div>
                     ) : null}
 
                     {week.reflection.difficult.trim() ? (
                       <div className="space-y-0.5">
-                        <Caption className="text-stone-500">Qué fue difícil</Caption>
-                        <Body className="ser-voice text-stone-200">{week.reflection.difficult.trim()}</Body>
+                        <Caption className="text-ink-faint">Qué fue difícil</Caption>
+                        <Body className="ser-voice text-ink">{week.reflection.difficult.trim()}</Body>
                       </div>
                     ) : null}
 
                     {week.reflection.nextWeekFocus.trim() ? (
                       <div className="space-y-0.5">
-                        <Caption className="text-stone-500">Hacia la siguiente semana</Caption>
-                        <Body className="ser-voice text-stone-200">
+                        <Caption className="text-ink-faint">Hacia la siguiente semana</Caption>
+                        <Body className="ser-voice text-ink">
                           {week.reflection.nextWeekFocus.trim()}
                         </Body>
                       </div>

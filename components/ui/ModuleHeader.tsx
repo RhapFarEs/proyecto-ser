@@ -8,7 +8,7 @@ type ModuleHeaderProps = {
 export default function ModuleHeader({ title, subtitle }: ModuleHeaderProps) {
   return (
     <div className="space-y-1">
-      <Body className="text-stone-100">{title}</Body>
+      <Body className="text-ink">{title}</Body>
       {subtitle ? <Caption>{subtitle}</Caption> : null}
     </div>
   );

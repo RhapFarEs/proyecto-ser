@@ -13,7 +13,7 @@ import { Caption, Display } from "@/components/ui/Typography";
 export default function FullScreenLoader() {
   return (
     <div
-      className="flex min-h-screen items-center justify-center bg-stone-950 px-6"
+      className="flex min-h-screen items-center justify-center bg-ground px-6"
       role="status"
       aria-live="polite"
     >

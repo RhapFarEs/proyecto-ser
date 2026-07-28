@@ -176,14 +176,14 @@ export default function JournalNotesModule({
                       type="button"
                       onClick={() => toggleExpanded(note.id)}
                       aria-expanded={isExpanded}
-                      className="w-full rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-400/40"
+                      className="w-full rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint"
                     >
                       <div className="flex items-center gap-2">
                         <Caption>{TIME_FORMAT.format(new Date(note.createdAt))}</Caption>
                         {note.mood ? <Caption>· {note.mood}</Caption> : null}
                       </div>
                       {/* Written in serif, so read back in serif. */}
-                      <Body className="ser-voice text-stone-100">
+                      <Body className="ser-voice text-ink">
                         {isExpanded ? note.content : getPreview(note.content)}
                       </Body>
                     </button>

@@ -57,17 +57,17 @@ export default function WeeklyContextModule({
         <SectionTitle>Esta semana</SectionTitle>
 
         {journalDates.length > 0 ? (
-          <Body className="text-stone-200">
+          <Body className="text-ink">
             Escribiste en tu diario: {journalDates.join(", ")}.
           </Body>
         ) : null}
 
         {closingDates.length > 0 ? (
-          <Body className="text-stone-200">Cerraste el día: {closingDates.join(", ")}.</Body>
+          <Body className="text-ink">Cerraste el día: {closingDates.join(", ")}.</Body>
         ) : null}
 
         {sustainedPractices.length > 0 ? (
-          <Body className="text-stone-200">Sostuviste: {sustainedPractices.join(", ")}.</Body>
+          <Body className="text-ink">Sostuviste: {sustainedPractices.join(", ")}.</Body>
         ) : null}
       </Card>
     </Section>

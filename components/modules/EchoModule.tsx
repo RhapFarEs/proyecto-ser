@@ -42,7 +42,7 @@ export default function EchoModule({ echo }: EchoModuleProps) {
         sits apart from the day's business without being announced.
       */}
       <div className="space-y-3 py-4 sm:py-6">
-        <Caption className="text-stone-600">{getLabel(echo)}</Caption>
+        <Caption className="text-ink-faint">{getLabel(echo)}</Caption>
 
         {/*
           Their words, verbatim and unabridged — never trimmed to a preview.
@@ -50,7 +50,7 @@ export default function EchoModule({ echo }: EchoModuleProps) {
           itself. Light weight and open leading so it reads as a voice rather
           than as interface copy.
         */}
-        <Body className="ser-voice text-xl font-light leading-[1.6] text-stone-200 sm:text-2xl">
+        <Body className="ser-voice ser-display-weight text-xl leading-[1.6] text-ink sm:text-2xl">
           {echo.text}
         </Body>
       </div>
