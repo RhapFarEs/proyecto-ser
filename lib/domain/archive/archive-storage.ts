@@ -96,16 +96,18 @@ function entriesFromWeeks(): ArchiveEntry[] {
   for (const week of getWeeks()) {
     const parts: string[] = [];
 
+    // The same questions they were asked on screen, so the document reads
+    // back the conversation they actually had rather than a paraphrase.
     if (hasText(week.reflection.wentWell)) {
-      parts.push(`Lo que fue bien:\n${week.reflection.wentWell.trim()}`);
+      parts.push(`Qué estuvo bien:\n${week.reflection.wentWell.trim()}`);
     }
 
     if (hasText(week.reflection.difficult)) {
-      parts.push(`Lo que costó:\n${week.reflection.difficult.trim()}`);
+      parts.push(`Qué fue difícil:\n${week.reflection.difficult.trim()}`);
     }
 
     if (hasText(week.reflection.nextWeekFocus)) {
-      parts.push(`Hacia dónde la próxima semana:\n${week.reflection.nextWeekFocus.trim()}`);
+      parts.push(`Hacia la siguiente semana:\n${week.reflection.nextWeekFocus.trim()}`);
     }
 
     if (parts.length > 0) {

@@ -54,7 +54,14 @@ export default function IntentionModule({
               to *appear* the same. This is the largest text on the home
               screen, so it was the most visible place to get it wrong.
             */}
-            <Body className="ser-display-weight text-xl leading-8 text-ink sm:text-2xl sm:leading-9">
+            {/*
+              Serif, because they wrote it. The same sentence already reads
+              back in serif on Camino and in the echo, so rendering it in the
+              interface voice here made the home screen the one place a
+              person's own words were spoken by the software instead of by
+              them.
+            */}
+            <Body className="ser-voice ser-display-weight text-xl leading-8 text-ink sm:text-2xl sm:leading-9">
               {intention}
             </Body>
 
