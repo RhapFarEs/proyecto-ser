@@ -1,6 +1,234 @@
 import { describe, expect, it } from "vitest";
 
-import { buildArchiveDocument, type Archive, type ArchiveEntry } from "./archive";
+import type { Day } from "@/lib/domain/day/day";
+import type { JournalNote } from "@/lib/domain/journal/journal";
+import type { Week } from "@/lib/domain/week/week";
+import {
+  buildArchiveDocument,
+  collectArchiveEntries,
+  type Archive,
+  type ArchiveEntry,
+} from "./archive";
+
+const TIMESTAMPS = { deletedAt: null, createdAt: "2026-03-01", updatedAt: "2026-03-01" };
+
+function day(overrides: Partial<Day> & { date: string }): Day {
+  return {
+    id: overrides.date,
+    entries: [],
+    journal: { mood: "", entry: "", closing: "" },
+    rituals: { checks: [] },
+    intention: "",
+    ...TIMESTAMPS,
+    ...overrides,
+  };
+}
+
+function note(overrides: Partial<JournalNote> & { dayKey: string }): JournalNote {
+  return { id: "n1", mood: "", content: "", ...TIMESTAMPS, ...overrides };
+}
+
+function week(overrides: Partial<Week> & { id: string }): Week {
+  return {
+    reflection: { wentWell: "", difficult: "", nextWeekFocus: "" },
+    ...TIMESTAMPS,
+    ...overrides,
+  };
+}
+
+/**
+ * Words live in more places than the current screens suggest, and P1.1 is
+ * about to start removing some of them. Every one of these branches is a
+ * place the safety net could have a hole.
+ */
+describe("gathering every word a person wrote", () => {
+  it("takes the day's intention", () => {
+    const entries = collectArchiveEntries([day({ date: "2026-03-01", intention: "Caminar" })], [], []);
+
+    expect(entries).toEqual([{ dateKey: "2026-03-01", kind: "intention", text: "Caminar" }]);
+  });
+
+  it("takes the oldest flat journal a day used to carry", () => {
+    const entries = collectArchiveEntries(
+      [day({ date: "2026-03-01", journal: { mood: "cansado", entry: "Fue largo", closing: "Salió bien" } })],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "note", text: "Fue largo", mood: "cansado" },
+      { dateKey: "2026-03-01", kind: "reflection", text: "Salió bien" },
+    ]);
+  });
+
+  it("takes journal entries written before notes moved to their own store", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          entries: [
+            {
+              id: "e1",
+              type: "journal",
+              mood: "tranquilo",
+              content: "Lo que escribí entonces",
+              closingReflection: "",
+              createdAt: "2026-03-01",
+              updatedAt: "2026-03-01",
+            },
+          ],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "note", text: "Lo que escribí entonces", mood: "tranquilo" },
+    ]);
+  });
+
+  it("takes the day's closing reflection, which is not legacy", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          entries: [
+            {
+              id: "e1",
+              type: "reflection",
+              content: "Cómo terminó el día",
+              createdAt: "2026-03-01",
+              updatedAt: "2026-03-01",
+            },
+          ],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "reflection", text: "Cómo terminó el día" },
+    ]);
+  });
+
+  it("takes intentions from before day.intention existed", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          entries: [
+            {
+              id: "e1",
+              type: "intention",
+              content: "Una intención antigua",
+              createdAt: "2026-03-01",
+              updatedAt: "2026-03-01",
+            },
+          ],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "intention", text: "Una intención antigua" },
+    ]);
+  });
+
+  it("ignores completions, which are not words", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          entries: [
+            {
+              id: "e1",
+              type: "habit",
+              habitId: "h1",
+              completed: true,
+              createdAt: "2026-03-01",
+              updatedAt: "2026-03-01",
+            },
+          ],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([]);
+  });
+
+  it("takes journal notes with the mood chosen, and without", () => {
+    const entries = collectArchiveEntries(
+      [],
+      [
+        note({ id: "a", dayKey: "2026-03-01", content: "Con ánimo", mood: "cansado" }),
+        note({ id: "b", dayKey: "2026-03-02", content: "Sin ánimo" }),
+      ],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "note", text: "Con ánimo", mood: "cansado" },
+      { dateKey: "2026-03-02", kind: "note", text: "Sin ánimo" },
+    ]);
+  });
+
+  it("keeps a week's three answers together with the questions asked", () => {
+    const entries = collectArchiveEntries(
+      [],
+      [],
+      [
+        week({
+          id: "2026-03-02",
+          reflection: { wentWell: "Dormí", difficult: "El trabajo", nextWeekFocus: "Caminar" },
+        }),
+      ],
+    );
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0].kind).toBe("weekly");
+    expect(entries[0].text).toBe(
+      "Qué estuvo bien:\nDormí\n\nQué fue difícil:\nEl trabajo\n\nHacia la siguiente semana:\nCaminar",
+    );
+  });
+
+  it("keeps a partly answered week", () => {
+    const entries = collectArchiveEntries(
+      [],
+      [],
+      [week({ id: "2026-03-02", reflection: { wentWell: "Dormí", difficult: "", nextWeekFocus: "" } })],
+    );
+
+    expect(entries[0].text).toBe("Qué estuvo bien:\nDormí");
+  });
+
+  it("skips a week nobody answered", () => {
+    expect(collectArchiveEntries([], [], [week({ id: "2026-03-02" })])).toEqual([]);
+  });
+
+  it("skips blank and whitespace-only writing everywhere", () => {
+    const entries = collectArchiveEntries(
+      [day({ date: "2026-03-01", intention: "   \n " })],
+      [note({ dayKey: "2026-03-01", content: "" })],
+      [],
+    );
+
+    expect(entries).toEqual([]);
+  });
+
+  it("does not mutate what it is given", () => {
+    const days = [day({ date: "2026-03-01", intention: "Caminar" })];
+
+    collectArchiveEntries(days, [], []);
+
+    expect(days[0].intention).toBe("Caminar");
+  });
+});
 
 const EMPTY: Archive = {
   displayName: "",

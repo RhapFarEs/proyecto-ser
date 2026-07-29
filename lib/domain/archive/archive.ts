@@ -1,4 +1,7 @@
 import { formatDateKeyLongLabel } from "@/lib/date";
+import type { Day } from "@/lib/domain/day/day";
+import type { JournalNote } from "@/lib/domain/journal/journal";
+import type { Week } from "@/lib/domain/week/week";
 
 /**
  * Everything a person has written, in a form they can read without us.
@@ -49,6 +52,111 @@ export interface Archive {
   readonly direction: readonly ArchiveDirectionRevision[];
   readonly lifeAreas: readonly ArchiveNamed[];
   readonly practices: readonly ArchiveNamed[];
+}
+
+function hasText(value: string | undefined | null): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+/**
+ * Everything a person wrote, gathered out of the shapes it is stored in.
+ *
+ * Pure, and separated from the storage reads on purpose. This is the part of
+ * the export with actual reasoning in it — words are spread across more
+ * places than the current screens suggest, and an export that missed one
+ * would be silently lossy in the one feature whose entire job is not being
+ * lossy. It only reads types, so no store is pulled in and every branch is
+ * reachable from a test.
+ *
+ * Notes moved to their own store, but `day.entries` still holds journal
+ * entries written before that move, the day's closing reflection — a live
+ * feature, not legacy — and intentions from before `day.intention` existed.
+ * Older still, `day.journal` was one flat `{ mood, entry, closing }` per day.
+ *
+ * This matters beyond completeness: ROADMAP.md P1.1 resolves those legacy
+ * fields, and this function is the safety net that has to be correct before
+ * anything starts removing them.
+ */
+export function collectArchiveEntries(
+  days: readonly Day[],
+  notes: readonly JournalNote[],
+  weeks: readonly Week[],
+): ArchiveEntry[] {
+  const entries: ArchiveEntry[] = [];
+
+  for (const day of days) {
+    if (hasText(day.intention)) {
+      entries.push({ dateKey: day.date, kind: "intention", text: day.intention });
+    }
+
+    if (hasText(day.journal?.entry)) {
+      entries.push({
+        dateKey: day.date,
+        kind: "note",
+        text: day.journal.entry,
+        ...(hasText(day.journal.mood) ? { mood: day.journal.mood } : {}),
+      });
+    }
+
+    if (hasText(day.journal?.closing)) {
+      entries.push({ dateKey: day.date, kind: "reflection", text: day.journal.closing });
+    }
+
+    for (const entry of day.entries) {
+      if (entry.type === "journal" && hasText(entry.content)) {
+        entries.push({
+          dateKey: day.date,
+          kind: "note",
+          text: entry.content,
+          ...(hasText(entry.mood) ? { mood: entry.mood } : {}),
+        });
+      }
+
+      if (entry.type === "reflection" && hasText(entry.content)) {
+        entries.push({ dateKey: day.date, kind: "reflection", text: entry.content });
+      }
+
+      if (entry.type === "intention" && hasText(entry.content)) {
+        entries.push({ dateKey: day.date, kind: "intention", text: entry.content });
+      }
+    }
+  }
+
+  for (const note of notes) {
+    if (hasText(note.content)) {
+      entries.push({
+        dateKey: note.dayKey,
+        kind: "note",
+        text: note.content,
+        ...(hasText(note.mood) ? { mood: note.mood } : {}),
+      });
+    }
+  }
+
+  for (const week of weeks) {
+    // Three answers that only mean anything together, kept with the questions
+    // actually asked on screen so the document reads back the conversation
+    // the person had rather than a paraphrase of it.
+    const parts: string[] = [];
+
+    if (hasText(week.reflection.wentWell)) {
+      parts.push(`Qué estuvo bien:\n${week.reflection.wentWell.trim()}`);
+    }
+
+    if (hasText(week.reflection.difficult)) {
+      parts.push(`Qué fue difícil:\n${week.reflection.difficult.trim()}`);
+    }
+
+    if (hasText(week.reflection.nextWeekFocus)) {
+      parts.push(`Hacia la siguiente semana:\n${week.reflection.nextWeekFocus.trim()}`);
+    }
+
+    if (parts.length > 0) {
+      entries.push({ dateKey: week.id, kind: "weekly", text: parts.join("\n\n") });
+    }
+  }
+
+  return entries;
 }
 
 const KIND_LABEL: Record<ArchiveEntryKind, string> = {
@@ -116,21 +224,33 @@ function writtenSection(entries: readonly ArchiveEntry[]): string[] {
   return lines;
 }
 
+/**
+ * The date, and the room they were sitting in when they wrote it.
+ *
+ * The atmosphere was already being collected and then dropped on the floor
+ * here, which is worse than not collecting it: where a person was is part of
+ * what they wrote, and it is the one detail in the record that cannot be
+ * reconstructed from anything else.
+ */
+function attribution(revision: ArchiveDirectionRevision): string {
+  const date = formatDateKeyLongLabel(revision.dateKey);
+
+  return revision.atmosphere ? `*${date} · ${revision.atmosphere}*` : `*${date}*`;
+}
+
 function directionSection(revisions: readonly ArchiveDirectionRevision[]): string[] {
   if (revisions.length === 0) {
     return [];
   }
 
   const [current, ...earlier] = revisions;
-  const lines = ["## Tu dirección", "", quote(current.statement), ""];
-
-  lines.push(`*${formatDateKeyLongLabel(current.dateKey)}*`, "");
+  const lines = ["## Tu dirección", "", quote(current.statement), "", attribution(current), ""];
 
   if (earlier.length > 0) {
     lines.push("### Lo que escribiste antes", "");
 
     for (const revision of earlier) {
-      lines.push(quote(revision.statement), "", `*${formatDateKeyLongLabel(revision.dateKey)}*`, "");
+      lines.push(quote(revision.statement), "", attribution(revision), "");
     }
   }
 
