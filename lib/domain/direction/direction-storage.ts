@@ -1,67 +1,143 @@
 import storage from "@/lib/storage/storage";
-import { createSyncedStore } from "@/lib/sync/createSyncedStore";
-import { createLifeDirection, LIFE_DIRECTION_ID, type LifeDirection } from "./direction";
-import { normalizeLifeDirection } from "./direction-migrations";
+import { createSyncedStore, type SyncedStore } from "@/lib/sync/createSyncedStore";
+import { readActiveAtmosphere } from "@/lib/domain/atmosphere/atmosphere";
+import { listLive, resolveCurrent, shouldAppend } from "@/lib/domain/revisions/revision";
+import {
+  createDirectionRevision,
+  createEmptyDirectionRevision,
+  type DirectionRevision,
+} from "./direction";
+import { normalizeDirectionRevision, parseLegacyDirection } from "./direction-migrations";
 
 export const LIFE_DIRECTION_STORAGE_KEY = "ser.direction";
 
-interface LifeDirectionRow {
+interface DirectionRevisionRow {
   id: string;
   user_id: string;
   statement: string;
+  supersedes: string | null;
+  atmosphere: string | null;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
 }
 
-function fromRow(row: LifeDirectionRow): LifeDirection {
-  return {
+function fromRow(row: DirectionRevisionRow): DirectionRevision {
+  return Object.freeze({
     id: row.id,
     statement: row.statement,
+    supersedes: row.supersedes,
+    atmosphere: row.atmosphere,
     deletedAt: row.deleted_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-  };
+  });
 }
 
-function toRow(direction: LifeDirection, userId: string): LifeDirectionRow {
+function toRow(revision: DirectionRevision, userId: string): DirectionRevisionRow {
   return {
-    id: direction.id,
+    id: revision.id,
     user_id: userId,
-    statement: direction.statement,
-    deleted_at: direction.deletedAt,
-    created_at: direction.createdAt,
-    updated_at: direction.updatedAt,
+    statement: revision.statement,
+    supersedes: revision.supersedes,
+    atmosphere: revision.atmosphere,
+    deleted_at: revision.deletedAt,
+    created_at: revision.createdAt,
+    updated_at: revision.updatedAt,
   };
 }
 
 /**
- * Direction is a singleton per user — exactly one LifeDirection, always
- * stored under the fixed id `LIFE_DIRECTION_ID` — but otherwise follows
- * the same `createSyncedStore` wiring as every other domain (see
- * `lib/domain/habit/habit-storage.ts` for the reference). Because `id` is
- * a constant, never a random UUID or a per-user-unique date key, it is
- * never unique on its own — the `direction` table's primary key is
- * `(id, user_id)`, same reasoning as `days`/`weeks`, just the most
- * extreme case of it (every row shares the exact same `id`).
+ * Direction is a chain of revisions, not a value.
+ *
+ * It used to be a singleton: one row per user under a fixed id, overwritten
+ * on every save. Someone who rewrote their direction in 2029 destroyed what
+ * they believed in 2026, with no copy anywhere. CONSTITUTION.md, Second Law
+ * corollary — nothing meaningful is ever overwritten.
+ *
+ * The store itself needed no changes. `createSyncedStore` was always a
+ * `Record<id, entity>`; Direction was the anomaly for holding exactly one.
+ * Every revision now carries its own id, which also removes a whole class of
+ * sync conflict — two devices can no longer fight over the same row, because
+ * they no longer write to the same row.
+ *
+ * The exposed surface is deliberately narrowed. `update()` mutates in place
+ * and bumps `updatedAt`; one call to it would destroy the immutability this
+ * module exists to guarantee. Leaving it off this type makes that a compile
+ * error rather than something a reviewer has to catch. `remove()` is off for
+ * the same reason — nothing deletes a revision yet, so nothing should be able
+ * to.
  */
-const store = createSyncedStore<LifeDirection, LifeDirectionRow>({
+type DirectionStore = Pick<
+  SyncedStore<DirectionRevision>,
+  "getAll" | "save" | "subscribe" | "setUserId" | "pull" | "runInitialMigration"
+>;
+
+const store: DirectionStore = createSyncedStore<DirectionRevision, DirectionRevisionRow>({
   storageKey: LIFE_DIRECTION_STORAGE_KEY,
   table: "direction",
-  normalize: normalizeLifeDirection,
+  normalize: normalizeDirectionRevision,
   fromRow,
   toRow,
 });
 
-export function getLifeDirection(): LifeDirection {
-  return store.getOne(LIFE_DIRECTION_ID) ?? createLifeDirection();
+/**
+ * The statement that is true right now.
+ *
+ * Never null, so the screens that only want to show the current sentence do
+ * not each have to handle "nothing written yet". The empty stand-in is never
+ * stored.
+ */
+export function getLifeDirection(): DirectionRevision {
+  return resolveCurrent(store.getAll()) ?? createEmptyDirectionRevision();
 }
 
-export function saveLifeDirection(statement: string): LifeDirection {
-  const current = getLifeDirection();
-  const next: LifeDirection = { ...current, statement, updatedAt: new Date().toISOString() };
-  store.save(next);
-  return next;
+/**
+ * Everything written before the current statement, newest first.
+ *
+ * Ordering is computed here rather than inherited from the store's own sort,
+ * so that display order stays a decision of this domain rather than a
+ * coincidence of how the sync engine happens to sort its cache today.
+ */
+export function getDirectionHistory(): DirectionRevision[] {
+  const revisions = store.getAll();
+  const current = resolveCurrent(revisions);
+
+  return listLive(revisions).filter((revision) => revision.id !== current?.id);
+}
+
+/**
+ * Appends a revision, or does nothing.
+ *
+ * Returns null when nothing was written — unchanged text, or empty text —
+ * so the caller can tell "saved" from "no-op" without comparing strings
+ * again. From the person's side both are success: their words are safe
+ * either way, and a history should not fill with duplicates because someone
+ * pressed Guardar twice.
+ *
+ * This is the only place in the module that knows what time it is or where
+ * the person is sitting. Everything it depends on — appending or not,
+ * resolving the current revision, building the record — is pure and tested
+ * without a browser.
+ */
+export function saveLifeDirection(statement: string): DirectionRevision | null {
+  const current = resolveCurrent(store.getAll());
+
+  if (!shouldAppend(current?.statement ?? null, statement)) {
+    return null;
+  }
+
+  const revision = createDirectionRevision({
+    id: crypto.randomUUID(),
+    now: new Date().toISOString(),
+    statement: statement.trim(),
+    supersedes: current?.id ?? null,
+    atmosphere: readActiveAtmosphere(),
+  });
+
+  store.save(revision);
+
+  return revision;
 }
 
 export function subscribeToLifeDirection(listener: () => void): () => void {
@@ -77,44 +153,20 @@ export function pullLifeDirection(): Promise<void> {
 }
 
 /**
- * One-time legacy import: Direction is the one domain whose *legacy*
- * localStorage shape isn't already a Record-of-entities like every other
- * domain's — it was a single flat `{statement, updatedAt}` object stored
- * directly under `ser.direction`, with no `id` at all. The generic
- * engine's automatic legacy-key adoption assumes the flat key already
- * holds a `Record<id, entity>`; handed this flat object instead, it would
- * iterate `"statement"`/`"updatedAt"` as if they were entity ids and lose
- * the data. So, like Day's `importLegacyDays`, this reads the raw flat
- * key directly and wraps it into the current entity shape once, before
- * any `store.*` call gets a chance to touch (and adopt-then-delete) that
- * same flat key.
+ * One-time legacy import. Direction is the one domain whose oldest
+ * localStorage shape was not a `Record<id, entity>` — it was a flat
+ * `{ statement, updatedAt }` object stored directly under `ser.direction`,
+ * with no id at all. Handed that, the sync engine's automatic legacy-key
+ * adoption would iterate `"statement"` and `"updatedAt"` as if they were
+ * entity ids and lose the data, so it is read here first, before any
+ * `store.*` call can adopt and clear that key.
+ *
+ * The parsing itself lives in `direction-migrations.ts` as a pure function;
+ * this only supplies the raw value and the clock.
  */
-function importLegacyDirection(): LifeDirection | null {
-  const raw = storage.get<unknown>(LIFE_DIRECTION_STORAGE_KEY, undefined);
-
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    return null;
-  }
-
-  const value = raw as Record<string, unknown>;
-
-  if (typeof value.statement !== "string") {
-    return null;
-  }
-
-  const now = new Date().toISOString();
-
-  return {
-    id: LIFE_DIRECTION_ID,
-    statement: value.statement,
-    deletedAt: null,
-    createdAt: now,
-    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : now,
-  };
-}
-
 export async function migrateLifeDirectionToCloud(): Promise<void> {
-  const legacy = importLegacyDirection();
+  const raw = storage.get<unknown>(LIFE_DIRECTION_STORAGE_KEY, undefined);
+  const legacy = parseLegacyDirection(raw, new Date().toISOString());
 
   if (legacy) {
     store.save(legacy);

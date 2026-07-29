@@ -8,8 +8,15 @@ import LifeAreaListModule from "@/components/modules/LifeAreaListModule";
 import LifeAreaFormModule, {
   type LifeAreaFormValues,
 } from "@/components/modules/LifeAreaFormModule";
-import { getLifeDirection, saveLifeDirection } from "@/lib/domain/direction/direction-storage";
-import { createLifeDirection, type LifeDirection } from "@/lib/domain/direction/direction";
+import {
+  getDirectionHistory,
+  getLifeDirection,
+  saveLifeDirection,
+} from "@/lib/domain/direction/direction-storage";
+import {
+  createEmptyDirectionRevision,
+  type DirectionRevision,
+} from "@/lib/domain/direction/direction";
 import { createLifeArea, type LifeArea } from "@/lib/domain/life-area/life-area";
 import {
   getLifeAreas,
@@ -23,9 +30,13 @@ type AreasMode = "list" | "form";
 
 export default function DirectionView() {
   const hydrated = useHydrated();
-  const [direction] = useClientState<LifeDirection>(
+  const [direction, setDirection] = useClientState<DirectionRevision>(
     () => getLifeDirection(),
-    createLifeDirection(),
+    createEmptyDirectionRevision(),
+  );
+  const [history, setHistory] = useClientState<DirectionRevision[]>(
+    () => getDirectionHistory(),
+    [],
   );
   const [areas, setAreas] = useClientState<LifeArea[]>(() => getLifeAreas(), []);
   const [mode, setMode] = useState<AreasMode>("list");
@@ -72,7 +83,15 @@ export default function DirectionView() {
   };
 
   const handleSaveDirection = (statement: string) => {
-    saveLifeDirection(statement);
+    // Null means nothing was appended — unchanged or empty text. Re-reading
+    // then would rebuild identical state for no reason, and would push a
+    // pointless render through a screen whose whole job is to feel still.
+    if (!saveLifeDirection(statement)) {
+      return;
+    }
+
+    setDirection(getLifeDirection());
+    setHistory(getDirectionHistory());
   };
 
   return (
@@ -83,6 +102,7 @@ export default function DirectionView() {
       <DirectionStatementModule
         key={`statement:${hydrated}`}
         statement={direction.statement}
+        history={history}
         onSave={handleSaveDirection}
       />
 

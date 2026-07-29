@@ -8,7 +8,12 @@
 // handled exclusively by createSyncedStore (memory -> localStorage ->
 // Supabase); this service worker has no opinion about app data at all.
 
-const CACHE_NAME = "ser-shell-v1";
+// Bumped for the append-only Direction change. A client running the previous
+// bundle reads Direction by its old singleton id, so against the new data it
+// would show the *oldest* revision as current and, on save, overwrite it.
+// Changing this name makes the activate handler drop the stale shell, which
+// bounds that window to a single load.
+const CACHE_NAME = "ser-shell-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
