@@ -73,8 +73,19 @@ const OWN_LINE_MAX_LENGTH = 190;
  * Days before something a person wrote is eligible to come back as a line
  * for today. Below this it is still what they said recently, not something
  * they once wrote — and the difference is the whole effect.
+ *
+ * Lowered from sixty. Two months meant the patina could not begin until well
+ * after most people had decided whether this product was for them, and there
+ * is no reason the threshold should be longer than the one Echo uses for the
+ * same judgment about forgetting.
+ *
+ * The visible effect early is small by design, and that is not a defect. One
+ * eligible line sits in a pool with forty-two written by the product, so a
+ * young installation still speaks almost entirely in the product's voice.
+ * Biasing the pool to force someone's own words forward sooner would invert
+ * the thing this system exists to do slowly.
  */
-const OWN_LINE_MIN_AGE_DAYS = 60;
+const OWN_LINE_MIN_AGE_DAYS = 14;
 
 /**
  * Filters a person's own writing down to what can stand in this slot.
