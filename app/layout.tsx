@@ -4,6 +4,10 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth/AuthContext";
 import AuthGate from "@/components/auth/AuthGate";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
+import {
+  ATMOSPHERE_GROUND,
+  ATMOSPHERE_STORAGE_KEY,
+} from "@/lib/domain/atmosphere/atmosphere";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -101,10 +105,17 @@ export default function RootLayout({
           Deliberately tiny and failure-tolerant. If localStorage is
           unavailable the catch leaves the CSS default (Tinta) in place,
           which is a correct outcome rather than an error.
+
+          The ground map is serialized from the registry rather than written
+          out again, because this used to be a hand-copied literal: the first
+          frame of any atmosphere missing from it would have been painted in
+          the wrong light, and nothing would have failed loudly enough to
+          notice. Both values are inlined at build time, so this stays one
+          statically-generated string with no runtime cost.
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var g={tinta:'#0c0a09',papel:'#f5f2ec',piedra:'#e9e8e5'};var a=localStorage.getItem('ser.atmosphere');if(g[a]){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',g[a])}}}catch(e){}`,
+            __html: `try{var g=${JSON.stringify(ATMOSPHERE_GROUND)};var a=localStorage.getItem(${JSON.stringify(ATMOSPHERE_STORAGE_KEY)});if(g[a]){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',g[a])}}}catch(e){}`,
           }}
         />
       </head>

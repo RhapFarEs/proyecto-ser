@@ -7,14 +7,20 @@
  * temperature and value of the ground, how a surface separates from it, and
  * the weight the ink needs to carry. The same room at a different hour.
  *
- * Two ship. Eight more are designed and deliberately unbuilt: ten
- * atmospheres would turn an identity into a settings screen, which is the
- * opposite of what this product is for. The ones here are the same idea in
- * both polarities — ink on paper — and between them they prove the whole
- * system, because if the architecture survives a full inversion it survives
- * anything milder.
+ * Five ship. Five more are designed and deliberately unbuilt, because each
+ * of those was a variation of tone on a place already here — a warmer dark,
+ * a cooler light — and a variation of tone is a theme. The bar for existing
+ * is a moment that none of the others can hold: Tinta is a desk at night,
+ * Papel a notebook by a window, Piedra a room you look at from a distance,
+ * Alba an hour before the house wakes, Carbón the refusal to have a
+ * temperature at all. Ten atmospheres would have turned an identity into a
+ * settings screen, which is the opposite of what this product is for.
+ *
+ * Between them they still prove the whole architecture, because Tinta and
+ * Papel are the same idea in both polarities — ink on paper — and a system
+ * that survives a full inversion survives anything milder.
  */
-export type AtmosphereId = "tinta" | "papel" | "piedra";
+export type AtmosphereId = "tinta" | "papel" | "piedra" | "alba" | "carbon";
 
 export interface Atmosphere {
   id: AtmosphereId;
@@ -39,20 +45,36 @@ export const ATMOSPHERES: Atmosphere[] = [
     name: "Piedra",
     description: "Una sala de museo, para mirar con distancia.",
   },
+  {
+    id: "alba",
+    name: "Alba",
+    description: "La casa antes de que despierte.",
+  },
+  {
+    id: "carbon",
+    name: "Carbón",
+    description: "Una galería vacía de noche. Solo el texto.",
+  },
 ];
 
 export const DEFAULT_ATMOSPHERE: AtmosphereId = "tinta";
 
 /**
- * Each atmosphere's ground, for the mobile browser chrome only — the real
- * values live in `globals.css`. Duplicated on purpose and kept in sync by
- * hand, because the pre-paint script in `app/layout.tsx` needs the same map
- * before any stylesheet or module has loaded.
+ * Each atmosphere's ground, for the mobile browser chrome — the real values
+ * live in `globals.css`, and these mirror them because the pre-paint script
+ * in `app/layout.tsx` needs the map before any stylesheet has loaded.
+ *
+ * This is the one place they are written down. The layout serializes this
+ * object into that script and `useAtmosphere` reads it when switching, so
+ * adding an atmosphere here is enough; the `Record` makes a missing entry a
+ * type error rather than a wrong first frame.
  */
 export const ATMOSPHERE_GROUND: Record<AtmosphereId, string> = {
   tinta: "#0c0a09",
   papel: "#f5f2ec",
   piedra: "#e9e8e5",
+  alba: "#14100f",
+  carbon: "#0a0a0a",
 };
 
 /**
