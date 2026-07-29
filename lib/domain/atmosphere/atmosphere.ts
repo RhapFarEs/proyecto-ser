@@ -14,7 +14,7 @@
  * system, because if the architecture survives a full inversion it survives
  * anything milder.
  */
-export type AtmosphereId = "tinta" | "papel";
+export type AtmosphereId = "tinta" | "papel" | "piedra";
 
 export interface Atmosphere {
   id: AtmosphereId;
@@ -34,9 +34,26 @@ export const ATMOSPHERES: Atmosphere[] = [
     name: "Papel",
     description: "Un cuaderno abierto junto a una ventana.",
   },
+  {
+    id: "piedra",
+    name: "Piedra",
+    description: "Una sala de museo, para mirar con distancia.",
+  },
 ];
 
 export const DEFAULT_ATMOSPHERE: AtmosphereId = "tinta";
+
+/**
+ * Each atmosphere's ground, for the mobile browser chrome only — the real
+ * values live in `globals.css`. Duplicated on purpose and kept in sync by
+ * hand, because the pre-paint script in `app/layout.tsx` needs the same map
+ * before any stylesheet or module has loaded.
+ */
+export const ATMOSPHERE_GROUND: Record<AtmosphereId, string> = {
+  tinta: "#0c0a09",
+  papel: "#f5f2ec",
+  piedra: "#e9e8e5",
+};
 
 /**
  * Deliberately not namespaced by user and deliberately not cloud-synced.

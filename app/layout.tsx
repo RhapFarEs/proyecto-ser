@@ -104,7 +104,7 @@ export default function RootLayout({
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var a=localStorage.getItem('ser.atmosphere');if(a==='papel'||a==='tinta'){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',a==='papel'?'#f5f2ec':'#0c0a09')}}}catch(e){}`,
+            __html: `try{var g={tinta:'#0c0a09',papel:'#f5f2ec',piedra:'#e9e8e5'};var a=localStorage.getItem('ser.atmosphere');if(g[a]){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',g[a])}}}catch(e){}`,
           }}
         />
       </head>

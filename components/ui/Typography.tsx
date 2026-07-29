@@ -69,7 +69,9 @@ export function Body({
 }: ParagraphProps & { as?: "p" | "span" }) {
   return (
     <Element
-      className={`block text-[1.0625rem] leading-[1.75] text-ink-soft ${className}`}
+      // `ser-reading` — the air between lines is the atmosphere's, since a
+      // gallery gives text more room than a lamplit desk does.
+      className={`ser-reading block text-[1.0625rem] text-ink-soft ${className}`}
       {...props}
     >
       {children}

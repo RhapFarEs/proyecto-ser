@@ -3,6 +3,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 import {
+  ATMOSPHERE_GROUND,
   ATMOSPHERE_STORAGE_KEY,
   DEFAULT_ATMOSPHERE,
   isAtmosphereId,
@@ -55,11 +56,12 @@ export function useAtmosphere() {
 
     // Mobile browser chrome sits directly against the page, so it has to
     // move with it — otherwise the status bar stays night-dark above a
-    // paper-white screen. The same values are applied pre-paint by the
-    // inline script in app/layout.tsx.
+    // paper-white screen. The same map is applied pre-paint by the inline
+    // script in app/layout.tsx; both must list every atmosphere, or a new
+    // one silently gets the wrong first frame.
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", next === "papel" ? "#f5f2ec" : "#0c0a09");
+      ?.setAttribute("content", ATMOSPHERE_GROUND[next]);
 
     for (const listener of listeners) {
       listener();

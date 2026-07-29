@@ -43,6 +43,12 @@
   /* Optical weight compensation — see the note above. */
   --ser-display-weight: 300;
   --ser-body-weight: 400;
+
+  --ser-radius: 1.75rem;
+  --ser-border-width: 1px;
+  --ser-shadow: none;
+  --ser-reading-leading: 1.75;
+  --ser-motion-scale: 1;
 }
 
 /*
@@ -71,6 +77,48 @@
 
   --ser-display-weight: 400;
   --ser-body-weight: 400;
+
+  /* Softer corners and a whisper of a shadow: paper curls, it doesn't cut. */
+  --ser-radius: 1.75rem;
+  --ser-border-width: 1px;
+  --ser-shadow: 0 1px 2px rgb(60 50 40 / 0.04);
+  --ser-reading-leading: 1.8;
+  --ser-motion-scale: 1;
+}
+
+/*
+  PIEDRA — a room in a museum.
+
+  The third atmosphere exists to prove the system has axes beyond colour.
+  Where Tinta and Papel are the same idea in two polarities, Piedra is cool
+  where both are warm, architectural where both are soft, and heavier than
+  either: stone has mass, so everything here moves a quarter slower. Its
+  surfaces do not lift off the ground at all — a gallery wall and the plinth
+  in front of it are the same material, distinguished only by an edge.
+
+  It is for reading your own life back with some distance, which is a
+  different posture from writing it down or arriving at it.
+*/
+[data-atmosphere="piedra"] {
+  --ser-ground: #e9e8e5;
+  --ser-surface: #f1f0ee;
+  --ser-surface-raised: #ffffff;
+  --ser-line: #d3d2ce;
+
+  --ser-ink-strong: #1a1a19;
+  --ser-ink: #2e2e2c;
+  --ser-ink-soft: #56564f;
+  --ser-ink-faint: #64645d;
+
+  --ser-display-weight: 400;
+  --ser-body-weight: 400;
+
+  /* Architectural, not soft. Flat, with more air between lines. */
+  --ser-radius: 0.5rem;
+  --ser-border-width: 1px;
+  --ser-shadow: none;
+  --ser-reading-leading: 1.9;
+  --ser-motion-scale: 1.25;
 }
 
 @theme inline {
@@ -106,6 +154,31 @@
 /* Optical weight, set by the atmosphere. See Typography.tsx. */
 .ser-display-weight {
   font-weight: var(--ser-display-weight);
+}
+
+/*
+  The models beyond colour.
+
+  These are what separate an atmosphere from a palette. Each exists because
+  a material has a physical reason to behave differently, never because a
+  knob was available:
+
+  - `ser-card` — corner and edge. Paper curls (1.75rem, a whisper of a
+    shadow); stone is cut (0.5rem, dead flat). The card is the same card.
+  - `ser-reading` — air between lines. A gallery gives text more room than a
+    notebook does, and a notebook more than a lamplit desk.
+  - `--ser-motion-scale` — mass. Stone is heavy, so everything in Piedra
+    takes a quarter longer to settle. The easing never changes, only the
+    duration: same physics, different weight.
+*/
+.ser-card {
+  border-radius: var(--ser-radius);
+  border-width: var(--ser-border-width);
+  box-shadow: var(--ser-shadow);
+}
+
+.ser-reading {
+  line-height: var(--ser-reading-leading);
 }
 
 /*
@@ -172,7 +245,8 @@ body {
 }
 
 .ser-settle-in {
-  animation: ser-settle-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: ser-settle-in calc(420ms * var(--ser-motion-scale))
+    cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /*
@@ -189,5 +263,6 @@ body {
   that matters most should be the thing that settles last.
 */
 .ser-breathe-in {
-  animation: ser-settle-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 260ms both;
+  animation: ser-settle-in calc(700ms * var(--ser-motion-scale))
+    cubic-bezier(0.22, 1, 0.36, 1) calc(260ms * var(--ser-motion-scale)) both;
 }
