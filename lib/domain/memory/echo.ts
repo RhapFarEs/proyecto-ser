@@ -40,10 +40,19 @@ export interface EchoSource {
 }
 
 /**
- * Below this, a memory is still recent enough to be remembered without
- * help, and returning it would be telling someone what they already know.
+ * Below this, a memory is still recent enough to be remembered without help,
+ * and returning it would be telling someone what they already know.
+ *
+ * Lowered from thirty. Thirty guaranteed a month of silence even when
+ * something worth meeting again had been written on the second day, and the
+ * first month is exactly when the product has nothing else to offer.
+ *
+ * Two weeks is set by forgetting, which is a fact about memory, and
+ * deliberately not by any judgment of what the person wrote. A floor used as
+ * a proxy for "important enough to come back" would be a verdict on their
+ * writing — see the return-modes principle in CONSTITUTION.md.
  */
-const MIN_AGE_DAYS = 30;
+const MIN_AGE_DAYS = 14;
 
 /**
  * Shorter than this and there isn't enough there to meet again. "Descansar"
@@ -55,6 +64,9 @@ const MIN_TEXT_LENGTH = 12;
  * Roughly one ordinary echo a week. Rarity is the whole design: something
  * that happens every morning is a feature, and people stop seeing features.
  * Anniversaries ignore this — those earn their own day.
+ *
+ * Counted from the day the person started writing, not from the calendar.
+ * See `isEchoDay`.
  */
 const ECHO_INTERVAL_DAYS = 7;
 
@@ -87,6 +99,27 @@ function fullYearsBetween(pastKey: string, todayKey: string): number {
 }
 
 /**
+ * A total order over candidates, independent of how storage returned them.
+ *
+ * `pickStable` indexes into this array, and the array used to arrive in
+ * whatever order the stores happened to yield — newest first, which changes
+ * the moment anything new is written. So the "same echo all day" guarantee
+ * below did not actually hold: writing a note in the afternoon could silently
+ * swap the morning's echo for a different one.
+ *
+ * Sorting by date then id makes the order a property of the data rather than
+ * of the query. Ids are unique, so the order is total and there are no ties
+ * left to break.
+ */
+function inStableOrder(candidates: EchoSource[]): EchoSource[] {
+  return [...candidates].sort((left, right) => {
+    const byDate = left.dateKey.localeCompare(right.dateKey);
+
+    return byDate !== 0 ? byDate : left.id.localeCompare(right.id);
+  });
+}
+
+/**
  * Deterministic per calendar day: the same echo all day, and never a
  * different one for pulling to refresh. A memory that reshuffles on demand
  * is a slot machine, which is the opposite of this product.
@@ -98,8 +131,23 @@ function pickStable<T>(items: T[], todayKey: string): T {
   return items[seed % items.length];
 }
 
-function isEchoDay(todayKey: string): boolean {
-  return dayOfYear(parseLocalDateKey(todayKey)) % ECHO_INTERVAL_DAYS === 0;
+/**
+ * Whether today falls on this person's echo rhythm.
+ *
+ * Measured from the day they started writing rather than from the calendar.
+ * The previous version asked whether the day of the *year* was divisible by
+ * seven, which made echo days fixed dates shared by everybody — so how long
+ * someone waited for their first echo was decided by where in the calendar
+ * they happened to arrive, not by when they started writing. Someone whose
+ * first entry landed just after one of those dates could sit behind the gate
+ * for another week with eligible material, and lowering the age floor did
+ * nothing about it, because the floor and the gate are independent.
+ *
+ * Anchored to their first entry, the rhythm is theirs: the gate opens seven
+ * days after they begin, and every seven days after that.
+ */
+function isEchoDay(todayKey: string, firstWrittenKey: string): boolean {
+  return daysBetween(firstWrittenKey, todayKey) % ECHO_INTERVAL_DAYS === 0;
 }
 
 /**
@@ -136,7 +184,19 @@ export function selectEcho(
     // because the nearer one is the one still close enough to feel.
     .sort((left, right) => right.dateKey.localeCompare(left.dateKey));
 
-  const chosen = anniversaries[0] ?? (isEchoDay(todayKey) ? pickStable(candidates, todayKey) : null);
+  // The rhythm is anchored to when this person started writing, so it is
+  // taken from every source rather than only the eligible ones — otherwise
+  // the anchor would jump forward as entries crossed the age floor, and the
+  // cadence would drift under them. Sources cannot be backdated, so once
+  // someone has written anything this value never moves again.
+  const firstWritten = sources.reduce(
+    (earliest, source) => (source.dateKey < earliest ? source.dateKey : earliest),
+    sources[0].dateKey,
+  );
+
+  const chosen =
+    anniversaries[0] ??
+    (isEchoDay(todayKey, firstWritten) ? pickStable(inStableOrder(candidates), todayKey) : null);
 
   if (!chosen) {
     return null;
