@@ -225,6 +225,27 @@ moves that does not need to. Motion has mass because materials do.
 authentication, or synchronization. A record that cannot be added to offline is
 not the person's record.
 
+**SER never decides whether a memory deserves to return.** It only becomes
+better at deciding *how* each kind of memory returns.
+
+This is the Sixth Law applied to the archive. Filtering what may resurface —
+by length, by substance, by any proxy for importance — is a verdict on
+someone's writing, and it is worse than most verdicts because it is
+irreversible in the direction that matters: the mundane note that means
+nothing at thirty days is often the one that is unbearable at four years, and
+a filter discards it before it can ever become that.
+
+So the axis of improvement is framing, never eligibility. An intention was a
+promise about a day; a journal note was a state of mind; a superseded
+statement of direction was a belief. Returned through one voice they flatten
+into "something you wrote", and a plan handed back reads as an unfinished
+task. Returned through the voice that fits their kind, they are the same
+untouched words in the frame they were always owed.
+
+Future work on memory therefore introduces **return modes, not quality
+filters**. The original is never edited, never scored, never withheld. Only
+the framing evolves.
+
 **Accessibility is not a mode.** Legibility, contrast, motion tolerance and
 assistive-technology support are structural, available in every atmosphere, and
 never require trading identity for usability.

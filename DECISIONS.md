@@ -62,7 +62,11 @@ scoping down, no pilot, no "what if we only…".
 >
 > **G2. Does it judge?**
 > Scores, grades, percentages, verdicts, comparisons to other people, or any
-> number that can fall.
+> number that can fall. Also: **anything that decides which of a person's own
+> writing is worth resurfacing.** Substance thresholds and length floors are
+> verdicts in structural clothing, and they discard the mundane note that
+> becomes the best echo in ten years. Improve how a memory returns, never
+> whether it may.
 >
 > **G3. Does it punish absence, or manufacture a reason to return?**
 > Anything that references missed days, or interrupts without holding something
@@ -238,6 +242,9 @@ meant to be said out loud in meetings.
 > about the market, not about SER.
 
 > **Reject the mechanism, keep the need.** Almost every good rejection does this.
+
+> **Return modes, not quality filters.** We get better at *how* a memory comes
+> back, never at judging whether it earned the right to.
 
 > **Build for the one who returns after a year, not the one who never left.**
 

@@ -139,15 +139,42 @@ product. Today the product has nothing to say for a month and the person leaves.
 | Principle | First Law; the silence-versus-nothing-yet contradiction |
 | Framework | T5 (day one) |
 | Impact | The highest of any item here |
-| Complexity | Low — thresholds and selection rules, no new surfaces |
-| Risk | Medium: echoing something written four days ago can feel trivial rather than moving |
+| Complexity | Low — three constants and one function signature, no new surfaces |
+| Risk | Medium: the first echo may be a stale task, and this sprint does not prevent that |
 | Depends on | Test suite (selection logic must be verifiable) |
-| Success | A person who writes on day 1 and day 3 receives something of their own back within the first week, and it does not feel cheap |
+| Success | A person who writes in their first week receives something of their own back within a fortnight of writing it, on a rhythm set by their own history rather than the calendar |
 
-Concretely: echo floor from 30 days to ~5, own-word reflections from 60 to ~14,
-with an age-weighted curve so older material is preferred as soon as it exists.
+**Frozen scope.** Echo floor from 30 days to 14. Own-word reflections from 60
+to 14. Echo cadence measured from the person's first entry instead of the
+global calendar. Deterministic candidate ordering, without which the existing
+"same echo all day" guarantee does not actually hold.
+
 **Never** fabricate history to fill the gap — that is forgery under the Fifth
 Law.
+
+Three things this deliberately does not do, recorded so they are not
+reproposed as oversights:
+
+- **No age-weighted selection.** It helps in neither regime: early there is no
+  older material to prefer, and later volume already weights the pool heavily
+  toward old material on its own.
+- **No substance or quality filter.** This was proposed and rejected. SER
+  never decides whether a memory deserves to return — see G2 in DECISIONS.md,
+  and the design principle in CONSTITUTION.md.
+- **No new echo sources.** Superseded direction statements became available
+  for the first time in Sprint 1 and are genuinely good material, but they do
+  nothing for a first week and belong to later work.
+
+**The real diagnosis, for whoever picks this up.** Lowering the floor was
+never sufficient on its own: `isEchoDay` gated echoes to fixed days of the
+global calendar, identical for everyone, so the wait was set by where in the
+year someone happened to arrive. Someone writing on day 13 of the year could
+wait eight days behind that gate no matter how low the floor went.
+
+The residual product risk is not solved here. An intention returned as
+"something you wrote" reads as an unfinished task, because a plan and a state
+of mind are being handed back through the same voice. The answer is **return
+modes** — see P2.3 — and not a filter.
 
 ### P0.3 — Export
 
@@ -332,14 +359,31 @@ Never a backlog, never required, never a graph.
 recognition loop does not feel like magic, stop — the strategy above it does not
 survive a mediocre version.
 
-### P2.3 — Anniversaries and invitations
+### P2.3 — Return modes, anniversaries and invitations
 
 Only buildable now, because only now is there something worth saying. Content
 earns the invitation; the calendar never does. If a week holds nothing, SER is
 silent.
 
+**Return modes are the substantive half of this item, and they carry a risk
+P0.2 knowingly left open.** Today every memory comes back through one voice —
+"something you wrote" — and that voice fits a journal note and misfits
+everything else. An intention was a promise about a day, so handed back
+unframed it reads as an unfinished task. A superseded statement of direction
+was a belief. An anniversary already is a return mode, which means the axis
+exists in `Echo.kind` and needs extending rather than inventing.
+
+The rule this must be built under: **SER never decides whether a memory
+deserves to return; it only gets better at deciding how each kind returns.**
+The words are never edited, scored, ranked or withheld — only the frame around
+them changes. A quality filter is the tempting shortcut here and it is
+forbidden under G2; it would also discard the mundane note that becomes the
+best echo in ten years, which is the specific material this product exists to
+keep.
+
 Depends on P1.2 and ideally P2.2. Success: over a year, every message sent
-contained something the person wrote, and there were weeks with none.
+contained something the person wrote, there were weeks with none, and no
+memory was ever excluded for not seeming important enough.
 
 ### P2.4 — The printed year
 
