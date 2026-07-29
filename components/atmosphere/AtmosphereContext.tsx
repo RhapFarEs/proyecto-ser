@@ -6,9 +6,13 @@ import {
   ATMOSPHERE_GROUND,
   ATMOSPHERE_STORAGE_KEY,
   DEFAULT_ATMOSPHERE,
+  SYSTEM_DARK_ATMOSPHERE,
+  SYSTEM_LIGHT_ATMOSPHERE,
   isAtmosphereId,
   type AtmosphereId,
 } from "@/lib/domain/atmosphere/atmosphere";
+
+const SYSTEM_LIGHT_QUERY = "(prefers-color-scheme: light)";
 
 /**
  * Which light is on.
@@ -32,15 +36,31 @@ function subscribe(listener: () => void): () => void {
   // the same eyes, the same room.
   window.addEventListener("storage", listener);
 
+  // Someone who has not chosen a room is following their system, so the room
+  // has to follow it too — including when it flips at sunset on its own.
+  // Once a choice is stored this fires and changes nothing, which is correct.
+  const systemLight = window.matchMedia(SYSTEM_LIGHT_QUERY);
+  systemLight.addEventListener("change", listener);
+
   return () => {
     listeners.delete(listener);
     window.removeEventListener("storage", listener);
+    systemLight.removeEventListener("change", listener);
   };
 }
 
 function getSnapshot(): AtmosphereId {
   const stored = window.localStorage.getItem(ATMOSPHERE_STORAGE_KEY);
-  return isAtmosphereId(stored) ? stored : DEFAULT_ATMOSPHERE;
+  if (isAtmosphereId(stored)) {
+    return stored;
+  }
+
+  // Must resolve exactly as the pre-paint script in app/layout.tsx does, or
+  // the chooser would mark Tinta as selected on a light-mode device that is
+  // plainly showing Papel.
+  return window.matchMedia(SYSTEM_LIGHT_QUERY).matches
+    ? SYSTEM_LIGHT_ATMOSPHERE
+    : SYSTEM_DARK_ATMOSPHERE;
 }
 
 function getServerSnapshot(): AtmosphereId {

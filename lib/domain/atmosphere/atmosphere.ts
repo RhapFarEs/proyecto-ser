@@ -60,6 +60,23 @@ export const ATMOSPHERES: Atmosphere[] = [
 export const DEFAULT_ATMOSPHERE: AtmosphereId = "tinta";
 
 /**
+ * Which room to open in before anyone has chosen one.
+ *
+ * The first frame is the one moment this product knows nothing about the
+ * person in front of it — so it asks the only thing it can: whether their
+ * device is set to light or dark. Opening a laptop in light mode into a
+ * near-black screen is a bad first impression, and it was the previous
+ * behaviour for every new visitor.
+ *
+ * This is a fallback, never an override. A stored choice always wins, and
+ * the moment someone picks a room the system stops being consulted — they
+ * have said what they want, and a preference expressed inside the product
+ * outranks one expressed to the operating system.
+ */
+export const SYSTEM_LIGHT_ATMOSPHERE: AtmosphereId = "papel";
+export const SYSTEM_DARK_ATMOSPHERE: AtmosphereId = "tinta";
+
+/**
  * Each atmosphere's ground, for the mobile browser chrome — the real values
  * live in `globals.css`, and these mirror them because the pre-paint script
  * in `app/layout.tsx` needs the map before any stylesheet has loaded.

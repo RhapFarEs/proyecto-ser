@@ -7,6 +7,8 @@ import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistratio
 import {
   ATMOSPHERE_GROUND,
   ATMOSPHERE_STORAGE_KEY,
+  SYSTEM_DARK_ATMOSPHERE,
+  SYSTEM_LIGHT_ATMOSPHERE,
 } from "@/lib/domain/atmosphere/atmosphere";
 
 const geistSans = Geist({
@@ -102,9 +104,15 @@ export default function RootLayout({
           It has to be a blocking inline script in <head>: any React effect
           runs after paint, by definition too late.
 
-          Deliberately tiny and failure-tolerant. If localStorage is
-          unavailable the catch leaves the CSS default (Tinta) in place,
-          which is a correct outcome rather than an error.
+          With nothing stored it falls back to the device's own setting,
+          because a first visit is the one moment the product knows nothing
+          about the person in front of it. Opening a light-mode laptop into
+          a near-black screen was the previous behaviour for every new
+          visitor, and it is the wrong first frame.
+
+          Deliberately tiny and failure-tolerant. If localStorage or
+          matchMedia is unavailable the catch leaves the CSS default (Tinta)
+          in place, which is a correct outcome rather than an error.
 
           The ground map is serialized from the registry rather than written
           out again, because this used to be a hand-copied literal: the first
@@ -115,7 +123,7 @@ export default function RootLayout({
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var g=${JSON.stringify(ATMOSPHERE_GROUND)};var a=localStorage.getItem(${JSON.stringify(ATMOSPHERE_STORAGE_KEY)});if(g[a]){document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',g[a])}}}catch(e){}`,
+            __html: `try{var g=${JSON.stringify(ATMOSPHERE_GROUND)};var a=localStorage.getItem(${JSON.stringify(ATMOSPHERE_STORAGE_KEY)});if(!g[a]){a=matchMedia('(prefers-color-scheme: light)').matches?${JSON.stringify(SYSTEM_LIGHT_ATMOSPHERE)}:${JSON.stringify(SYSTEM_DARK_ATMOSPHERE)}}document.documentElement.dataset.atmosphere=a;var m=document.querySelector('meta[name=theme-color]');if(m){m.setAttribute('content',g[a])}}catch(e){}`,
           }}
         />
       </head>

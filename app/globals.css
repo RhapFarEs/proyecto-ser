@@ -195,6 +195,63 @@
   --ser-motion-scale: 1;
 }
 
+/*
+  More contrast, in whichever room you already chose.
+
+  This is deliberately NOT a sixth atmosphere. Making "high contrast" a place
+  would force someone who needs legibility to give up their choice of light
+  to get it — the one axis nobody should have to trade away. So it is a
+  modifier that runs across all five, exactly like the reduced-motion switch
+  further down: the same design decision, applied twice.
+
+  It keys off the operating system rather than a setting inside the product,
+  because someone who needs this has already said so once, at the level where
+  it applies to everything. Asking them again in a preferences screen is
+  asking them to repeat themselves.
+
+  The lift is a ladder, not a floor. Raising every muted ink to the AAA
+  minimum collapsed `ink-soft` and `ink-faint` onto nearly the same colour
+  and destroyed the hierarchy, which is its own accessibility failure — so
+  faint clears 7:1 and soft is held clearly above it at ~8.6:1. Values are
+  interpolated toward each atmosphere's own `ink-strong`, so Tinta stays warm
+  and Piedra stays cool instead of everything collapsing to grey. Borders
+  reach the 3:1 that WCAG 1.4.11 asks of a meaningful boundary.
+
+  `ink` and `ink-strong` are untouched: they already clear AAA everywhere.
+*/
+@media (prefers-contrast: more) {
+  :root,
+  [data-atmosphere="tinta"] {
+    --ser-ink-soft: #bdb7b2;
+    --ser-ink-faint: #aba5a0;
+    --ser-line: #66615f;
+  }
+
+  [data-atmosphere="papel"] {
+    --ser-ink-soft: #4a433d;
+    --ser-ink-faint: #585049;
+    --ser-line: #959089;
+  }
+
+  [data-atmosphere="piedra"] {
+    --ser-ink-soft: #3f3f3a;
+    --ser-ink-faint: #4c4c47;
+    --ser-line: #8b8a87;
+  }
+
+  [data-atmosphere="alba"] {
+    --ser-ink-soft: #c8bcb8;
+    --ser-ink-faint: #b6aaa5;
+    --ser-line: #6c6362;
+  }
+
+  [data-atmosphere="carbon"] {
+    --ser-ink-soft: #bbbbbb;
+    --ser-ink-faint: #a8a8a8;
+    --ser-line: #636363;
+  }
+}
+
 @theme inline {
   --color-ground: var(--ser-ground);
   --color-surface: var(--ser-surface);
