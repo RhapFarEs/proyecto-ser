@@ -13,10 +13,8 @@ import {
   getLifeDirection,
   saveLifeDirection,
 } from "@/lib/domain/direction/direction-storage";
-import {
-  createEmptyDirectionRevision,
-  type DirectionRevision,
-} from "@/lib/domain/direction/direction";
+import type { DirectionRevision } from "@/lib/domain/direction/direction";
+import { useAtmosphere } from "@/components/atmosphere/AtmosphereContext";
 import { createLifeArea, type LifeArea } from "@/lib/domain/life-area/life-area";
 import {
   getLifeAreas,
@@ -30,9 +28,14 @@ type AreasMode = "list" | "form";
 
 export default function DirectionView() {
   const hydrated = useHydrated();
-  const [direction, setDirection] = useClientState<DirectionRevision>(
+  // The room they are writing in, recorded with what they write. Read here
+  // rather than inside the storage layer: a view already knows this, and
+  // reaching for it from a module that has no business touching the DOM is
+  // what made the save path untestable.
+  const { atmosphere } = useAtmosphere();
+  const [direction, setDirection] = useClientState<DirectionRevision | null>(
     () => getLifeDirection(),
-    createEmptyDirectionRevision(),
+    null,
   );
   const [history, setHistory] = useClientState<DirectionRevision[]>(
     () => getDirectionHistory(),
@@ -86,7 +89,7 @@ export default function DirectionView() {
     // Null means nothing was appended — unchanged or empty text. Re-reading
     // then would rebuild identical state for no reason, and would push a
     // pointless render through a screen whose whole job is to feel still.
-    if (!saveLifeDirection(statement)) {
+    if (!saveLifeDirection(statement, atmosphere)) {
       return;
     }
 
@@ -101,7 +104,7 @@ export default function DirectionView() {
     >
       <DirectionStatementModule
         key={`statement:${hydrated}`}
-        statement={direction.statement}
+        statement={direction?.statement ?? ""}
         history={history}
         onSave={handleSaveDirection}
       />

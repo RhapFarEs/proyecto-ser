@@ -48,7 +48,7 @@ export default function TodayView() {
 
   // Their own direction takes the place of the product's motto at the foot
   // of the screen, once they've written one.
-  const personalMotto = hydrated ? getLifeDirection().statement : null;
+  const personalMotto = hydrated ? (getLifeDirection()?.statement ?? null) : null;
 
   // Reused, not duplicated: the same Week record Weekly Review writes
   // `focusLifeAreaId` to (via WeeklyFocusAreaModule) is only read here.

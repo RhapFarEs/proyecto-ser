@@ -20,6 +20,17 @@
  * Papel are the same idea in both polarities — ink on paper — and a system
  * that survives a full inversion survives anything milder.
  */
+/**
+ * These ids are permanent vocabulary.
+ *
+ * They are written into the archive alongside what a person wrote, naming the
+ * room they chose to sit in, so records years old depend on them still
+ * meaning what they meant. An atmosphere may be *refined* — Papel's ink was
+ * darkened to clear AA and remained the same room — but an id may never be
+ * reused for a different place, and a retired one may never be reassigned.
+ * The same discipline as never reusing a value in a wire protocol, and the
+ * one decision here that real data makes irreversible.
+ */
 export type AtmosphereId = "tinta" | "papel" | "piedra" | "alba" | "carbon";
 
 export interface Atmosphere {
@@ -104,37 +115,4 @@ export const ATMOSPHERE_STORAGE_KEY = "ser.atmosphere";
 
 export function isAtmosphereId(value: unknown): value is AtmosphereId {
   return ATMOSPHERES.some((atmosphere) => atmosphere.id === value);
-}
-
-/**
- * The atmosphere actually on screen right now, for stamping onto whatever
- * the person is writing.
- *
- * Reads the `<html>` attribute rather than localStorage on purpose: the
- * attribute is what the person can actually see, and it is already correct
- * in the case storage is not — someone who has never chosen a room is shown
- * one resolved from their device, and that is still where they were.
- *
- * Returns null off the browser and for ids this build does not recognize,
- * because a revision with no atmosphere is honest while a guessed one is
- * not.
- *
- * ---
- *
- * An atmosphere id, once written into the archive, is permanent vocabulary.
- * Rows recorded years ago name the room a person chose to sit in, so an id
- * may be *refined* — Papel's ink was darkened to clear AA, and it remained
- * the same room — but it may never be reused for a different place, and a
- * retired one may never be reassigned. This is the same discipline as never
- * reusing a value in a wire protocol, and it is the one decision here that
- * real data makes irreversible.
- */
-export function readActiveAtmosphere(): AtmosphereId | null {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  const applied = document.documentElement.dataset.atmosphere;
-
-  return isAtmosphereId(applied) ? applied : null;
 }

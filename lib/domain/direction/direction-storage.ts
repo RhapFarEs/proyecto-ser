@@ -1,13 +1,12 @@
 import storage from "@/lib/storage/storage";
 import { createSyncedStore, type SyncedStore } from "@/lib/sync/createSyncedStore";
-import { readActiveAtmosphere } from "@/lib/domain/atmosphere/atmosphere";
-import { listLive, resolveCurrent, shouldAppend } from "@/lib/domain/revisions/revision";
+import { listLive, resolveCurrent } from "@/lib/domain/revisions/revision";
+import { appendDirectionRevision, directionRevision, type DirectionRevision } from "./direction";
 import {
-  createDirectionRevision,
-  createEmptyDirectionRevision,
-  type DirectionRevision,
-} from "./direction";
-import { normalizeDirectionRevision, parseLegacyDirection } from "./direction-migrations";
+  normalizeDirectionRevision,
+  parseLegacyDirection,
+  repairFabricatedDate,
+} from "./direction-migrations";
 
 export const LIFE_DIRECTION_STORAGE_KEY = "ser.direction";
 
@@ -23,7 +22,7 @@ interface DirectionRevisionRow {
 }
 
 function fromRow(row: DirectionRevisionRow): DirectionRevision {
-  return Object.freeze({
+  return directionRevision({
     id: row.id,
     statement: row.statement,
     supersedes: row.supersedes,
@@ -61,6 +60,10 @@ function toRow(revision: DirectionRevision, userId: string): DirectionRevisionRo
  * sync conflict — two devices can no longer fight over the same row, because
  * they no longer write to the same row.
  *
+ * This module is a shell. It owns the impure edges — what time it is, which
+ * id to mint, what is on disk — and nothing else; every decision it appears
+ * to make is made by a pure function it calls.
+ *
  * The exposed surface is deliberately narrowed. `update()` mutates in place
  * and bumps `updatedAt`; one call to it would destroy the immutability this
  * module exists to guarantee. Leaving it off this type makes that a compile
@@ -82,14 +85,18 @@ const store: DirectionStore = createSyncedStore<DirectionRevision, DirectionRevi
 });
 
 /**
- * The statement that is true right now.
+ * The statement that is true right now, or null when nothing has been
+ * written.
  *
- * Never null, so the screens that only want to show the current sentence do
- * not each have to handle "nothing written yet". The empty stand-in is never
- * stored.
+ * Null rather than an empty stand-in. A placeholder revision saved three
+ * callers a `?.`, and in exchange put an object in circulation that was
+ * indistinguishable from a real one — same shape, plausible dates, and the
+ * legacy id, which is the id of the person's actual first statement. Any
+ * future code that persisted it would have overwritten the oldest thing they
+ * wrote. Absence should look like absence.
  */
-export function getLifeDirection(): DirectionRevision {
-  return resolveCurrent(store.getAll()) ?? createEmptyDirectionRevision();
+export function getLifeDirection(): DirectionRevision | null {
+  return resolveCurrent(store.getAll());
 }
 
 /**
@@ -109,33 +116,30 @@ export function getDirectionHistory(): DirectionRevision[] {
 /**
  * Appends a revision, or does nothing.
  *
- * Returns null when nothing was written — unchanged text, or empty text —
- * so the caller can tell "saved" from "no-op" without comparing strings
- * again. From the person's side both are success: their words are safe
- * either way, and a history should not fill with duplicates because someone
- * pressed Guardar twice.
+ * Every varying input is supplied here and passed down: the id, the clock,
+ * and the atmosphere, which the caller reads from the room the person is
+ * actually sitting in. An earlier version reached for `document` from inside
+ * this module, which made the append path impossible to test and meant that
+ * calling it anywhere without a DOM silently recorded no atmosphere at all —
+ * a quiet loss of archive quality rather than an error.
  *
- * This is the only place in the module that knows what time it is or where
- * the person is sitting. Everything it depends on — appending or not,
- * resolving the current revision, building the record — is pure and tested
- * without a browser.
+ * Returns null when nothing was written, so the caller can tell "saved" from
+ * "no-op". From the person's side both are success: their words are safe
+ * either way.
  */
-export function saveLifeDirection(statement: string): DirectionRevision | null {
-  const current = resolveCurrent(store.getAll());
-
-  if (!shouldAppend(current?.statement ?? null, statement)) {
-    return null;
-  }
-
-  const revision = createDirectionRevision({
+export function saveLifeDirection(
+  statement: string,
+  atmosphere: string | null,
+): DirectionRevision | null {
+  const revision = appendDirectionRevision(store.getAll(), statement, {
     id: crypto.randomUUID(),
     now: new Date().toISOString(),
-    statement: statement.trim(),
-    supersedes: current?.id ?? null,
-    atmosphere: readActiveAtmosphere(),
+    atmosphere,
   });
 
-  store.save(revision);
+  if (revision) {
+    store.save(revision);
+  }
 
   return revision;
 }
@@ -161,8 +165,14 @@ export function pullLifeDirection(): Promise<void> {
  * entity ids and lose the data, so it is read here first, before any
  * `store.*` call can adopt and clear that key.
  *
- * The parsing itself lives in `direction-migrations.ts` as a pure function;
- * this only supplies the raw value and the clock.
+ * Also repairs records already imported by an earlier version, which stamped
+ * their own run time into `createdAt`. Writing the correction back means it
+ * happens to the data once, rather than being re-derived on every read
+ * forever — and because the repair returns null when there is nothing to fix,
+ * running this again is free.
+ *
+ * Both the parsing and the repair are pure functions living in
+ * `direction-migrations.ts`; this only supplies the raw value and the clock.
  */
 export async function migrateLifeDirectionToCloud(): Promise<void> {
   const raw = storage.get<unknown>(LIFE_DIRECTION_STORAGE_KEY, undefined);
@@ -170,6 +180,14 @@ export async function migrateLifeDirectionToCloud(): Promise<void> {
 
   if (legacy) {
     store.save(legacy);
+  }
+
+  for (const revision of store.getAll()) {
+    const repaired = repairFabricatedDate(revision);
+
+    if (repaired) {
+      store.save(repaired);
+    }
   }
 
   await store.runInitialMigration();

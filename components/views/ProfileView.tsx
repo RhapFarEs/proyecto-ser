@@ -219,7 +219,7 @@ export default function ProfileView() {
   // tend, the direction they wrote for themselves — is what makes this page
   // theirs. Read-only here; both are edited where they're created.
   const caredForAreas = hydrated ? getLifeAreas().filter((area) => area.active) : [];
-  const directionStatement = hydrated ? getLifeDirection().statement.trim() : "";
+  const directionStatement = hydrated ? (getLifeDirection()?.statement.trim() ?? "") : "";
 
   return (
     <Page title="Perfil" subtitle="Quién eres aquí, y qué te importa.">
