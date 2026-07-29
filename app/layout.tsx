@@ -80,6 +80,12 @@ export default function RootLayout({
       // Every user-facing string in this product is Spanish. With `en`,
       // screen readers pronounce all of it with English phonetics.
       lang="es"
+      // The pre-paint script below sets `data-atmosphere` here before React
+      // hydrates, so this element's attributes intentionally differ from what
+      // the server rendered — the server cannot know which light someone
+      // reads in. This suppresses the warning for this element only; it does
+      // not extend to the tree, so a real mismatch anywhere else still shows.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
       <head>
