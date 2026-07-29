@@ -31,7 +31,11 @@ export default function AtmosphereChooser() {
             role="radio"
             aria-checked={selected}
             onClick={() => setAtmosphere(option.id)}
-            className={`block w-full rounded-[1.75rem] border p-5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint sm:p-6 ${
+            // The chooser has to obey the atmosphere it chooses. With a
+            // hardcoded radius it was the one card in the product that never
+            // changed shape — you picked Carbón and every card everywhere
+            // went architectural except the one under your finger.
+            className={`ser-card block w-full border p-5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint sm:p-6 ${
               selected
                 ? "border-ink-faint bg-surface-raised"
                 : "border-line bg-surface hover:bg-surface-raised"

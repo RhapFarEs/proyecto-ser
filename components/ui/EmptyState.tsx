@@ -13,7 +13,7 @@ export default function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[1.75rem] border border-line bg-surface px-6 py-10 text-center">
+    <div className="ser-card flex flex-col items-center justify-center border border-line bg-surface px-6 py-10 text-center">
       <div className="max-w-sm space-y-3">
         <Body className="text-ink">{title}</Body>
         {description ? <Caption>{description}</Caption> : null}

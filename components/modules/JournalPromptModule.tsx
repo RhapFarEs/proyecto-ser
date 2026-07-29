@@ -10,7 +10,7 @@ export default function JournalPromptModule() {
         subtitle="No busques la respuesta perfecta. Solo responde con honestidad."
       />
 
-      <div className="rounded-[1.35rem] border border-line bg-surface px-4 py-3">
+      <div className="ser-field border border-line bg-surface px-4 py-3">
         <Body className="text-ink">
           ¿Qué ocupa más espacio en tu mente hoy?
         </Body>

@@ -46,7 +46,15 @@ export default function IntentionModule({
 
         {mode === "saved" ? (
           <>
-            <Body className="text-xl font-light leading-8 text-ink sm:text-2xl sm:leading-9">
+            {/*
+              `ser-display-weight`, not `font-light`. A hardcoded 300 is the
+              exact bug the weight model exists to prevent: light-on-dark
+              reads optically heavier, so the 300 that is elegant in Tinta
+              goes anaemic as dark-on-light, and Papel and Piedra carry 400
+              to *appear* the same. This is the largest text on the home
+              screen, so it was the most visible place to get it wrong.
+            */}
+            <Body className="ser-display-weight text-xl leading-8 text-ink sm:text-2xl sm:leading-9">
               {intention}
             </Body>
 

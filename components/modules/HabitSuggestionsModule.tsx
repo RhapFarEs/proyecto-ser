@@ -76,7 +76,7 @@ export default function HabitSuggestionsModule({
       </div>
 
       {expanded ? (
-        <div className="space-y-3 rounded-[1.75rem] border border-line bg-surface p-4">
+        <div className="ser-card space-y-3 border border-line bg-surface p-4">
           {CATEGORY_ORDER.map((category) => {
             const items = availableSuggestions.filter(
               (suggestion) => suggestion.category === category,

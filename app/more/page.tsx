@@ -9,8 +9,14 @@ import AtmosphereChooser from "@/components/atmosphere/AtmosphereChooser";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { APP_VERSION } from "@/lib/domain/feedback/feedback-context";
 
+/*
+  `ser-card`, not a hardcoded radius. These rows are cards and have to age
+  with every other card: at 1.75rem they stayed soft in Piedra and Carbón
+  while the rest of the product went architectural, which made Más look like
+  a screen from a different application.
+*/
 const rowClassName =
-  "block w-full rounded-[1.75rem] border border-line bg-surface p-5 text-left backdrop-blur-sm transition-colors hover:bg-surface-raised sm:p-6";
+  "ser-card block w-full border border-line bg-surface p-5 text-left backdrop-blur-sm transition-colors hover:bg-surface-raised sm:p-6";
 
 export default function MorePage() {
   const { changeAccount, signOut } = useAuth();

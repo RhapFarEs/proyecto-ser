@@ -45,6 +45,7 @@
   --ser-body-weight: 400;
 
   --ser-radius: 1.75rem;
+  --ser-radius-field: 1.35rem;
   --ser-border-width: 1px;
   --ser-shadow: none;
   --ser-reading-leading: 1.75;
@@ -80,6 +81,7 @@
 
   /* Softer corners and a whisper of a shadow: paper curls, it doesn't cut. */
   --ser-radius: 1.75rem;
+  --ser-radius-field: 1.35rem;
   --ser-border-width: 1px;
   --ser-shadow: 0 1px 2px rgb(60 50 40 / 0.04);
   --ser-reading-leading: 1.8;
@@ -115,6 +117,7 @@
 
   /* Architectural, not soft. Flat, with more air between lines. */
   --ser-radius: 0.5rem;
+  --ser-radius-field: 0.4rem;
   --ser-border-width: 1px;
   --ser-shadow: none;
   --ser-reading-leading: 1.9;
@@ -153,6 +156,7 @@
 
   --ser-display-weight: 300;
   --ser-radius: 2rem;
+  --ser-radius-field: 1.5rem;
   --ser-border-width: 1px;
   --ser-shadow: none;
   --ser-reading-leading: 1.85;
@@ -184,6 +188,7 @@
 
   --ser-display-weight: 300;
   --ser-radius: 0.5rem;
+  --ser-radius-field: 0.4rem;
   --ser-border-width: 1px;
   --ser-shadow: none;
   --ser-reading-leading: 1.7;
@@ -234,6 +239,10 @@
 
   - `ser-card` — corner and edge. Paper curls (1.75rem, a whisper of a
     shadow); stone is cut (0.5rem, dead flat). The card is the same card.
+  - `ser-field` — the same corner at the scale of a form control. Inputs
+    were frozen at a hardcoded 1.35rem, so in Piedra and Carbón every card
+    on the screen went architectural while the box you type into stayed
+    soft. A field is a small card, and it has to agree with the large ones.
   - `ser-reading` — air between lines. A gallery gives text more room than a
     notebook does, and a notebook more than a lamplit desk.
   - `--ser-motion-scale` — mass. Stone is heavy, so everything in Piedra
@@ -244,6 +253,10 @@
   border-radius: var(--ser-radius);
   border-width: var(--ser-border-width);
   box-shadow: var(--ser-shadow);
+}
+
+.ser-field {
+  border-radius: var(--ser-radius-field);
 }
 
 .ser-reading {
