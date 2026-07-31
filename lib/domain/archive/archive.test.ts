@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Day } from "@/lib/domain/day/day";
+import type { IntentionEntry, JournalEntry } from "@/lib/domain/entry/entry";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 import type { Week } from "@/lib/domain/week/week";
 import {
@@ -227,6 +228,239 @@ describe("gathering every word a person wrote", () => {
     collectArchiveEntries(days, [], []);
 
     expect(days[0].intention).toBe("Caminar");
+  });
+});
+
+/**
+ * `migrateDay` copied the flat legacy fields into `day.entries` and kept the
+ * originals, so both sides describe one thing the person wrote once. The
+ * policy collapses a pair only where one was provably copied from the other,
+ * and only while the copy still says the same thing.
+ */
+function promotedJournal(
+  dateKey: string,
+  content: string,
+  mood = "",
+  closingReflection = "",
+): JournalEntry {
+  return {
+    id: `${dateKey}:journal`,
+    type: "journal",
+    mood,
+    content,
+    closingReflection,
+    createdAt: dateKey,
+    updatedAt: dateKey,
+  };
+}
+
+function promotedIntention(dateKey: string, content: string): IntentionEntry {
+  return { id: `${dateKey}:intention`, type: "intention", content, createdAt: dateKey, updatedAt: dateKey };
+}
+
+describe("one writing is exported once", () => {
+  it("collapses a promoted note and the field it was copied from", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "cansado", entry: "Fue un día largo", closing: "" },
+          entries: [promotedJournal("2026-03-01", "Fue un día largo", "cansado")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "note", text: "Fue un día largo", mood: "cansado" },
+    ]);
+  });
+
+  it("collapses a promoted intention and the field it was copied from", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          intention: "Caminar despacio",
+          entries: [promotedIntention("2026-03-01", "Caminar despacio")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "intention", text: "Caminar despacio" },
+    ]);
+  });
+
+  it("ignores surrounding whitespace when deciding they are the same", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "  Fue un día largo\n", closing: "" },
+          entries: [promotedJournal("2026-03-01", "Fue un día largo")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toHaveLength(1);
+  });
+
+  it("exports a closing reflection that only the promoted copy still holds", () => {
+    // The hole this correction closes. `closingReflection` was read by
+    // nothing, so a day whose flat `closing` had been emptied lost that text
+    // from the export entirely — a gap in the one feature whose job is not
+    // losing anything.
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "", closing: "" },
+          entries: [promotedJournal("2026-03-01", "El día", "", "Cómo terminó")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toContainEqual({
+      dateKey: "2026-03-01",
+      kind: "reflection",
+      text: "Cómo terminó",
+    });
+  });
+
+  it("collapses a closing reflection held identically on both sides", () => {
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "", closing: "Cómo terminó" },
+          entries: [promotedJournal("2026-03-01", "", "", "Cómo terminó")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "reflection", text: "Cómo terminó" },
+    ]);
+  });
+});
+
+describe("two writings are never merged", () => {
+  it("keeps both when the copy and its source have diverged", () => {
+    // Ambiguous by construction: the flat field could still be written after
+    // promotion, and neither side carries a timestamp of its own. Choosing a
+    // winner would invent an order we do not have.
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "Lo que quedó en el campo antiguo", closing: "" },
+          entries: [promotedJournal("2026-03-01", "Lo que se copió entonces")],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries.map((entry) => entry.text)).toEqual([
+      "Lo que se copió entonces",
+      "Lo que quedó en el campo antiguo",
+    ]);
+  });
+
+  it("keeps a live closing reflection separate from the legacy one", () => {
+    // Reflections come from day-reflection.ts and are never promotions, so
+    // matching text is a coincidence rather than a copy.
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "", closing: "Cómo terminó" },
+          entries: [
+            {
+              id: "2026-03-01:reflection",
+              type: "reflection",
+              content: "Cómo terminó",
+              createdAt: "2026-03-01",
+              updatedAt: "2026-03-01",
+            },
+          ],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toHaveLength(2);
+  });
+
+  it("keeps two notes that happen to say the same thing on the same day", () => {
+    const entries = collectArchiveEntries(
+      [],
+      [
+        note({ id: "a", dayKey: "2026-03-01", content: "Hoy me costó" }),
+        note({ id: "b", dayKey: "2026-03-01", content: "Hoy me costó" }),
+      ],
+      [],
+    );
+
+    expect(entries).toHaveLength(2);
+  });
+
+  it("keeps a journal record that carries no promotion id", () => {
+    // No known source to have been copied from, so it stands on its own.
+    const entries = collectArchiveEntries(
+      [
+        day({
+          date: "2026-03-01",
+          journal: { mood: "", entry: "El campo plano", closing: "" },
+          entries: [{ ...promotedJournal("2026-03-01", "El campo plano"), id: "un-uuid" }],
+        }),
+      ],
+      [],
+      [],
+    );
+
+    expect(entries).toHaveLength(2);
+  });
+
+  it("still exports the flat fields when nothing was ever promoted", () => {
+    const entries = collectArchiveEntries(
+      [day({ date: "2026-03-01", journal: { mood: "", entry: "El campo plano", closing: "El cierre" } })],
+      [],
+      [],
+    );
+
+    expect(entries).toEqual([
+      { dateKey: "2026-03-01", kind: "note", text: "El campo plano" },
+      { dateKey: "2026-03-01", kind: "reflection", text: "El cierre" },
+    ]);
+  });
+
+  it("gives the same answer however many times it is asked", () => {
+    const days = [
+      day({
+        date: "2026-03-01",
+        intention: "Caminar",
+        journal: { mood: "cansado", entry: "El día", closing: "El cierre" },
+        entries: [
+          promotedIntention("2026-03-01", "Caminar"),
+          promotedJournal("2026-03-01", "El día", "cansado", "El cierre"),
+        ],
+      }),
+    ];
+
+    expect(collectArchiveEntries(days, [], [])).toEqual(collectArchiveEntries(days, [], []));
+    expect(collectArchiveEntries(days, [], [])).toHaveLength(3);
   });
 });
 

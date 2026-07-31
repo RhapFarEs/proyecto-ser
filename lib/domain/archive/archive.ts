@@ -1,5 +1,6 @@
 import { formatDateKeyLongLabel } from "@/lib/date";
 import type { Day } from "@/lib/domain/day/day";
+import type { IntentionEntry, JournalEntry } from "@/lib/domain/entry/entry";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 import type { Week } from "@/lib/domain/week/week";
 
@@ -59,6 +60,32 @@ function hasText(value: string | undefined | null): value is string {
 }
 
 /**
+ * The id `migrateDay` mints when it copies a flat legacy field into
+ * `day.entries`.
+ *
+ * `createJournalEntry` and `createIntentionEntry` have exactly one caller
+ * each, both inside that migration, so a record carrying this id *is* a copy
+ * of the corresponding flat field — provenance by construction rather than a
+ * guess from similar-looking text. A record of the same type without this id
+ * has no known source, so it is treated as a writing in its own right.
+ */
+function promotedId(dateKey: string, kind: "journal" | "intention"): string {
+  return `${dateKey}:${kind}`;
+}
+
+/**
+ * Exact equality on trimmed text, and deliberately nothing cleverer.
+ *
+ * Two records are only ever collapsed when one was provably copied from the
+ * other, and then only when the copy still says the same thing. Fuzzy
+ * matching would eventually merge two things a person genuinely wrote twice,
+ * and a merge cannot be undone by whoever reads the archive later.
+ */
+function sameText(value: string, other: string | undefined): boolean {
+  return other !== undefined && value.trim() === other.trim();
+}
+
+/**
  * Everything a person wrote, gathered out of the shapes it is stored in.
  *
  * Pure, and separated from the storage reads on purpose. This is the part of
@@ -85,11 +112,46 @@ export function collectArchiveEntries(
   const entries: ArchiveEntry[] = [];
 
   for (const day of days) {
-    if (hasText(day.intention)) {
+    const promotedJournal = day.entries.find(
+      (entry): entry is JournalEntry =>
+        entry.type === "journal" && entry.id === promotedId(day.date, "journal"),
+    );
+    const promotedIntention = day.entries.find(
+      (entry): entry is IntentionEntry =>
+        entry.type === "intention" && entry.id === promotedId(day.date, "intention"),
+    );
+
+    // The promoted record first, because it is the richer of the pair: it
+    // carries the closing reflection that the flat field holds separately,
+    // and `closingReflection` was previously read by nothing at all.
+    if (promotedIntention && hasText(promotedIntention.content)) {
+      entries.push({ dateKey: day.date, kind: "intention", text: promotedIntention.content });
+    }
+
+    if (hasText(day.intention) && !sameText(day.intention, promotedIntention?.content)) {
       entries.push({ dateKey: day.date, kind: "intention", text: day.intention });
     }
 
-    if (hasText(day.journal?.entry)) {
+    if (promotedJournal) {
+      if (hasText(promotedJournal.content)) {
+        entries.push({
+          dateKey: day.date,
+          kind: "note",
+          text: promotedJournal.content,
+          ...(hasText(promotedJournal.mood) ? { mood: promotedJournal.mood } : {}),
+        });
+      }
+
+      if (hasText(promotedJournal.closingReflection)) {
+        entries.push({
+          dateKey: day.date,
+          kind: "reflection",
+          text: promotedJournal.closingReflection,
+        });
+      }
+    }
+
+    if (hasText(day.journal?.entry) && !sameText(day.journal.entry, promotedJournal?.content)) {
       entries.push({
         dateKey: day.date,
         kind: "note",
@@ -98,11 +160,21 @@ export function collectArchiveEntries(
       });
     }
 
-    if (hasText(day.journal?.closing)) {
+    if (
+      hasText(day.journal?.closing) &&
+      !sameText(day.journal.closing, promotedJournal?.closingReflection)
+    ) {
       entries.push({ dateKey: day.date, kind: "reflection", text: day.journal.closing });
     }
 
     for (const entry of day.entries) {
+      // Already emitted above, paired with the flat field it was copied from.
+      if (entry === promotedJournal || entry === promotedIntention) {
+        continue;
+      }
+
+      // A journal or intention record that does not carry the promotion id
+      // has no known source to be a copy of, so it stands on its own.
       if (entry.type === "journal" && hasText(entry.content)) {
         entries.push({
           dateKey: day.date,
@@ -112,6 +184,9 @@ export function collectArchiveEntries(
         });
       }
 
+      // Never a promotion: closing reflections come from the live feature in
+      // `day-reflection.ts`, so one is always a separate writing from
+      // `day.journal.closing` even when the text happens to match.
       if (entry.type === "reflection" && hasText(entry.content)) {
         entries.push({ dateKey: day.date, kind: "reflection", text: entry.content });
       }
