@@ -234,7 +234,7 @@ export function collectArchiveEntries(
   return entries;
 }
 
-const KIND_LABEL: Record<ArchiveEntryKind, string> = {
+export const KIND_LABEL: Record<ArchiveEntryKind, string> = {
   intention: "Intención",
   note: "Nota",
   reflection: "Cierre del día",

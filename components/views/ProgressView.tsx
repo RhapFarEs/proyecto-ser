@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import Page from "@/components/ui/Page";
@@ -8,6 +8,7 @@ import Card from "@/components/ui/Card";
 import Section from "@/components/ui/Section";
 import SectionTitle from "@/components/ui/SectionTitle";
 import EmptyState from "@/components/ui/EmptyState";
+import Input from "@/components/ui/Input";
 import { Body, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useHydrated } from "@/lib/hooks/useHydrated";
@@ -15,6 +16,9 @@ import { getAllDays } from "@/lib/domain/day/day-storage";
 import { getWeeks } from "@/lib/domain/week/week-storage";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
 import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
+import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
+import { collectArchiveEntries, KIND_LABEL } from "@/lib/domain/archive/archive";
+import { searchArchive } from "@/lib/domain/archive/search";
 import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import { getJournalNotesForDay } from "@/lib/domain/day/day-journal";
 import type { Day } from "@/lib/domain/day/day";
@@ -32,6 +36,9 @@ import {
  * to scroll through anxiously.
  */
 const MAX_PATH_DAYS = 30;
+
+/** Enough to find something; few enough that the answer stays readable. */
+const MAX_SEARCH_RESULTS = 50;
 
 type PathDay = {
   day: Day;
@@ -99,6 +106,22 @@ export default function ProgressView() {
     [hydrated],
   );
 
+  const [query, setQuery] = useState("");
+
+  /*
+    Built from the same collector the export uses, so searching reaches every
+    place a person has written rather than only the ones this screen happens
+    to show. Recomputed when the query first appears rather than on every
+    keystroke, since the archive does not change while someone is typing.
+  */
+  const corpus = useMemo(
+    () => (hydrated ? collectArchiveEntries(getAllDays(), getJournalNotes(), getWeeks()) : []),
+    [hydrated],
+  );
+
+  const results = useMemo(() => searchArchive(corpus, query), [corpus, query]);
+  const isSearching = query.trim().length > 0;
+
   const reflectedWeeks = useMemo(
     () =>
       hydrated
@@ -111,11 +134,55 @@ export default function ProgressView() {
 
   return (
     <Page title="Tu camino" subtitle="Lo que has vivido, en tus propias palabras.">
-      {profile ? (
+      {profile && !isSearching ? (
         <Caption>
           Comenzaste este camino el {formatDateKeyLongLabel(profile.startedAt)}.
         </Caption>
       ) : null}
+
+      <Input
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Busca algo que hayas escrito"
+        aria-label="Busca algo que hayas escrito"
+      />
+
+      {isSearching ? (
+        <Section>
+          <div className="space-y-3">
+            <SectionTitle>
+              {results.length > 0
+                ? `${results.length} ${results.length === 1 ? "resultado" : "resultados"}`
+                : "Nada por aquí"}
+            </SectionTitle>
+
+            {results.length > 0 ? (
+              <div className="space-y-2">
+                {results.slice(0, MAX_SEARCH_RESULTS).map((match, index) => (
+                  <Card key={`${match.dateKey}:${index}`} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Caption>{formatDateKeyLongLabel(match.dateKey)}</Caption>
+                      <Caption>· {KIND_LABEL[match.kind]}</Caption>
+                    </div>
+                    {/* Their words, whole and unhighlighted. */}
+                    <Body className="ser-voice text-ink">{match.text}</Body>
+                  </Card>
+                ))}
+
+                {results.length > MAX_SEARCH_RESULTS ? (
+                  <Caption>
+                    Se muestran los {MAX_SEARCH_RESULTS} más recientes. Añade una palabra para
+                    acotar.
+                  </Caption>
+                ) : null}
+              </div>
+            ) : (
+              <Caption>No encontramos esas palabras en lo que has escrito.</Caption>
+            )}
+          </div>
+        </Section>
+      ) : (
+        <>
 
       <Section>
         <div className="space-y-3">
@@ -246,6 +313,8 @@ export default function ProgressView() {
           )}
         </div>
       </Section>
+        </>
+      )}
     </Page>
   );
 }
