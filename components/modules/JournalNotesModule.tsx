@@ -173,7 +173,7 @@ export default function JournalNotesModule({
     setExpandedNoteId((current) => (current === noteId ? null : noteId));
   };
 
-  // getJournalNotesForDay returns oldest first (the order they were
+  // `todayNotes` arrives oldest first (the order they were
   // written, and what History's "latest note" preview logic relies on) —
   // reversed only here, for display, so today's list reads newest first.
   const notesNewestFirst = [...todayNotes].reverse();

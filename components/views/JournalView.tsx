@@ -9,14 +9,19 @@ import journalModules from "@/components/modules/journal.config";
 import { Caption } from "@/components/ui/Typography";
 import { createDay, type Day } from "@/lib/domain/day/day";
 import { getAllDays, getDay, updateDay } from "@/lib/domain/day/day-storage";
-import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
+import type { JournalEntry } from "@/lib/domain/entry/entry";
 import {
   addJournalNote,
   deleteJournalNote,
   editJournalNote,
-  getJournalNotesForDay,
   restoreJournalNote,
 } from "@/lib/domain/day/day-journal";
+import {
+  buildJournalHistory,
+  groupJournalNotesByDayKey,
+  type JournalHistoryDay,
+} from "@/lib/domain/day/day-history";
+import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
 import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
 import { getLocalDateKey } from "@/lib/date";
 import { useClientState } from "@/lib/hooks/useClientState";
@@ -29,7 +34,40 @@ export default function JournalView() {
   const [day, setDayState] = useClientState<Day>(() => getDay(todayDate), createDay(todayDate));
   const [activeTab, setActiveTab] = useState<"write" | "history">("write");
 
-  const todayNotes = getJournalNotesForDay(day);
+  /*
+    Everything this screen reads out of the journal store, derived in one
+    place and one pass.
+
+    Each of these used to scan the whole store independently — today's notes,
+    the mood vocabulary, and the history tab twice over — and the history
+    ones scanned it once per day, which is days × notes. They all change at
+    exactly the same moment and never at any other: when something is
+    written. `day` is the object every write returns a new copy of, so it is
+    the honest trigger for all three.
+  */
+  const { todayNotes, historyItems, ownMoods } = useMemo(() => {
+    if (!hydrated) {
+      return {
+        todayNotes: [] as JournalEntry[],
+        historyItems: [] as JournalHistoryDay[],
+        ownMoods: [] as string[],
+      };
+    }
+
+    const notesByDayKey = groupJournalNotesByDayKey(getJournalNotes());
+
+    // `day` is the live copy of today's record — swap it in over the stored
+    // snapshot so a closing reflection written a moment ago shows up in the
+    // history tab immediately, without waiting for a storage re-read.
+    const days = getAllDays().map((stored) => (stored.id === day.id ? day : stored));
+
+    return {
+      todayNotes: notesByDayKey.get(todayDate) ?? [],
+      historyItems: buildJournalHistory(days, notesByDayKey),
+      // Their words replace the product's suggested ones once they have any.
+      ownMoods: getOwnMoodVocabulary(),
+    };
+  }, [hydrated, day, todayDate]);
 
   const handleSaveNote = (mood: string, content: string) => {
     const next = updateDay(todayDate, (current) => addJournalNote(current, mood, content));
@@ -53,28 +91,9 @@ export default function JournalView() {
     setDayState(next);
   };
 
-  // Their words replace the product's suggested ones once they have any.
-  const ownMoods = hydrated ? getOwnMoodVocabulary() : [];
-
   const visibleModules = [...journalModules]
     .filter((module) => module.enabled)
     .sort((left, right) => left.order - right.order);
-
-  const storedDays = useMemo(() => {
-    if (!hydrated) {
-      return [];
-    }
-
-    // `day` is the live copy of today's record — swap it in over the stored
-    // snapshot so a note saved a moment ago shows up in the history tab
-    // immediately, without waiting for a storage re-read.
-    return getAllDays()
-      .map((stored) => (stored.id === day.id ? day : stored))
-      .filter(
-        (candidate) =>
-          getJournalNotesForDay(candidate).length > 0 || hasClosingReflection(candidate),
-      );
-  }, [hydrated, day]);
 
   return (
     <Page title="Diario" subtitle="Escribe con honestidad. Nadie te está juzgando.">
@@ -126,7 +145,7 @@ export default function JournalView() {
           })}
         </div>
       ) : (
-        <JournalHistoryModule days={storedDays} />
+        <JournalHistoryModule items={historyItems} />
       )}
     </Page>
   );

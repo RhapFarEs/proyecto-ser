@@ -20,7 +20,7 @@ import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
 import { collectArchiveEntries, KIND_LABEL } from "@/lib/domain/archive/archive";
 import { searchArchive } from "@/lib/domain/archive/search";
 import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
-import { getJournalNotesForDay } from "@/lib/domain/day/day-journal";
+import type { JournalNote } from "@/lib/domain/journal/journal";
 import type { Day } from "@/lib/domain/day/day";
 import type { Habit } from "@/lib/domain/habit/habit";
 import type { Week } from "@/lib/domain/week/week";
@@ -54,8 +54,14 @@ type PathDay = {
  * Days with nothing are simply absent, never shown as gaps or failures
  * (LANGUAGE_GUIDE.md: absence is silence, never a marked failure).
  */
-function buildPathDays(days: Day[], habits: Habit[]): PathDay[] {
+function buildPathDays(days: Day[], habits: Habit[], notes: JournalNote[]): PathDay[] {
   const habitById = new Map(habits.map((habit) => [habit.id, habit]));
+
+  // Asking the store per day whether that day was written on is days × notes,
+  // and the `MAX_PATH_DAYS` cap below never helped: it slices after the work,
+  // so the last thirty days cost a scan of every note ever written, once for
+  // each of the years behind them. One pass answers all of them.
+  const dayKeysWithNotes = new Set(notes.map((note) => note.dayKey));
 
   return days
     .map((day) => {
@@ -76,7 +82,7 @@ function buildPathDays(days: Day[], habits: Habit[]): PathDay[] {
         // that only says "dejaste una intención" is a log of events, and
         // three hundred of those look identical after a year.
         intention: day.intention.trim(),
-        wroteJournal: getJournalNotesForDay(day).length > 0,
+        wroteJournal: dayKeysWithNotes.has(day.date),
         closedDay: hasClosingReflection(day),
         sustained,
       };
@@ -98,11 +104,14 @@ export default function ProgressView() {
   const { profile } = useAuth();
   const hydrated = useHydrated();
 
-  const direction = hydrated ? getLifeDirection() : null;
+  // Memoised because the search field below lives on this screen: without it
+  // every keystroke re-resolved the direction's revision chain for a sentence
+  // that cannot have changed while someone is typing.
+  const direction = useMemo(() => (hydrated ? getLifeDirection() : null), [hydrated]);
   const statement = direction?.statement.trim() ?? "";
 
   const pathDays = useMemo(
-    () => (hydrated ? buildPathDays(getAllDays(), getHabits()) : []),
+    () => (hydrated ? buildPathDays(getAllDays(), getHabits(), getJournalNotes()) : []),
     [hydrated],
   );
 

@@ -60,10 +60,6 @@ export function getJournalNotes(): JournalNote[] {
   return store.getAll();
 }
 
-export function getJournalNotesForDayKey(dayKey: string): JournalNote[] {
-  return store.getAll().filter((note) => note.dayKey === dayKey);
-}
-
 export function saveJournalNote(dayKey: string, mood: string, content: string): JournalNote {
   const note = createJournalNote(dayKey, mood, content);
   store.save(note);

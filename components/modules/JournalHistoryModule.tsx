@@ -7,10 +7,7 @@ import Button from "@/components/ui/Button";
 import Divider from "@/components/ui/Divider";
 import EmptyState from "@/components/ui/EmptyState";
 import { Body, Caption } from "@/components/ui/Typography";
-import type { Day } from "@/lib/domain/day/day";
-import type { JournalEntry } from "@/lib/domain/entry/entry";
-import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
-import { getJournalNotesForDay } from "@/lib/domain/day/day-journal";
+import type { JournalHistoryDay } from "@/lib/domain/day/day-history";
 import { formatDateKeyLabel } from "@/lib/date";
 
 const TIME_FORMAT = new Intl.DateTimeFormat("es-ES", {
@@ -18,21 +15,15 @@ const TIME_FORMAT = new Intl.DateTimeFormat("es-ES", {
   minute: "2-digit",
 });
 
-type HistoryDayItem = {
-  day: Day;
-  notes: JournalEntry[];
-  hasClosing: boolean;
-};
-
-function getHistoryItems(days: Day[]): HistoryDayItem[] {
-  return days
-    .map((day) => ({
-      day,
-      notes: getJournalNotesForDay(day),
-      hasClosing: hasClosingReflection(day),
-    }))
-    .filter((item) => item.notes.length > 0 || item.hasClosing);
-}
+/**
+ * How many days are drawn before asking.
+ *
+ * Roughly a month, which is as far back as anyone scrolls without meaning
+ * to. The rest is not hidden — it is one press away — but someone who
+ * writes daily for five years should not wait for eighteen hundred cards to
+ * render in order to read last Tuesday.
+ */
+const PAGE_SIZE = 30;
 
 function getToggleLabel(noteCount: number, isExpanded: boolean): string {
   if (isExpanded) {
@@ -43,14 +34,18 @@ function getToggleLabel(noteCount: number, isExpanded: boolean): string {
 }
 
 type JournalHistoryModuleProps = {
-  days: Day[];
+  /** Already built and ordered newest first — see `buildJournalHistory`. */
+  items: JournalHistoryDay[];
 };
 
-export default function JournalHistoryModule({ days }: JournalHistoryModuleProps) {
+export default function JournalHistoryModule({ items }: JournalHistoryModuleProps) {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
-  const historyItems = useMemo(() => getHistoryItems(days), [days]);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  if (historyItems.length === 0) {
+  const historyItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
+  const remaining = items.length - historyItems.length;
+
+  if (items.length === 0) {
     return (
       <EmptyState
         title="Aún no hay historial"
@@ -110,6 +105,21 @@ export default function JournalHistoryModule({ days }: JournalHistoryModuleProps
           </Card>
         );
       })}
+
+      {remaining > 0 ? (
+        <div className="flex flex-col items-center gap-1 pt-2">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
+          >
+            Ver días anteriores
+          </Button>
+          <Caption>
+            {remaining === 1 ? "Queda 1 día más" : `Quedan ${remaining} días más`}
+          </Caption>
+        </div>
+      ) : null}
     </div>
   );
 }

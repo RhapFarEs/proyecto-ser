@@ -1,49 +1,20 @@
 import type { Day } from "./day";
-import type { JournalEntry } from "@/lib/domain/entry/entry";
 import {
-  getJournalNotesForDayKey,
   removeJournalNote,
   saveJournalNote,
   updateJournalNote,
 } from "@/lib/domain/journal/journal-storage";
-import {
-  applyNoteEdit,
-  applyNoteRestore,
-  type JournalNote,
-} from "@/lib/domain/journal/journal";
+import { applyNoteEdit, applyNoteRestore } from "@/lib/domain/journal/journal";
 
-// Extension point for a future Journey domain: a growing list of
-// timestamped notes across many days is exactly the raw material a
-// narrative/timeline view would read from.
+/*
+  Notes live in their own cloud-synced store (`lib/domain/journal`), not in
+  `day.entries`. The functions here are the same-named, same-signature
+  adapters the rest of the app already called, so no UI component needed to
+  change when the storage moved.
 
-/**
- * Notes now live in their own cloud-synced store (`lib/domain/journal`),
- * not in `day.entries` — this function and `addJournalNote` below are kept
- * as the same-named, same-signature adapter the rest of the app already
- * calls (JournalView, JournalHistoryModule), so no UI component needed to
- * change when the storage moved. `closingReflection` is always empty here:
- * it was never populated by the multi-note flow before this migration
- * either — see `lib/domain/day/day-reflection.ts` for the actual "closing
- * reflection" concept, which is unrelated and untouched.
- */
-function toJournalEntry(note: JournalNote): JournalEntry {
-  return {
-    id: note.id,
-    type: "journal",
-    createdAt: note.createdAt,
-    updatedAt: note.updatedAt,
-    mood: note.mood,
-    content: note.content,
-    closingReflection: "",
-  };
-}
-
-/** All journal notes for a day, oldest first (the order they were written). */
-export function getJournalNotesForDay(day: Day): JournalEntry[] {
-  return getJournalNotesForDayKey(day.date)
-    .map(toJournalEntry)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-}
+  Reading them back belongs in `day-history.ts`, which stays pure; every
+  function in this file touches the store.
+*/
 
 /**
  * Appends a new journal note — never overwrites a previous one. Notes are
