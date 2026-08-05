@@ -34,3 +34,15 @@ export function createJournalNote(dayKey: string, mood: string, content: string)
 export function applyNoteEdit(note: JournalNote, mood: string, content: string): JournalNote {
   return { ...note, mood, content };
 }
+
+/**
+ * Brings back a note that was just removed.
+ *
+ * Removal writes a tombstone rather than dropping the record, so the words
+ * are still there and undoing is only a matter of clearing the mark. Nothing
+ * else is touched: the note returns to the moment it was written rather than
+ * to the end of the day.
+ */
+export function applyNoteRestore(note: JournalNote): JournalNote {
+  return { ...note, deletedAt: null };
+}

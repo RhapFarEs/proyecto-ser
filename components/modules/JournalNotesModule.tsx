@@ -44,6 +44,7 @@ type JournalNotesModuleProps = {
   onSaveNote?: (mood: string, content: string) => void;
   onDeleteNote?: (noteId: string) => void;
   onEditNote?: (noteId: string, mood: string, content: string) => void;
+  onRestoreNote?: (noteId: string) => void;
   /** The words this person actually uses, most-used first. */
   ownMoods?: string[];
 };
@@ -53,6 +54,7 @@ export default function JournalNotesModule({
   onSaveNote,
   onDeleteNote,
   onEditNote,
+  onRestoreNote,
   ownMoods = [],
 }: JournalNotesModuleProps) {
   const [mood, setMood] = useState("");
@@ -73,6 +75,7 @@ export default function JournalNotesModule({
   const [justSaved, setJustSaved] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [justDeletedId, setJustDeletedId] = useState<string | null>(null);
 
   const canSave = content.trim().length > 0;
 
@@ -154,6 +157,18 @@ export default function JournalNotesModule({
     return () => window.clearTimeout(timer);
   }, [justSaved]);
 
+  // Longer than the save confirmation: that one reports something already
+  // done, this one is an offer, and it has to outlast the moment of "wait,
+  // no". It withdraws quietly rather than sitting there as an accusation.
+  useEffect(() => {
+    if (!justDeletedId) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setJustDeletedId(null), 9000);
+    return () => window.clearTimeout(timer);
+  }, [justDeletedId]);
+
   const toggleExpanded = (noteId: string) => {
     setExpandedNoteId((current) => (current === noteId ? null : noteId));
   };
@@ -204,6 +219,22 @@ export default function JournalNotesModule({
           <Caption className="ser-settle-in" role="status" aria-live="polite">
             Guardado.
           </Caption>
+        ) : null}
+
+        {justDeletedId && onRestoreNote ? (
+          <div className="ser-settle-in flex items-center gap-2" role="status" aria-live="polite">
+            <Caption>Nota eliminada.</Caption>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                onRestoreNote(justDeletedId);
+                setJustDeletedId(null);
+              }}
+            >
+              Deshacer
+            </Button>
+          </div>
         ) : null}
       </div>
 
@@ -263,6 +294,7 @@ export default function JournalNotesModule({
                             onClick={() => {
                               onDeleteNote(note.id);
                               setConfirmingDeleteId(null);
+                              setJustDeletedId(note.id);
                             }}
                           >
                             Eliminar

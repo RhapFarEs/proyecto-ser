@@ -10,6 +10,7 @@ export interface JournalModuleProps {
   onSaveNote?: (mood: string, content: string) => void;
   onDeleteNote?: (noteId: string) => void;
   onEditNote?: (noteId: string, mood: string, content: string) => void;
+  onRestoreNote?: (noteId: string) => void;
   ownMoods?: string[];
 }
 

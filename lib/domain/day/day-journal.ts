@@ -6,7 +6,11 @@ import {
   saveJournalNote,
   updateJournalNote,
 } from "@/lib/domain/journal/journal-storage";
-import { applyNoteEdit, type JournalNote } from "@/lib/domain/journal/journal";
+import {
+  applyNoteEdit,
+  applyNoteRestore,
+  type JournalNote,
+} from "@/lib/domain/journal/journal";
 
 // Extension point for a future Journey domain: a growing list of
 // timestamped notes across many days is exactly the raw material a
@@ -81,5 +85,15 @@ export function deleteJournalNote(day: Day, noteId: string): Day {
  */
 export function editJournalNote(day: Day, noteId: string, mood: string, content: string): Day {
   updateJournalNote(noteId, (note) => applyNoteEdit(note, mood, content));
+  return { ...day };
+}
+
+/**
+ * Undoes a removal. Same adapter shape as the others: the returned `Day` is
+ * unchanged apart from being a new object, which is what makes React
+ * re-render.
+ */
+export function restoreJournalNote(day: Day, noteId: string): Day {
+  updateJournalNote(noteId, applyNoteRestore);
   return { ...day };
 }

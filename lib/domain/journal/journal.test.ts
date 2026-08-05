@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyNoteEdit, type JournalNote } from "./journal";
+import { applyNoteEdit, applyNoteRestore, type JournalNote } from "./journal";
 
 const NOTE: JournalNote = {
   id: "abc123",
@@ -61,5 +61,43 @@ describe("correcting a note", () => {
   it("accepts an emptied mood", () => {
     // Clearing the mood is a correction like any other.
     expect(applyNoteEdit(NOTE, "", NOTE.content).mood).toBe("");
+  });
+});
+
+describe("undoing a removal", () => {
+  const removed: JournalNote = {
+    ...NOTE,
+    deletedAt: "2026-03-02T09:00:00.000Z",
+    updatedAt: "2026-03-02T09:00:00.000Z",
+  };
+
+  it("clears the mark that hid the note", () => {
+    expect(applyNoteRestore(removed).deletedAt).toBeNull();
+  });
+
+  it("brings the words back exactly", () => {
+    const restored = applyNoteRestore(removed);
+
+    expect(restored.content).toBe("Hoy me costo concentrarme");
+    expect(restored.mood).toBe("cansado");
+  });
+
+  it("returns the note to the moment it was written", () => {
+    // Not to the end of the day, and not to the moment it was deleted.
+    const restored = applyNoteRestore(removed);
+
+    expect(restored.id).toBe("abc123");
+    expect(restored.createdAt).toBe("2026-03-01T21:04:00.000Z");
+    expect(restored.dayKey).toBe("2026-03-01");
+  });
+
+  it("is harmless on a note that was never removed", () => {
+    expect(applyNoteRestore(NOTE)).toEqual(NOTE);
+  });
+
+  it("does not modify the note it is given", () => {
+    applyNoteRestore(removed);
+
+    expect(removed.deletedAt).toBe("2026-03-02T09:00:00.000Z");
   });
 });

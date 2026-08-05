@@ -15,6 +15,7 @@ import {
   deleteJournalNote,
   editJournalNote,
   getJournalNotesForDay,
+  restoreJournalNote,
 } from "@/lib/domain/day/day-journal";
 import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
 import { getLocalDateKey } from "@/lib/date";
@@ -37,6 +38,11 @@ export default function JournalView() {
 
   const handleDeleteNote = (noteId: string) => {
     const next = updateDay(todayDate, (current) => deleteJournalNote(current, noteId));
+    setDayState(next);
+  };
+
+  const handleRestoreNote = (noteId: string) => {
+    const next = updateDay(todayDate, (current) => restoreJournalNote(current, noteId));
     setDayState(next);
   };
 
@@ -113,6 +119,7 @@ export default function JournalView() {
                 onSaveNote={handleSaveNote}
                 onDeleteNote={handleDeleteNote}
                 onEditNote={handleEditNote}
+                onRestoreNote={handleRestoreNote}
                 ownMoods={ownMoods}
               />
             );
