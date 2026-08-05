@@ -13,6 +13,7 @@ import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import {
   addJournalNote,
   deleteJournalNote,
+  editJournalNote,
   getJournalNotesForDay,
 } from "@/lib/domain/day/day-journal";
 import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
@@ -36,6 +37,13 @@ export default function JournalView() {
 
   const handleDeleteNote = (noteId: string) => {
     const next = updateDay(todayDate, (current) => deleteJournalNote(current, noteId));
+    setDayState(next);
+  };
+
+  const handleEditNote = (noteId: string, mood: string, content: string) => {
+    const next = updateDay(todayDate, (current) =>
+      editJournalNote(current, noteId, mood, content),
+    );
     setDayState(next);
   };
 
@@ -104,6 +112,7 @@ export default function JournalView() {
                 todayNotes={todayNotes}
                 onSaveNote={handleSaveNote}
                 onDeleteNote={handleDeleteNote}
+                onEditNote={handleEditNote}
                 ownMoods={ownMoods}
               />
             );

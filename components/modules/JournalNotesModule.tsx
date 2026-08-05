@@ -43,6 +43,7 @@ type JournalNotesModuleProps = {
   todayNotes?: JournalEntry[];
   onSaveNote?: (mood: string, content: string) => void;
   onDeleteNote?: (noteId: string) => void;
+  onEditNote?: (noteId: string, mood: string, content: string) => void;
   /** The words this person actually uses, most-used first. */
   ownMoods?: string[];
 };
@@ -51,10 +52,24 @@ export default function JournalNotesModule({
   todayNotes = [],
   onSaveNote,
   onDeleteNote,
+  onEditNote,
   ownMoods = [],
 }: JournalNotesModuleProps) {
   const [mood, setMood] = useState("");
-  const [content, setContent, discardContent] = useDraft(DRAFT_KEYS.journalNote, "");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  /*
+    The composer is also the editor, so the draft is scoped to whatever it is
+    currently holding. Without that, an interrupted edit would come back as
+    an ordinary draft with no memory of which note it belonged to, and saving
+    it would file a second copy of a note that already exists. A scope that
+    no longer matches is simply ignored, so an abandoned edit costs the edit
+    rather than the archive.
+  */
+  const [content, setContent, discardContent] = useDraft(
+    DRAFT_KEYS.journalNote,
+    "",
+    editingNoteId ?? "",
+  );
   const [justSaved, setJustSaved] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
@@ -71,10 +86,33 @@ export default function JournalNotesModule({
       return;
     }
 
-    onSaveNote?.(mood.trim(), content.trim());
+    if (editingNoteId) {
+      onEditNote?.(editingNoteId, mood.trim(), content.trim());
+    } else {
+      onSaveNote?.(mood.trim(), content.trim());
+    }
+
     discardContent();
+    setEditingNoteId(null);
     setContent("");
+    setMood("");
     setJustSaved(true);
+  };
+
+  /** Brings a written note back into the composer, exactly as it was. */
+  const startEditing = (noteId: string, noteMood: string, noteContent: string) => {
+    setEditingNoteId(noteId);
+    setMood(noteMood);
+    setContent(noteContent);
+    setJustSaved(false);
+    setConfirmingDeleteId(null);
+  };
+
+  const cancelEditing = () => {
+    discardContent();
+    setEditingNoteId(null);
+    setContent("");
+    setMood("");
   };
 
   /**
@@ -128,8 +166,12 @@ export default function JournalNotesModule({
   return (
     <section className="space-y-2">
       <ModuleHeader
-        title="¿Cómo llegas hoy?"
-        subtitle="Escribe lo que sientes, con tus propias palabras. Nunca estás limitado a una lista."
+        title={editingNoteId ? "Estás corrigiendo una nota" : "¿Cómo llegas hoy?"}
+        subtitle={
+          editingNoteId
+            ? "Sigue siendo la misma nota, escrita a la misma hora. Solo cambian las palabras."
+            : "Escribe lo que sientes, con tus propias palabras. Nunca estás limitado a una lista."
+        }
       />
 
       <Input
@@ -148,8 +190,14 @@ export default function JournalNotesModule({
 
       <div className="flex items-center gap-3">
         <Button type="button" variant="primary" disabled={!canSave} onClick={handleSave}>
-          Guardar nota
+          {editingNoteId ? "Guardar cambios" : "Guardar nota"}
         </Button>
+
+        {editingNoteId ? (
+          <Button type="button" variant="ghost" onClick={cancelEditing}>
+            Cancelar
+          </Button>
+        ) : null}
 
         {/* Polite, not assertive: a confirmation should never interrupt. */}
         {justSaved ? (
@@ -195,7 +243,17 @@ export default function JournalNotesModule({
                       so it needs a deliberate confirmation, but a dialog
                       box would be louder than anything else in this product.
                     */}
-                    {onDeleteNote ? (
+                    {onEditNote && !isConfirmingDelete && editingNoteId !== note.id ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => startEditing(note.id, note.mood, note.content)}
+                      >
+                        Editar
+                      </Button>
+                    ) : null}
+
+                    {onDeleteNote && editingNoteId !== note.id ? (
                       isConfirmingDelete ? (
                         <div className="flex flex-wrap items-center gap-2">
                           <Caption>¿Eliminar esta nota?</Caption>

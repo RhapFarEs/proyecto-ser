@@ -4,8 +4,9 @@ import {
   getJournalNotesForDayKey,
   removeJournalNote,
   saveJournalNote,
+  updateJournalNote,
 } from "@/lib/domain/journal/journal-storage";
-import type { JournalNote } from "@/lib/domain/journal/journal";
+import { applyNoteEdit, type JournalNote } from "@/lib/domain/journal/journal";
 
 // Extension point for a future Journey domain: a growing list of
 // timestamped notes across many days is exactly the raw material a
@@ -64,5 +65,21 @@ export function addJournalNote(day: Day, mood: string, content: string): Day {
  */
 export function deleteJournalNote(day: Day, noteId: string): Day {
   removeJournalNote(noteId);
+  return { ...day };
+}
+
+/**
+ * Corrects a note that is already written.
+ *
+ * The note keeps its own id and the moment it was written; only the words
+ * and the mood change, and `updatedAt` moves. A correction is not a new
+ * note — it happened when it happened, and it should stay where it sits in
+ * the day rather than jumping to the end because a typo was fixed.
+ *
+ * Same adapter shape as the two above: the returned `Day` is unchanged apart
+ * from being a new object, which is what makes React re-render.
+ */
+export function editJournalNote(day: Day, noteId: string, mood: string, content: string): Day {
+  updateJournalNote(noteId, (note) => applyNoteEdit(note, mood, content));
   return { ...day };
 }
