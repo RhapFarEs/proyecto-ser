@@ -18,6 +18,7 @@ import { useAtmosphere } from "@/components/atmosphere/AtmosphereContext";
 import { createLifeArea, type LifeArea } from "@/lib/domain/life-area/life-area";
 import {
   getLifeAreas,
+  removeLifeArea,
   saveLifeArea,
   updateLifeArea,
 } from "@/lib/domain/life-area/life-area-storage";
@@ -70,6 +71,11 @@ export default function DirectionView() {
     setAreas(getLifeAreas());
   };
 
+  const handleDeleteArea = (id: string) => {
+    removeLifeArea(id);
+    setAreas(getLifeAreas());
+  };
+
   const handleSubmitArea = (values: LifeAreaFormValues) => {
     if (editingArea) {
       updateLifeArea(editingArea.id, (area) => ({
@@ -116,6 +122,7 @@ export default function DirectionView() {
           onEdit={openEditForm}
           onToggleActive={handleToggleActive}
           onToggleFocus={handleToggleFocus}
+          onDelete={handleDeleteArea}
         />
       ) : (
         <LifeAreaFormModule area={editingArea} onSubmit={handleSubmitArea} onCancel={closeForm} />

@@ -1,5 +1,6 @@
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import ConfirmButton from "@/components/ui/ConfirmButton";
 import EmptyState from "@/components/ui/EmptyState";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { Body, Caption } from "@/components/ui/Typography";
@@ -11,6 +12,7 @@ type LifeAreaListModuleProps = {
   onEdit: (area: LifeArea) => void;
   onToggleActive: (id: string) => void;
   onToggleFocus: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 export default function LifeAreaListModule({
@@ -19,6 +21,7 @@ export default function LifeAreaListModule({
   onEdit,
   onToggleActive,
   onToggleFocus,
+  onDelete,
 }: LifeAreaListModuleProps) {
   const activeAreas = areas.filter((area) => area.active);
   const archivedAreas = areas.filter((area) => !area.active);
@@ -69,6 +72,12 @@ export default function LifeAreaListModule({
                 >
                   Archivar
                 </Button>
+
+                <ConfirmButton
+                  label="Eliminar"
+                  question="¿Eliminar esta área?"
+                  onConfirm={() => onDelete(area.id)}
+                />
               </div>
             </Card>
           ))}
@@ -94,6 +103,12 @@ export default function LifeAreaListModule({
                 >
                   Activar
                 </Button>
+
+                <ConfirmButton
+                  label="Eliminar"
+                  question="¿Eliminar esta área?"
+                  onConfirm={() => onDelete(area.id)}
+                />
               </div>
             </Card>
           ))}

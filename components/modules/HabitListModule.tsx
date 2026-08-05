@@ -1,5 +1,6 @@
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import ConfirmButton from "@/components/ui/ConfirmButton";
 import EmptyState from "@/components/ui/EmptyState";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { Habit, Weekday } from "@/lib/domain/habit/habit";
@@ -35,6 +36,7 @@ type HabitListModuleProps = {
   onCreateNew: () => void;
   onEdit: (habit: Habit) => void;
   onToggleActive: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 export default function HabitListModule({
@@ -42,6 +44,7 @@ export default function HabitListModule({
   onCreateNew,
   onEdit,
   onToggleActive,
+  onDelete,
 }: HabitListModuleProps) {
   return (
     <div className="space-y-3">
@@ -74,7 +77,7 @@ export default function HabitListModule({
                 </Caption>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="secondary"
@@ -89,6 +92,12 @@ export default function HabitListModule({
                 >
                   {habit.active ? "Archivar" : "Activar"}
                 </Button>
+
+                <ConfirmButton
+                  label="Eliminar"
+                  question="¿Eliminar esta práctica?"
+                  onConfirm={() => onDelete(habit.id)}
+                />
               </div>
             </Card>
           ))}

@@ -9,7 +9,12 @@ import HabitFormModule, {
 } from "@/components/modules/HabitFormModule";
 import type { Habit } from "@/lib/domain/habit/habit";
 import { createHabit } from "@/lib/domain/habit/habit";
-import { getHabits, saveHabit, updateHabit } from "@/lib/domain/habit/habit-storage";
+import {
+  getHabits,
+  removeHabit,
+  saveHabit,
+  updateHabit,
+} from "@/lib/domain/habit/habit-storage";
 import { useClientState } from "@/lib/hooks/useClientState";
 
 type HabitsMode = "list" | "form";
@@ -36,6 +41,11 @@ export default function HabitsView() {
 
   const handleToggleActive = (id: string) => {
     updateHabit(id, (habit) => ({ ...habit, active: !habit.active }));
+    setHabits(getHabits());
+  };
+
+  const handleDelete = (id: string) => {
+    removeHabit(id);
     setHabits(getHabits());
   };
 
@@ -74,6 +84,7 @@ export default function HabitsView() {
           onCreateNew={openCreateForm}
           onEdit={openEditForm}
           onToggleActive={handleToggleActive}
+          onDelete={handleDelete}
         />
       ) : (
         <HabitFormModule
