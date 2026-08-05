@@ -8,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
 import { Body } from "@/components/ui/Typography";
+import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
 type IntentionModuleProps = {
   intention?: string;
@@ -21,7 +22,7 @@ export default function IntentionModule({
   const [mode, setMode] = useState<"editing" | "saved">(
     intention.trim() ? "saved" : "editing",
   );
-  const [draft, setDraft] = useState(intention);
+  const [draft, setDraft, discardDraft] = useDraft(DRAFT_KEYS.intention, intention);
 
   const handleSave = () => {
     const trimmed = draft.trim();
@@ -31,6 +32,7 @@ export default function IntentionModule({
     }
 
     onSaveIntention?.(trimmed);
+    discardDraft();
     setMode("saved");
   };
 

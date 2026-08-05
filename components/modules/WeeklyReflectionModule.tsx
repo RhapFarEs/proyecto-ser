@@ -11,6 +11,7 @@ import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
 import { Caption } from "@/components/ui/Typography";
 import type { Week, WeeklyReflection } from "@/lib/domain/week/week";
+import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
 type WeeklyReflectionModuleProps = {
   week: Week;
@@ -18,9 +19,24 @@ type WeeklyReflectionModuleProps = {
 };
 
 export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectionModuleProps) {
-  const [wentWell, setWentWell] = useState(week.reflection.wentWell);
-  const [difficult, setDifficult] = useState(week.reflection.difficult);
-  const [nextWeekFocus, setNextWeekFocus] = useState(week.reflection.nextWeekFocus);
+  // Scoped to the week on screen: this review can be moved between weeks,
+  // and showing one week half-written under another would be worse than
+  // showing nothing.
+  const [wentWell, setWentWell, discardWentWell] = useDraft(
+    DRAFT_KEYS.weeklyWentWell,
+    week.reflection.wentWell,
+    week.id,
+  );
+  const [difficult, setDifficult, discardDifficult] = useDraft(
+    DRAFT_KEYS.weeklyDifficult,
+    week.reflection.difficult,
+    week.id,
+  );
+  const [nextWeekFocus, setNextWeekFocus, discardNextWeekFocus] = useDraft(
+    DRAFT_KEYS.weeklyNextWeekFocus,
+    week.reflection.nextWeekFocus,
+    week.id,
+  );
   const [savedReflection, setSavedReflection] = useState(week.reflection);
 
   const hasSavedContent =
@@ -42,6 +58,9 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
     };
 
     onSave?.(trimmed);
+    discardWentWell();
+    discardDifficult();
+    discardNextWeekFocus();
     setSavedReflection(trimmed);
   };
 

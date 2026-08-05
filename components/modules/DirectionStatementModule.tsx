@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import { Body, Caption } from "@/components/ui/Typography";
 import { formatDateKeyLongLabel, getLocalDateKey } from "@/lib/date";
 import type { DirectionRevision } from "@/lib/domain/direction/direction";
+import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
 type DirectionStatementModuleProps = {
   statement?: string;
@@ -28,7 +29,7 @@ export default function DirectionStatementModule({
   history = [],
   onSave,
 }: DirectionStatementModuleProps) {
-  const [draft, setDraft] = useState(statement);
+  const [draft, setDraft, discardDraft] = useDraft(DRAFT_KEYS.direction, statement);
   const [savedValue, setSavedValue] = useState(statement);
   const [showHistory, setShowHistory] = useState(false);
   const historyId = useId();
@@ -38,6 +39,7 @@ export default function DirectionStatementModule({
   const handleSave = () => {
     const trimmed = draft.trim();
     onSave?.(trimmed);
+    discardDraft();
     setSavedValue(trimmed);
   };
 

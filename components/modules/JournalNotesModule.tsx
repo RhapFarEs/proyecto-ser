@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button";
 import MoodSelector from "@/components/ui/MoodSelector";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
+import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
 /**
  * Only what a new installation offers, before it knows anything. The moment
@@ -53,7 +54,7 @@ export default function JournalNotesModule({
   ownMoods = [],
 }: JournalNotesModuleProps) {
   const [mood, setMood] = useState("");
-  const [content, setContent] = useState("");
+  const [content, setContent, discardContent] = useDraft(DRAFT_KEYS.journalNote, "");
   const [justSaved, setJustSaved] = useState(false);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
@@ -71,6 +72,7 @@ export default function JournalNotesModule({
     }
 
     onSaveNote?.(mood.trim(), content.trim());
+    discardContent();
     setContent("");
     setJustSaved(true);
   };

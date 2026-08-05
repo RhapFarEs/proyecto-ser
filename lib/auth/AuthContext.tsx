@@ -42,6 +42,7 @@ import {
   pullLifeDirection,
   setLifeDirectionSyncUserId,
 } from "@/lib/domain/direction/direction-storage";
+import { clearDrafts } from "@/lib/hooks/useDraft";
 
 interface SyncedDomain {
   setUserId: (userId: string | null) => void;
@@ -251,6 +252,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * screen, not let the user pick someone else.
    */
   const changeAccount = async () => {
+    clearDrafts();
     await supabase.auth.signOut();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -264,6 +266,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signOut = async () => {
+    clearDrafts();
     await supabase.auth.signOut();
   };
 
