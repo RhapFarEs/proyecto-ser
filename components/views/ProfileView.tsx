@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 
 import Link from "next/link";
@@ -12,12 +12,12 @@ import Button from "@/components/ui/Button";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { Body, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { getProfile, updateProfile } from "@/lib/domain/profile/profile-storage";
+import { updateProfile } from "@/lib/domain/profile/profile-storage";
 import { uploadAvatar } from "@/lib/domain/profile/avatar-storage";
-import type { Profile } from "@/lib/domain/profile/profile";
 import { getLifeAreas } from "@/lib/domain/life-area/life-area-storage";
+import type { LifeArea } from "@/lib/domain/life-area/life-area";
 import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
-import { useHydrated } from "@/lib/hooks/useHydrated";
+import { useStoredValue } from "@/lib/hooks/useStoredValue";
 import { formatDateKeyLabel, formatDateKeyLongLabel } from "@/lib/date";
 
 function getMetadataString(
@@ -38,11 +38,19 @@ function getMetadataString(
   return undefined;
 }
 
+const EMPTY_AREAS: LifeArea[] = [];
+
 export default function ProfileView() {
-  const { user, refreshProfile } = useAuth();
-  const hydrated = useHydrated();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  /*
+    The profile is read from the account rather than fetched again here.
+
+    This screen used to load the same row a second time on every visit and
+    keep its own copy. Offline that meant "No pudimos cargar tu perfil" on a
+    screen the rest of the app could already name the person on — and the
+    two copies could disagree, which is how a new photo stayed on this page
+    while the greeting kept the old one.
+  */
+  const { user, profile, profileLoading, refreshProfile } = useAuth();
   const [mode, setMode] = useState<"viewing" | "editing">("viewing");
   const [displayName, setDisplayName] = useState("");
   const [birthday, setBirthday] = useState("");
@@ -52,38 +60,19 @@ export default function ProfileView() {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    let active = true;
-
-    getProfile(user.id)
-      .then((loaded) => {
-        if (!active) {
-          return;
-        }
-
-        if (!loaded) {
-          setError("Aún no encontramos tu perfil. Vuelve a iniciar sesión.");
-          return;
-        }
-
-        setProfile(loaded);
-        setDisplayName(loaded.displayName);
-        setBirthday(loaded.birthday ?? "");
-      })
-      .catch(() => {
-        if (active) {
-          setError("No pudimos cargar tu perfil.");
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [user]);
+  /*
+    Read-only here; both are edited where they are created. Read through the
+    store like everywhere else, so an area archived on another screen does
+    not sit here looking cared for until the app is reloaded.
+  */
+  const caredForAreas = useStoredValue(
+    () => getLifeAreas().filter((area) => area.active),
+    EMPTY_AREAS,
+  );
+  const directionStatement = useStoredValue(
+    () => getLifeDirection()?.statement.trim() ?? "",
+    "",
+  );
 
   const handleEdit = () => {
     if (!profile) {
@@ -119,20 +108,16 @@ export default function ProfileView() {
       displayName: trimmedName,
       birthday: birthday.trim() ? birthday.trim() : null,
     }))
-      .then((next) => {
+      .then(async (next) => {
         if (!next) {
           setSaveError("No pudimos guardar los cambios. Vuelve a intentarlo.");
           return;
         }
 
-        setProfile(next);
-        setDisplayName(next.displayName);
-        setBirthday(next.birthday ?? "");
+        // Awaited before leaving edit mode so the view never shows the old
+        // name for a frame on its way to the new one.
+        await refreshProfile();
         setMode("viewing");
-
-        // Keeps AuthContext's own profile (which Today's greeting reads)
-        // from going stale after a save — same pattern OnboardingFlow uses.
-        void refreshProfile();
       })
       .catch(() => {
         setSaveError("No pudimos guardar los cambios. Vuelve a intentarlo.");
@@ -170,13 +155,14 @@ export default function ProfileView() {
 
     uploadAvatar(user.id, file)
       .then((avatarUrl) => updateProfile(user.id, (current) => ({ ...current, avatarUrl })))
-      .then((next) => {
+      .then(async (next) => {
         if (!next) {
           setPhotoError("No pudimos actualizar tu foto. Vuelve a intentarlo.");
           return;
         }
 
-        setProfile(next);
+        // Without this the new photo appeared here and nowhere else.
+        await refreshProfile();
       })
       .catch(() => {
         setPhotoError("No pudimos actualizar tu foto. Vuelve a intentarlo.");
@@ -190,21 +176,15 @@ export default function ProfileView() {
     return null;
   }
 
-  if (error) {
-    return (
-      <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
-        <Card>
-          <Body className="text-ink-soft">{error}</Body>
-        </Card>
-      </Page>
-    );
-  }
-
   if (!profile) {
     return (
       <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
         <Card>
-          <Body className="text-ink-soft">Cargando tu perfil...</Body>
+          <Body className="text-ink-soft">
+            {profileLoading
+              ? "Cargando tu perfil..."
+              : "Aún no encontramos tu perfil. Vuelve a iniciar sesión."}
+          </Body>
         </Card>
       </Page>
     );
@@ -218,8 +198,6 @@ export default function ProfileView() {
   // account. What the person actually cares about — the areas they chose to
   // tend, the direction they wrote for themselves — is what makes this page
   // theirs. Read-only here; both are edited where they're created.
-  const caredForAreas = hydrated ? getLifeAreas().filter((area) => area.active) : [];
-  const directionStatement = hydrated ? (getLifeDirection()?.statement.trim() ?? "") : "";
 
   return (
     <Page title="Perfil" subtitle="Quién eres aquí, y qué te importa.">
