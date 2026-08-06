@@ -40,7 +40,7 @@ export default function WeeklyFocusAreaModule({
   return (
     <Section>
       <Card className="space-y-4">
-        <SectionTitle>Área que quiero cuidar esta semana</SectionTitle>
+        <SectionTitle>Área que quieres cuidar esta semana</SectionTitle>
 
         <MoodSelector
           moods={options}

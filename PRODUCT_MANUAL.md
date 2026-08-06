@@ -617,23 +617,22 @@ Current facts, not plans.
     from the day's state.
 
 **Interface**
-11. The weekly focus area is named differently on Today and in Weekly Review.
-12. Nothing in the app manages focus; opening a form or an edit mode never
+11. Nothing in the app manages focus; opening a form or an edit mode never
     focuses its field.
-13. Camino cards and search results are not interactive; there is no way to
+12. Camino cards and search results are not interactive; there is no way to
     open a specific day.
-14. Every route shares the title *Proyecto SER*.
-15. The undo window lives in memory and does not survive a reload.
-16. Today's empty practices state is the only one not built on `EmptyState`.
-17. `<Body>` defaults to `text-ink-soft` and is overridden in most usages.
-18. `Section`'s own margin is overridden wherever it is not the first child.
+13. Every route shares the title *Proyecto SER*.
+14. The undo window lives in memory and does not survive a reload.
+15. Today's empty practices state is the only one not built on `EmptyState`.
+16. `<Body>` defaults to `text-ink-soft` and is overridden in most usages.
+17. `Section`'s own margin is overridden wherever it is not the first child.
 
 **Scope**
-19. Spanish only.
-20. `ReflectionEntry` and the legacy closing-reflection fields are read by the
+18. Spanish only.
+19. `ReflectionEntry` and the legacy closing-reflection fields are read by the
     export and by nothing else; no path writes them.
-21. Migrations are applied by hand with `npx supabase db push`.
-22. `profile.timezone` is captured at creation and never read.
+20. Migrations are applied by hand with `npx supabase db push`.
+21. `profile.timezone` is captured at creation and never read.
 
 # 12. Beta State
 

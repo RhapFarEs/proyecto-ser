@@ -23,7 +23,7 @@ export default function TodayWeeklyFocusModule({
   return (
     <Section>
       <Card className="space-y-2">
-        <SectionTitle>Área de enfoque esta semana</SectionTitle>
+        <SectionTitle>Área que cuidas esta semana</SectionTitle>
         <Body className="text-ink">{weeklyFocusAreaTitle}</Body>
       </Card>
     </Section>
