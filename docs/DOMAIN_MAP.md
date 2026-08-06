@@ -87,7 +87,7 @@ interface Week {
 }
 ```
 
-**Responsibilities:** owns exactly two things the user writes directly on the Weekly Review page — the three-prompt weekly reflection, and an optional reference to the Life Area they want to care for that week. Week owns **no daily data**: the "weekly context" shown in `WeeklyReviewView` (which days had a journal entry, which had a closing reflection, which practices were sustained) is computed at render time from `Day` records for that week's seven date keys, never persisted on Week.
+**Responsibilities:** owns exactly two things the user writes directly on the Weekly Review page — the three-prompt weekly reflection, and an optional reference to the Life Area they want to care for that week. Week owns **no daily data**: the "weekly context" shown in `WeeklyReviewView` (which days were written on, which practices were sustained) is computed at render time from `Day` records for that week's seven date keys, never persisted on Week.
 
 **References out:** `focusLifeAreaId?` → `LifeArea.id`, optional, resolved via `getLifeArea()` at render time. The title is never copied into `Week`.
 
@@ -106,7 +106,7 @@ interface Week {
 - `HabitEntry` — `{ habitId, completed }`
 - `RitualEntry` — `{ ritualId, completed }`
 - `IntentionEntry` — `{ content }`
-- `ReflectionEntry` — `{ content }` (the Day's closing reflection — distinct from `JournalEntry.closingReflection`, which belongs to a specific Journal writing session)
+- `ReflectionEntry` — `{ content }` (a Day's closing reflection). **Read-only legacy.** Nothing writes one any more: the feature was removed once it was found to be unreachable, and `day-reflection.ts` is deleted. The type survives so the export can still surface sentences written by older versions.
 
 **Responsibilities:** the atomic "meaningful interaction" unit — each variant represents one thing that happened on a given day. This is the modern replacement for `Day`'s legacy scalar fields, not yet the sole source of truth (see Day, above) — except `JournalEntry`, which Journal has fully superseded.
 
@@ -316,7 +316,7 @@ Gaps in the current model — not explicitly deferred by any shipped milestone, 
 
 1. **Habit → LifeArea**: no field on `Habit` references a `LifeArea`. A habit cannot currently be said to belong to a life area.
 2. **Day.intention / IntentionEntry → LifeArea**: the daily intention has no connection to any life area.
-3. **JournalNote / ReflectionEntry → LifeArea**: same gap for daily journal writing and the daily closing reflection — only the *weekly* reflection has a LifeArea link so far.
+3. **JournalNote → LifeArea**: same gap for daily journal writing — only the *weekly* reflection has a LifeArea link so far.
 4. **Ritual has no persisted domain at all**: `RitualEntry.ritualId` is a synthetic positional string (`"ritual:<index>"`), not a foreign key to anything stored. The ritual activity list itself is hardcoded in `lib/day.ts` (`getCurrentDay()`), not user-editable or persisted per user — unlike Habit, which is a full CRUD domain. This is a structural asymmetry between two conceptually similar features.
 5. **LifeDirection ↔ LifeArea**: the personal-direction statement and the life-area list live on the same `/direction` page but have no structural relationship — they're visually adjacent, not connected in the data model.
 

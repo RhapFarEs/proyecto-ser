@@ -15,7 +15,7 @@ Read it before changing any user-facing copy or adding any feature.
 | Screen | What it is for |
 |---|---|
 | **Hoy** | The entry point. A reflection, the day's intention, and the practices scheduled for today. |
-| **Diario** | Writing with honesty — multiple notes per day, plus the day's closing reflection, and a history of both. |
+| **Diario** | Writing with honesty — as many notes a day as someone wants, each editable, and a history of every day they wrote. |
 | **Hábitos** | Practices the person chooses to sustain, scheduled per weekday. Suggestions available, never imposed. |
 | **Progreso** | The journey: personal direction, days where the person was present, and saved weekly reflections. |
 | **Más** | Weekly review, personal direction, account, and feedback. |
@@ -93,9 +93,12 @@ To test from a phone on the same Wi-Fi:
 npm run dev -- --hostname 0.0.0.0
 ```
 
-Then add that machine's LAN IP to `allowedDevOrigins` in `next.config.ts` and to
-the Supabase dashboard's Redirect URLs, or Google sign-in will bounce back to the
-Site URL instead.
+The machine's own LAN addresses are detected automatically, so nothing needs
+editing in `next.config.ts`. Set `DEV_ORIGINS` (comma-separated) only for an
+origin the machine cannot see itself, such as a tunnel hostname.
+
+That LAN IP still has to be added to the Supabase dashboard's Redirect URLs, or
+Google sign-in will bounce back to the Site URL instead.
 
 ## Database
 
@@ -113,9 +116,10 @@ from the client and readable only via the dashboard's service role.
 ## Quality gates
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
 npx eslint .
+npm test
 npm run build
 ```
 
-All three must pass clean before a change ships.
+All four must pass clean before a change ships.

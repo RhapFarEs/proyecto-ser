@@ -27,7 +27,7 @@ Reusing the exact sections Today already has, in the same order, but as calm, st
 - **The habits sustained that day** — the same "Ritual del día" list, but each item shown as settled text (not a checkbox) for the ones that were completed. Habits that existed but weren't completed that day are simply absent — there is no "missed" list, no crossed-out item, no red state. Silence, not a red X, is how an unfinished habit is remembered. This mirrors how `DailyHabitsModule` already renders only what's true, never what's false.
 - **The intention that day**, shown exactly as `IntentionModule`'s "saved" state already renders a committed intention — quoted plainly, with no annotation about whether the day "matched" it. An intention is something someone held, not a target they hit or missed.
 - **The journal notes written that day**, each with its time and its own words for how the person arrived — reusing `JournalNotesModule`'s note-card treatment, in chronological order. This is the same data `JournalHistoryModule` already surfaces; Daily Review is the fuller version of that same day, not a new data source.
-- **A closing reflection, if one exists.** The domain (`day-reflection.ts`, `ReflectionEntry`) already supports this and nothing was deleted from it — only its Today entry point was removed. Daily Review would display one if a historical day has it, without implying every day should have one.
+- ~~**A closing reflection, if one exists.**~~ Retired. With no entry point anywhere, nothing had been able to write one since M5.5, so every screen branching on it was branching on a state that could not occur. `day-reflection.ts` is deleted; only the stored shape survives, so the export can still return sentences written by older versions.
 
 ### How the user gets there
 
@@ -44,7 +44,7 @@ Read-only. A past day is not reopened for editing — not the intention, not the
 ### What it already does
 
 - Navigates Monday–Sunday weeks, current week by default, no navigation into the future.
-- Shows a quiet weekly context (`WeeklyContextModule`): which days had a journal entry, which days had a closing reflection, and which practices were sustained during the week — each as a plain comma-joined sentence, never a count.
+- Shows a quiet weekly context (`WeeklyContextModule`): which days were written on, and which practices were sustained during the week — each as a plain comma-joined sentence, never a count.
 - Lets the user optionally mark one Life Area to care for that week (`WeeklyFocusAreaModule`), resolved live so a rename or archive never breaks a past week's record.
 - Holds a three-prompt manual reflection, explicitly saved, explicitly shown as "Guardado" once written.
 
@@ -62,7 +62,7 @@ Show a "days completed / days possible" ratio for the week, rank this week again
 
 ### What it already does
 
-Since the M5.5 redesign, a journal entry is not one fixed slot per day but a **growing list of notes** — so History is day-centric, not entry-centric: one card per day that has either journal notes or a closing reflection, collapsed to a preview of the most recent note, expanding to show every note from that day with its own time and its own mood (free text, never restricted to the six suggested moods).
+Since the M5.5 redesign, a journal entry is not one fixed slot per day but a **growing list of notes** — so History is day-centric, not entry-centric: one card per day that has journal notes, collapsed to a preview of the most recent note, expanding to show every note from that day with its own time and its own mood (free text, never restricted to the six suggested moods).
 
 ### Its role going forward
 
@@ -132,5 +132,5 @@ Distilled from the above, for direct reuse when this is eventually implemented:
 ## Open questions for the product team
 
 - Should Daily Review ever become *partially* editable (e.g. correcting a typo in a note), or should immutability be absolute? This document assumes absolute, but it's a real product choice, not a technical constraint.
-- Should the closing reflection (data model intact, UI removed in M5.5) return inside Daily Review as a read surface for historical data only, or stay fully retired until a broader decision is made about reintroducing it anywhere?
+- ~~Should the closing reflection return inside Daily Review as a read surface for historical data only?~~ Answered by deletion: the code that would have backed it was removed once it was found to be unwritable. Reintroducing it would be a new feature, decided as one.
 - How many recent dates belong in a Habit History list before it stops feeling like "a short memory" and starts feeling like "a ledger"? This document deliberately doesn't fix a number.
