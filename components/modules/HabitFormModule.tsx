@@ -77,12 +77,14 @@ export default function HabitFormModule({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         placeholder="Nombre del hábito"
+        aria-label="Nombre del hábito"
       />
 
       <TextArea
         value={purpose}
         onChange={(event) => setPurpose(event.target.value)}
         placeholder="¿Para qué quieres sostener este hábito? En una frase."
+        aria-label="¿Para qué quieres sostener este hábito?"
         className="!min-h-[64px]"
       />
 

@@ -75,6 +75,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
             value={wentWell}
             onChange={(event) => setWentWell(event.target.value)}
             placeholder="Escribe con calma."
+            aria-label="¿Qué estuvo bien esta semana?"
             className="min-h-[96px]"
           />
         </div>
@@ -87,6 +88,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
             value={difficult}
             onChange={(event) => setDifficult(event.target.value)}
             placeholder="Sin prisa, sin juicio."
+            aria-label="¿Qué fue difícil o quiero comprender mejor?"
             className="min-h-[96px]"
           />
         </div>
@@ -99,6 +101,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
             value={nextWeekFocus}
             onChange={(event) => setNextWeekFocus(event.target.value)}
             placeholder="Una intención, no una lista de tareas."
+            aria-label="¿Qué quiero cuidar la próxima semana?"
             className="min-h-[96px]"
           />
         </div>

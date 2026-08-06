@@ -54,6 +54,7 @@ export default function DirectionStatementModule({
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Escribe con calma. Puedes dejarlo así por ahora."
+          aria-label="¿Hacia qué tipo de vida quiero caminar?"
           className="min-h-[140px]"
         />
 

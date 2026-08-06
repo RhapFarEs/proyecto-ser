@@ -229,6 +229,9 @@ export default function ProfileView() {
             type="button"
             onClick={handlePhotoClick}
             disabled={uploadingPhoto}
+            // The image is decorative (alt="") and the fallback is a single
+            // letter, so without this the control announces as just "botón".
+            aria-label="Cambiar foto de perfil"
             className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-line bg-surface-raised outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ink-faint disabled:cursor-not-allowed"
           >
             {avatarUrl ? (
@@ -267,6 +270,7 @@ export default function ProfileView() {
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder="Tu nombre"
+                aria-label="Tu nombre"
               />
             ) : (
               <Body className="text-lg text-ink">{profile.displayName}</Body>
@@ -286,6 +290,7 @@ export default function ProfileView() {
           {mode === "editing" ? (
             <Input
               type="date"
+              aria-label="Cumpleaños"
               value={birthday}
               onChange={(event) => setBirthday(event.target.value)}
             />

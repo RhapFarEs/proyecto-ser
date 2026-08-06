@@ -84,10 +84,14 @@ export default function JournalView() {
   return (
     <Page title="Diario" subtitle="Escribe con honestidad. Nadie te está juzgando.">
       <div className="flex justify-center">
+        {/* Two toggles rather than an ARIA tablist: which one is on is the
+            whole state, and `aria-pressed` says it without owing anyone the
+            arrow-key handling a real tablist has to implement. */}
         <div className="inline-flex gap-2 rounded-full border border-line bg-surface p-1">
           <button
             type="button"
             onClick={() => setActiveTab("write")}
+            aria-pressed={activeTab === "write"}
             className={`rounded-full px-4 py-2 text-sm transition-colors ${
               activeTab === "write" ? "bg-ink-strong text-ground" : "text-ink-soft"
             }`}
@@ -97,6 +101,7 @@ export default function JournalView() {
           <button
             type="button"
             onClick={() => setActiveTab("history")}
+            aria-pressed={activeTab === "history"}
             className={`rounded-full px-4 py-2 text-sm transition-colors ${
               activeTab === "history" ? "bg-ink-strong text-ground" : "text-ink-soft"
             }`}

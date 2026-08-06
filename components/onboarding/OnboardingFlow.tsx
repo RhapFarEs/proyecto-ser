@@ -104,6 +104,7 @@ export default function OnboardingFlow({ user, profile }: OnboardingFlowProps) {
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
               placeholder="Tu nombre"
+              aria-label="¿Cómo quieres que te llamemos?"
               className="text-center"
             />
 

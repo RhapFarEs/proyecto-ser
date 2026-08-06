@@ -182,6 +182,7 @@ export default function JournalNotesModule({
         value={mood}
         onChange={(event) => setMood(event.target.value)}
         placeholder="¿Cómo te sientes en este momento?"
+        aria-label="¿Cómo te sientes en este momento?"
       />
 
       <MoodSelector moods={moodOptions} onChange={handleMoodSuggestion} />
@@ -190,6 +191,7 @@ export default function JournalNotesModule({
         value={content}
         onChange={(event) => handleContentChange(event.target.value)}
         placeholder="Empieza a escribir..."
+        aria-label="Tu nota"
       />
 
       <div className="flex items-center gap-3">

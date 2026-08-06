@@ -49,12 +49,14 @@ export default function LifeAreaFormModule({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         placeholder="Nombre del área"
+        aria-label="Nombre del área"
       />
 
       <TextArea
         value={whyItMatters}
         onChange={(event) => setWhyItMatters(event.target.value)}
         placeholder="¿Por qué te importa?"
+        aria-label="¿Por qué te importa?"
         className="min-h-[96px]"
       />
 

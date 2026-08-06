@@ -103,6 +103,7 @@ export default function FeedbackView() {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Cuéntame qué ocurrió o qué te gustaría mejorar."
+              aria-label="Cuéntame qué ocurrió o qué te gustaría mejorar"
               className="min-h-[160px]"
             />
 
