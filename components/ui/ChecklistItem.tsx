@@ -26,7 +26,7 @@ export default function ChecklistItem({
         // attribute meaningful on a <button>.
         role="checkbox"
         aria-checked={checked}
-        className="group flex w-full items-center gap-3 rounded-2xl py-2 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.99] sm:gap-4"
+        className="group flex w-full items-center gap-3 rounded-2xl py-2.5 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.99] sm:gap-4"
       >
         {/*
           Marking a practice is the gesture this app asks for most often, so

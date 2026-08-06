@@ -34,9 +34,16 @@ export default function Button({
     <button
       type={type}
       disabled={disabled}
-      // `active:scale` gives a press something to answer with on touch,
-      // where there is no hover state to confirm the tap landed.
-      className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
+      /*
+        `py-3` rather than `py-2.5`: with a 20px line box that is a 44px
+        target, which is the documented minimum on both mobile platforms.
+        At 2.5 every button in the product was 40px, on a product whose
+        primary surface is a phone.
+
+        `active:scale` gives a press something to answer with on touch,
+        where there is no hover state to confirm the tap landed.
+      */
+      className={`inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-medium transition-all duration-200 ease-out select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`.trim()}
       {...props}
     >
       {children}
