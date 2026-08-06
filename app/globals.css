@@ -280,6 +280,19 @@
 */
 .ser-voice {
   font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  /*
+    Their paragraphs, kept.
+
+    HTML collapses newlines, so every line break anyone typed was thrown away
+    on the way to the screen: a note written in three paragraphs came back as
+    one block, and so did the echo built from it. The words were never lost —
+    storage and the export both kept them — but the app was the only place
+    that showed a person's writing in a shape they had not chosen.
+
+    Set here because this class already means "a person wrote this", which is
+    exactly the set of text whose shape has to survive.
+  */
+  white-space: pre-wrap;
 }
 
 /* Optical weight, set by the atmosphere. See Typography.tsx. */
@@ -349,6 +362,14 @@ body {
   transition:
     background-color 600ms cubic-bezier(0.22, 1, 0.36, 1),
     color 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  /*
+    A person pastes a link into a note, or types a very long word. Without
+    this the token refuses to break, runs past its card and takes the page's
+    horizontal scroll with it. Set on the body rather than on one component
+    because anything a person types can land in any of them — a habit title
+    is as capable of holding a URL as a journal note is.
+  */
+  overflow-wrap: break-word;
 }
 
 /*
