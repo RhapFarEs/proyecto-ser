@@ -107,40 +107,64 @@ async function pullAllDomains(): Promise<void> {
 async function bootstrapUserData(
   user: User,
   onProfileReady: (profile: Profile | null) => void,
+  onReachable: (reachable: boolean) => void,
 ): Promise<void> {
-  await runInitialMigration(user);
+  try {
+    await runInitialMigration(user);
 
-  let profile = await getProfile(user.id);
+    const loaded = await getProfile(user.id);
 
-  if (!profile) {
+    if (!loaded) {
+      onProfileReady(null);
+      onReachable(false);
+      return;
+    }
+
+    let profile = loaded;
+    setAllSyncUserIds(user.id);
+
+    if (!profile.migrationCompleted) {
+      await migrateAllDomainsToCloud();
+      profile =
+        (await updateProfile(user.id, (current) => ({
+          ...current,
+          migrationCompleted: true,
+        }))) ?? profile;
+    }
+
+    onProfileReady(profile);
+  } catch (error: unknown) {
+    console.error("Failed to load the account:", error);
     onProfileReady(null);
+    onReachable(false);
     return;
   }
 
-  setAllSyncUserIds(user.id);
+  /*
+    Pulled in its own step, and deliberately after the profile has already
+    been handed over.
 
-  if (!profile.migrationCompleted) {
-    await migrateAllDomainsToCloud();
-    profile =
-      (await updateProfile(user.id, (current) => ({
-        ...current,
-        migrationCompleted: true,
-      }))) ?? profile;
+    This used to share one `catch` with everything above, so a pull that
+    failed — a phone on hotel wifi, a tunnel that dropped — reported the
+    whole sign-in as broken and set the profile back to null. The account
+    had loaded perfectly; the person simply lost their own name off the
+    greeting because the network faltered a second later.
+  */
+  try {
+    await pullAllDomains();
+    onReachable(true);
+  } catch (error: unknown) {
+    console.error("Failed to fetch what is stored in the account:", error);
+    onReachable(false);
   }
-
-  onProfileReady(profile);
-
-  await pullAllDomains();
 }
 
 function ensureProfile(
   user: User,
   onProfileReady: (profile: Profile | null) => void,
+  onReachable: (reachable: boolean) => void,
 ): void {
-  void bootstrapUserData(user, onProfileReady).catch((error: unknown) => {
-    console.error("Failed to synchronize user data:", error);
-    onProfileReady(null);
-  });
+  void bootstrapUserData(user, onProfileReady, onReachable);
 }
 
 type AuthContextValue = {
@@ -149,6 +173,8 @@ type AuthContextValue = {
   loading: boolean;
   profile: Profile | null;
   profileLoading: boolean;
+  /** False when this session could not reach the account at all. */
+  accountReachable: boolean | null;
   refreshProfile: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   changeAccount: () => Promise<void>;
@@ -178,6 +204,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  // Whether the account could actually be reached this session. Null before
+  // anyone has signed in, so the notice says nothing at all.
+  const [accountReachable, setAccountReachable] = useState<boolean | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -189,6 +218,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
+    const handleReachable = (reachable: boolean) => {
+      if (active) {
+        setAccountReachable(reachable);
+      }
+    };
+
     supabase.auth.getSession().then(({ data }) => {
       if (active) {
         setSession(data.session);
@@ -196,10 +231,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       if (data.session?.user) {
-        ensureProfile(data.session.user, handleProfileReady);
+        ensureProfile(data.session.user, handleProfileReady, handleReachable);
       } else {
         setAllSyncUserIds(null);
         handleProfileReady(null);
+        handleReachable(true);
       }
     });
 
@@ -211,10 +247,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (nextSession?.user) {
         setProfileLoading(true);
-        ensureProfile(nextSession.user, handleProfileReady);
+        ensureProfile(nextSession.user, handleProfileReady, handleReachable);
       } else {
         setAllSyncUserIds(null);
         handleProfileReady(null);
+        handleReachable(true);
       }
     });
 
@@ -286,6 +323,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     profile,
     profileLoading,
+    accountReachable,
     refreshProfile,
     signInWithGoogle,
     changeAccount,

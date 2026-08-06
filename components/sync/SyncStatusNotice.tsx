@@ -20,7 +20,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
  * retried at the next sign-in, with nothing on screen either way.
  */
 export default function SyncStatusNotice() {
-  const { user } = useAuth();
+  const { user, accountReachable } = useAuth();
   const [pending, setPending] = useState(0);
   const [canSave, setCanSave] = useState(true);
 
@@ -58,6 +58,26 @@ export default function SyncStatusNotice() {
         <Caption className="text-ink-strong">
           Este dispositivo no está guardando lo que escribes. Copia lo último antes de cerrar
           esta pestaña.
+        </Caption>
+      </div>
+    );
+  }
+
+  /*
+    Signed in, but this session never reached the account.
+
+    Said because of what it looks like when it is not said: on a device
+    that has nothing cached yet, an unreachable account is indistinguishable
+    from having written nothing — the journal is simply empty, the path is
+    simply blank, and the person is left to conclude their writing is gone.
+    Naming it costs one line and answers the only question that matters.
+  */
+  if (user && accountReachable === false) {
+    return (
+      <div className="px-6 pb-2 pt-1 sm:px-8">
+        <Caption className="text-ink-strong">
+          No pudimos conectar con tu cuenta. Puede que aún no veas todo lo que has escrito;
+          lo que escribas ahora se guarda en este dispositivo.
         </Caption>
       </div>
     );
