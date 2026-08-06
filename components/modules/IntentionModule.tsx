@@ -7,6 +7,8 @@ import Card from "@/components/ui/Card";
 import SectionTitle from "@/components/ui/SectionTitle";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
+import ConfirmButton from "@/components/ui/ConfirmButton";
+import UndoNotice from "@/components/ui/UndoNotice";
 import { Body } from "@/components/ui/Typography";
 import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
@@ -23,6 +25,7 @@ export default function IntentionModule({
     intention.trim() ? "saved" : "editing",
   );
   const [draft, setDraft, discardDraft] = useDraft(DRAFT_KEYS.intention, intention);
+  const [justCleared, setJustCleared] = useState<string | null>(null);
 
   const handleSave = () => {
     const trimmed = draft.trim();
@@ -41,10 +44,47 @@ export default function IntentionModule({
     setMode("editing");
   };
 
+  /*
+    An intention could be replaced but never taken back: saving refuses an
+    empty value, so whatever was written first stayed on Today and on Camino
+    for good. The Fourth Law says a person may always remove their own
+    words, and one written in the wrong frame of mind is exactly the case it
+    exists for.
+
+    Same two-step confirm and nine-second undo as every other removal.
+  */
+  const handleClear = () => {
+    const previous = intention;
+
+    onSaveIntention?.("");
+    discardDraft();
+    setDraft("");
+    setMode("editing");
+    setJustCleared(previous);
+  };
+
+  const handleUndoClear = () => {
+    if (!justCleared) {
+      return;
+    }
+
+    onSaveIntention?.(justCleared);
+    setMode("saved");
+    setJustCleared(null);
+  };
+
   return (
     <Section>
       <Card className="space-y-3">
         <SectionTitle>Intención del día</SectionTitle>
+
+        {justCleared ? (
+          <UndoNotice
+            message="Intención eliminada."
+            onUndo={handleUndoClear}
+            onDismiss={() => setJustCleared(null)}
+          />
+        ) : null}
 
         {mode === "saved" ? (
           <>
@@ -67,9 +107,17 @@ export default function IntentionModule({
               {intention}
             </Body>
 
-            <Button type="button" variant="ghost" onClick={handleEdit}>
-              Editar
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="ghost" onClick={handleEdit}>
+                Editar
+              </Button>
+
+              <ConfirmButton
+                label="Eliminar"
+                question="¿Eliminar la intención de hoy?"
+                onConfirm={handleClear}
+              />
+            </div>
           </>
         ) : (
           <>
