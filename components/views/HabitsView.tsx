@@ -85,7 +85,7 @@ export default function HabitsView() {
 
   return (
     <Page
-      title="Hábitos"
+      title="Prácticas"
       subtitle="Pequeñas prácticas, sostenidas con intención."
     >
       {mode === "list" ? (

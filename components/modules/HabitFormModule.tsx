@@ -69,22 +69,22 @@ export default function HabitFormModule({
   return (
     <Card className="space-y-4">
       <ModuleHeader
-        title={isEditing ? "Editar hábito" : "Nuevo hábito"}
+        title={isEditing ? "Editar práctica" : "Nueva práctica"}
         subtitle="Elige algo pequeño y sostenible."
       />
 
       <Input
         value={title}
         onChange={(event) => setTitle(event.target.value)}
-        placeholder="Nombre del hábito"
-        aria-label="Nombre del hábito"
+        placeholder="Nombre de la práctica"
+        aria-label="Nombre de la práctica"
       />
 
       <TextArea
         value={purpose}
         onChange={(event) => setPurpose(event.target.value)}
-        placeholder="¿Para qué quieres sostener este hábito? En una frase."
-        aria-label="¿Para qué quieres sostener este hábito?"
+        placeholder="¿Para qué quieres sostener esta práctica? En una frase."
+        aria-label="¿Para qué quieres sostener esta práctica?"
         className="!min-h-[64px]"
       />
 

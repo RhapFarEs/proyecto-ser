@@ -62,7 +62,7 @@ export default function HabitListModule({
   return (
     <div className="space-y-3">
       <Button type="button" variant="primary" onClick={onCreateNew}>
-        Nuevo hábito
+        Nueva práctica
       </Button>
 
       {/* Above the list: the card it refers to has just left, so anchoring
@@ -83,11 +83,11 @@ export default function HabitListModule({
       */}
       {habits.length === 0 && hydrated ? (
         <EmptyState
-          title="Aún no tienes hábitos"
-          description="Puedes crear el tuyo o elegir una sugerencia para empezar."
+          title="Aún no tienes prácticas"
+          description="Algo pequeño que quieras sostener. Puedes crear la primera cuando sientas que es el momento."
           action={
             <Button type="button" variant="secondary" onClick={onCreateNew}>
-              Crear hábito
+              Crear práctica
             </Button>
           }
         />

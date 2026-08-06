@@ -136,7 +136,7 @@ export default function OnboardingFlow({ user, profile }: OnboardingFlowProps) {
               </div>
 
               <div className="space-y-1">
-                <Body className="text-ink">Hábitos</Body>
+                <Body className="text-ink">Prácticas</Body>
                 <Caption>Prácticas pequeñas que sostienes con constancia.</Caption>
               </div>
             </div>

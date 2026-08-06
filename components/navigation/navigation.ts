@@ -19,7 +19,7 @@ export const navigation: NavigationItem[] = [
     icon: BookOpen,
   },
   {
-    label: "Hábitos",
+    label: "Prácticas",
     href: "/habits",
     icon: Target,
   },

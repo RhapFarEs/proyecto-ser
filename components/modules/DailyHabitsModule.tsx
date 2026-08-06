@@ -43,7 +43,7 @@ export default function DailyHabitsModule({
               href="/habits"
               className="underline underline-offset-4 transition-colors hover:text-ink-soft"
             >
-              Puedes elegir una
+              Puedes crear una
             </Link>{" "}
             cuando sientas que es el momento.
           </Caption>
