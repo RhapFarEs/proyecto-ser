@@ -82,3 +82,26 @@ export function getWeekDayKeys(weekStartKey: string): string[] {
 export function getWeekdayOfKey(key: string): number {
   return parseLocalDateKey(key).getDay();
 }
+
+/**
+ * How long until the local day changes, in milliseconds.
+ *
+ * A second past midnight rather than exactly on it: waking on the boundary
+ * can still read the previous date on a clock that has not quite ticked
+ * over, and a second late is invisible where a day early is a misfiled note.
+ *
+ * Always positive, so a caller that reschedules itself can never spin.
+ */
+export function millisecondsUntilNextDay(now: Date = new Date()): number {
+  const nextDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    1,
+    0,
+  );
+
+  return nextDay.getTime() - now.getTime();
+}

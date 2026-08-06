@@ -2,7 +2,8 @@
 
 import Page from "@/components/ui/Page";
 import todayModules from "@/components/modules/today.config";
-import { getLocalDateKey, getWeekStartKey, getWeekdayOfKey } from "@/lib/date";
+import { getWeekStartKey, getWeekdayOfKey, parseLocalDateKey } from "@/lib/date";
+import { useTodayKey } from "@/lib/hooks/useTodayKey";
 import { createDay } from "@/lib/domain/day/day";
 import { getAllDays, getDay, updateDay } from "@/lib/domain/day/day-storage";
 import { isHabitCompleted, setHabitCompletion } from "@/lib/domain/day/day-habits";
@@ -23,9 +24,10 @@ import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function TodayView() {
   const { profile } = useAuth();
-  const todayDate = getLocalDateKey();
+  const todayDate = useTodayKey();
   const todayWeekday = getWeekdayOfKey(todayDate) as Weekday;
-  const currentWeekId = getWeekStartKey();
+  // Derived from the rolling date so the week turns over with the day.
+  const currentWeekId = getWeekStartKey(parseLocalDateKey(todayDate));
   const hydrated = useHydrated();
   /*
     Everything on this screen, read from the stores together.
@@ -90,6 +92,9 @@ export default function TodayView() {
       weeklyFocusAreaTitle: null,
       dailyHabits: [] as { habit: Habit; completed: boolean }[],
     },
+    // Re-read when the day turns over, so an app left open overnight is
+    // showing today rather than yesterday.
+    [todayDate, currentWeekId],
   );
 
   const visibleModules = [...todayModules]

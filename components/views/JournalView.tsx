@@ -22,7 +22,7 @@ import {
   restoreJournalNote,
 } from "@/lib/domain/journal/journal-storage";
 import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
-import { getLocalDateKey } from "@/lib/date";
+import { useTodayKey } from "@/lib/hooks/useTodayKey";
 import { useHydrated } from "@/lib/hooks/useHydrated";
 import { useStoredValue } from "@/lib/hooks/useStoredValue";
 
@@ -34,7 +34,7 @@ const EMPTY_JOURNAL: {
 } = { todayNotes: [], historyItems: [], ownMoods: [] };
 
 export default function JournalView() {
-  const todayDate = getLocalDateKey();
+  const todayDate = useTodayKey();
   const hydrated = useHydrated();
 
   const [activeTab, setActiveTab] = useState<"write" | "history">("write");
@@ -59,7 +59,7 @@ export default function JournalView() {
       // Their words replace the product's suggested ones once they have any.
       ownMoods: getOwnMoodVocabulary(),
     };
-  }, EMPTY_JOURNAL);
+  }, EMPTY_JOURNAL, [todayDate]);
 
   const handleSaveNote = (mood: string, content: string) => {
     updateDay(todayDate, (current) => addJournalNote(current, mood, content));
