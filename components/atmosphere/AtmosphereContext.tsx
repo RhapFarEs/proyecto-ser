@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 import {
   ATMOSPHERE_GROUND,
@@ -67,21 +67,48 @@ function getServerSnapshot(): AtmosphereId {
   return DEFAULT_ATMOSPHERE;
 }
 
+/**
+ * Turns the light on. Every colour resolves from CSS scoped to this one
+ * attribute, so this is the whole of switching a room.
+ *
+ * Mobile browser chrome sits directly against the page, so it moves with it
+ * — otherwise the status bar stays night-dark above a paper-white screen.
+ * The same map is applied pre-paint by the inline script in app/layout.tsx;
+ * both must list every atmosphere, or a new one silently gets the wrong
+ * first frame.
+ */
+function applyAtmosphere(id: AtmosphereId): void {
+  document.documentElement.dataset.atmosphere = id;
+
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", ATMOSPHERE_GROUND[id]);
+}
+
 export function useAtmosphere() {
   const atmosphere = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
+  /*
+    Applied whenever the resolved atmosphere changes, not only when someone
+    picks one here.
+
+    Two other things change it: the system flipping to dark at sunset for
+    anyone who has never chosen, and another tab choosing a room. Both
+    already told this hook — `subscribe` listens for exactly those — and both
+    then reported the new atmosphere while leaving the page painted in the
+    old one, so the chooser would mark Papel as selected on a screen that
+    was plainly still Tinta.
+  */
+  useEffect(() => {
+    applyAtmosphere(atmosphere);
+  }, [atmosphere]);
+
   const setAtmosphere = useCallback((next: AtmosphereId) => {
     window.localStorage.setItem(ATMOSPHERE_STORAGE_KEY, next);
-    document.documentElement.dataset.atmosphere = next;
 
-    // Mobile browser chrome sits directly against the page, so it has to
-    // move with it — otherwise the status bar stays night-dark above a
-    // paper-white screen. The same map is applied pre-paint by the inline
-    // script in app/layout.tsx; both must list every atmosphere, or a new
-    // one silently gets the wrong first frame.
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", ATMOSPHERE_GROUND[next]);
+    // Applied here too, rather than left to the effect above, so the room
+    // changes in the same frame as the press rather than after it.
+    applyAtmosphere(next);
 
     for (const listener of listeners) {
       listener();
