@@ -12,6 +12,7 @@ import Input from "@/components/ui/Input";
 import { Body, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useStoredValue } from "@/lib/hooks/useStoredValue";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 import { getAllDays } from "@/lib/domain/day/day-storage";
 import { getWeeks } from "@/lib/domain/week/week-storage";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
@@ -103,6 +104,13 @@ function hasReflectionContent(week: Week): boolean {
 
 export default function ProgressView() {
   const { profile } = useAuth();
+  /*
+    Every empty state below is gated on this. Before hydration the stored
+    values are still their fallbacks and this markup is what the server
+    renders, so an archive of years would first paint as three panels saying
+    nothing has been written yet.
+  */
+  const hydrated = useHydrated();
 
   /*
     Read once per change rather than per render: the search field below lives
@@ -208,7 +216,7 @@ export default function ProgressView() {
                 </Caption>
               </Link>
             </Card>
-          ) : (
+          ) : hydrated ? (
             <EmptyState
               title="Aún no has escrito tu dirección personal"
               description="Unas líneas sobre hacia dónde quieres caminar. Puedes escribirlas cuando sientas que es el momento."
@@ -220,7 +228,7 @@ export default function ProgressView() {
                 </Link>
               }
             />
-          )}
+          ) : null}
         </div>
       </Section>
 
@@ -229,10 +237,12 @@ export default function ProgressView() {
           <SectionTitle>Días con presencia</SectionTitle>
 
           {pathDays.length === 0 ? (
-            <EmptyState
-              title="Tu camino empieza cuando tú empieces"
-              description="Cada día en el que escribas, dejes una intención o sostengas una práctica aparecerá aquí."
-            />
+            hydrated ? (
+              <EmptyState
+                title="Tu camino empieza cuando tú empieces"
+                description="Cada día en el que escribas, dejes una intención o sostengas una práctica aparecerá aquí."
+              />
+            ) : null
           ) : (
             <div className="space-y-2">
               {pathDays.map(({ day, intention, wroteJournal, sustained }) => (
@@ -270,17 +280,19 @@ export default function ProgressView() {
           <SectionTitle>Reflexiones semanales</SectionTitle>
 
           {reflectedWeeks.length === 0 ? (
-            <EmptyState
-              title="Aún no hay reflexiones semanales"
-              description="Cuando cierres una semana con calma, tu reflexión quedará guardada aquí."
-              action={
-                <Link href="/weekly-review" className="inline-block w-fit">
-                  <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
-                    Ir a Revisión semanal
-                  </Caption>
-                </Link>
-              }
-            />
+            hydrated ? (
+              <EmptyState
+                title="Aún no hay reflexiones semanales"
+                description="Cuando cierres una semana con calma, tu reflexión quedará guardada aquí."
+                action={
+                  <Link href="/weekly-review" className="inline-block w-fit">
+                    <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
+                      Ir a Revisión semanal
+                    </Caption>
+                  </Link>
+                }
+              />
+            ) : null
           ) : (
             <div className="space-y-2">
               {reflectedWeeks.map((week) => {

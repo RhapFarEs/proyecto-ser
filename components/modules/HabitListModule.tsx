@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import ConfirmButton from "@/components/ui/ConfirmButton";
@@ -5,6 +7,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import UndoNotice from "@/components/ui/UndoNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { Habit, Weekday } from "@/lib/domain/habit/habit";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 
 const WEEKDAY_LABELS: Record<Weekday, string> = {
   1: "Lu",
@@ -54,6 +57,8 @@ export default function HabitListModule({
   onRestore,
   onDismissUndo,
 }: HabitListModuleProps) {
+  const hydrated = useHydrated();
+
   return (
     <div className="space-y-3">
       <Button type="button" variant="primary" onClick={onCreateNew}>
@@ -71,7 +76,12 @@ export default function HabitListModule({
         />
       ) : null}
 
-      {habits.length === 0 ? (
+      {/*
+        Before hydration every stored value is still its empty fallback, and
+        this markup is what the server renders — so without the gate the first
+        paint of a full list is a screen saying there is nothing in it.
+      */}
+      {habits.length === 0 && hydrated ? (
         <EmptyState
           title="Aún no tienes hábitos"
           description="Puedes crear el tuyo o elegir una sugerencia para empezar."

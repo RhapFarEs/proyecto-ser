@@ -13,6 +13,7 @@ import UndoNotice from "@/components/ui/UndoNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { JournalHistoryDay } from "@/lib/domain/day/day-history";
 import { formatDateKeyLabel } from "@/lib/date";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 
 const TIME_FORMAT = new Intl.DateTimeFormat("es-ES", {
   hour: "2-digit",
@@ -51,6 +52,7 @@ export default function JournalHistoryModule({
   onDeleteNote,
   onRestoreNote,
 }: JournalHistoryModuleProps) {
+  const hydrated = useHydrated();
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -90,7 +92,17 @@ export default function JournalHistoryModule({
     cancelEditing();
   };
 
+  /*
+    Before hydration every stored value is still its empty fallback, and this
+    markup is what the server renders — so without this gate the first paint
+    of a full archive is a screen saying there is nothing in it. Say nothing
+    until the cache has been read.
+  */
   if (items.length === 0) {
+    if (!hydrated) {
+      return null;
+    }
+
     return (
       <EmptyState
         title="Aún no hay historial"

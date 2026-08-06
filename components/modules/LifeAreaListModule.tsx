@@ -1,3 +1,5 @@
+"use client";
+
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import ConfirmButton from "@/components/ui/ConfirmButton";
@@ -6,6 +8,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import UndoNotice from "@/components/ui/UndoNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { LifeArea } from "@/lib/domain/life-area/life-area";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 
 type LifeAreaListModuleProps = {
   areas: LifeArea[];
@@ -31,6 +34,7 @@ export default function LifeAreaListModule({
   onRestore,
   onDismissUndo,
 }: LifeAreaListModuleProps) {
+  const hydrated = useHydrated();
   const activeAreas = areas.filter((area) => area.active);
   const archivedAreas = areas.filter((area) => !area.active);
 
@@ -50,7 +54,8 @@ export default function LifeAreaListModule({
         />
       ) : null}
 
-      {activeAreas.length === 0 ? (
+      {/* Gated so a full list is never briefly announced as empty. */}
+      {activeAreas.length === 0 && hydrated ? (
         <EmptyState
           title="Aún no tienes áreas de vida"
           description="Crea la primera cuando quieras nombrar lo que te importa."
