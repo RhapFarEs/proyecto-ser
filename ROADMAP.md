@@ -97,6 +97,17 @@ in them is a philosophical failure, not a bug.
 
 ---
 
+## Before a public release
+
+Recorded here because it is easy to forget once the beta is running.
+
+| Item | Why |
+|---|---|
+| **Replace the personal Gmail in the legal documents** | The privacy notice and terms currently name a personal Google address as the contact for data requests. Acceptable for five people who already know the author; not acceptable for a public release, where it should be a project address that can outlive one inbox. |
+| **Publish a domicile** | LFPDPPP expects the responsable's address in the notice. It currently says "available on request", which is defensible for a closed beta and thin for a public one. |
+
+---
+
 # P0 — Identity fixes
 
 Places where the product **currently contradicts** the Constitution. These come

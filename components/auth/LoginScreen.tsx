@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import Button from "@/components/ui/Button";
 import { Display, Caption } from "@/components/ui/Typography";
@@ -48,6 +49,20 @@ export default function LoginScreen() {
             </Caption>
           ) : null}
         </div>
+
+        {/* Before signing in, not after: a notice you can only reach by first
+            handing over your data is not a notice. */}
+        <Caption className="text-ink-faint">
+          Al continuar aceptas los{" "}
+          <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-soft">
+            términos del servicio
+          </Link>{" "}
+          y el{" "}
+          <Link href="/privacidad" className="underline underline-offset-4 hover:text-ink-soft">
+            aviso de privacidad
+          </Link>
+          .
+        </Caption>
       </div>
     </div>
   );

@@ -234,6 +234,13 @@ exists. Deletion always asks, and asks harder — see §8.
 **Footer** — *Proyecto SER · versión {APP_VERSION}*, sourced from
 `package.json` at build time.
 
+## Aviso de privacidad (`/privacidad`) and Términos (`/terminos`)
+
+The only two routes outside `AuthGate`, so they are readable before signing
+in and after an account is deleted. Both describe the product as implemented,
+including what it does not do: no analytics, no end-to-end encryption, a
+publicly readable avatar, and deletion with no grace period and no backup.
+
 ## Feedback (`/feedback`)
 
 Category chips (Error, and others), a message field that persists as a draft,
@@ -617,31 +624,30 @@ Current facts, not plans.
 2. A Direction statement cannot be deleted, only superseded.
 
 **Account and legal**
-3. There is no privacy policy and no terms anywhere in the product.
-4. Google is the only sign-in method.
-5. Profile photos sit in a public storage bucket at a path derived from the
+3. Google is the only sign-in method.
+4. Profile photos sit in a public storage bucket at a path derived from the
    user id, so they are readable by anyone holding that id, indefinitely.
 
 **Content**
-6. The daily line is drawn from 42 product-written lines plus the person's own
+5. The daily line is drawn from 42 product-written lines plus the person's own
    eligible sentences, indexed by `(year + dayOfYear) % pool.length` — so with
    a small pool it cycles in the same order roughly every six weeks.
-7. Own sentences become eligible for that pool at 14 days old and between 30
+6. Own sentences become eligible for that pool at 14 days old and between 30
    and 190 characters.
-8. `JournalPromptModule` asks one fixed question, unchanged every day.
-9. The insight engine has seven possible messages, chosen deterministically
+7. `JournalPromptModule` asks one fixed question, unchanged every day.
+8. The insight engine has seven possible messages, chosen deterministically
     from the day's state.
 
 **Interface**
-11. Nothing in the app manages focus; opening a form or an edit mode never
+9. Nothing in the app manages focus; opening a form or an edit mode never
     focuses its field.
-12. Camino cards and search results are not interactive; there is no way to
+10. Camino cards and search results are not interactive; there is no way to
     open a specific day.
-13. Every route shares the title *Proyecto SER*.
-14. The undo window lives in memory and does not survive a reload.
-15. Today's empty practices state is the only one not built on `EmptyState`.
-16. `<Body>` defaults to `text-ink-soft` and is overridden in most usages.
-17. `Section`'s own margin is overridden wherever it is not the first child.
+11. Every route shares the title *Proyecto SER*.
+12. The undo window lives in memory and does not survive a reload.
+13. Today's empty practices state is the only one not built on `EmptyState`.
+14. `<Body>` defaults to `text-ink-soft` and is overridden in most usages.
+15. `Section`'s own margin is overridden wherever it is not the first child.
 
 **Scope**
 18. Spanish only.
@@ -662,7 +668,8 @@ Practices with
 create, edit, archive, delete and undo. Life Areas with the same. Append-only
 Direction with history. Weekly review across any week. Complete account
 deletion. Five verified
-atmospheres with non-colour models. Error boundaries. Draft persistence across
+atmospheres with non-colour models. Error boundaries. Privacy notice and
+terms, readable without an account. Draft persistence across
 seven surfaces. 217 passing tests over pure domain logic; `typecheck`, `eslint`
 and `build` clean.
 

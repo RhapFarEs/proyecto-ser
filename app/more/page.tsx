@@ -316,9 +316,21 @@ export default function MorePage() {
           </div>
         </Link>
 
-        <Caption className="text-center text-ink-faint">
-          Proyecto SER · versión {APP_VERSION}
-        </Caption>
+        <div className="space-y-2 text-center">
+          <Caption className="text-ink-faint">
+            <Link href="/privacidad" className="underline underline-offset-4 hover:text-ink-soft">
+              Aviso de privacidad
+            </Link>
+            {" · "}
+            <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-soft">
+              Términos del servicio
+            </Link>
+          </Caption>
+
+          <Caption className="text-ink-faint">
+            Proyecto SER · versión {APP_VERSION}
+          </Caption>
+        </div>
       </div>
     </Page>
   );

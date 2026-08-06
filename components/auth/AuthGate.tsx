@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 import OnboardingGate from "@/components/auth/OnboardingGate";
 import LoginScreen from "@/components/auth/LoginScreen";
@@ -20,8 +21,23 @@ type AuthGateProps = {
  * decision (has this account finished onboarding yet?) between auth and
  * the real app.
  */
+/**
+ * Readable without an account.
+ *
+ * A privacy notice someone can only reach by first handing over their data
+ * is not a notice. These two also have to stay reachable for a person who
+ * has just deleted their account or cannot sign in, which is exactly when
+ * someone goes looking for them.
+ */
+const PUBLIC_PATHS = ["/privacidad", "/terminos"];
+
 export default function AuthGate({ children }: AuthGateProps) {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
+
+  if (PUBLIC_PATHS.includes(pathname)) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return <FullScreenLoader />;
