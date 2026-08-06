@@ -1,7 +1,6 @@
 import type { Day } from "@/lib/domain/day/day";
 import { isHabitScheduledOn, type Habit, type Weekday } from "@/lib/domain/habit/habit";
 import { isHabitCompleted } from "@/lib/domain/day/day-habits";
-import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import { getWeekdayOfKey, parseLocalDateKey } from "@/lib/date";
 import type { Insight } from "./insight";
 
@@ -32,16 +31,10 @@ export function getJournalStatusToday(day: Day): boolean {
   return day.entries.some((entry) => entry.type === "journal");
 }
 
-/** Whether a closing reflection exists for the given day. */
-export function getClosingReflectionStatusToday(day: Day): boolean {
-  return hasClosingReflection(day);
-}
-
 /** Any trace at all that the person was here on this day. */
 function hasPresence(day: Day): boolean {
   return (
     day.intention.trim().length > 0 ||
-    hasClosingReflection(day) ||
     day.entries.some(
       (entry) =>
         entry.type === "journal" || (entry.type === "habit" && entry.completed),
@@ -124,10 +117,8 @@ export function getTodayInsight(
   const completedHabits = getCompletedHabitsToday(day, habits);
   const hasIntention = day.intention.trim().length > 0;
   const hasJournal = getJournalStatusToday(day);
-  const hasClosing = getClosingReflectionStatusToday(day);
   const timeOfDay = getTimeOfDay(now);
-  const somethingToday =
-    hasIntention || hasJournal || hasClosing || completedHabits.length > 0;
+  const somethingToday = hasIntention || hasJournal || completedHabits.length > 0;
 
   // Someone comes back after a hard stretch and the app greets them exactly
   // as if they'd never left. That isn't restraint, it's absence — a friend
@@ -143,7 +134,7 @@ export function getTodayInsight(
     };
   }
 
-  if (timeOfDay === "evening" && !hasClosing) {
+  if (timeOfDay === "evening") {
     // The day is ending and there is something from this morning to look
     // back at — the most useful thing the app can do is point at it.
     if (hasIntention) {
@@ -183,13 +174,6 @@ export function getTodayInsight(
     return {
       id: "journal-written-today",
       message: "Hoy ya dedicaste un momento para escribir.",
-    };
-  }
-
-  if (hasClosing) {
-    return {
-      id: "closing-reflection-today",
-      message: "Hoy ya cerraste este día con una reflexión.",
     };
   }
 

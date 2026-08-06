@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { createDay, type Day } from "./day";
-import { setClosingReflection } from "./day-reflection";
 import { buildJournalHistory, groupJournalNotesByDayKey } from "./day-history";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 
@@ -103,12 +102,10 @@ describe("building the history list", () => {
     ).toEqual(["2026-03-02"]);
   });
 
-  it("keeps a day that was only closed, with no notes", () => {
-    const closed = setClosingReflection(day("2026-03-01"), "Fue suficiente");
-    const [item] = buildJournalHistory([closed], new Map());
-
-    expect(item.hasClosing).toBe(true);
-    expect(item.notes).toEqual([]);
+  it("leaves out a day that holds no notes at all", () => {
+    // Nothing else can put a day in this list: the only thing history shows
+    // is what was written into it.
+    expect(buildJournalHistory([day("2026-03-01")], new Map())).toEqual([]);
   });
 
   it("carries each day's own notes", () => {

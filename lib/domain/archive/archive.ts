@@ -122,8 +122,7 @@ export function collectArchiveEntries(
     );
 
     // The promoted record first, because it is the richer of the pair: it
-    // carries the closing reflection that the flat field holds separately,
-    // and `closingReflection` was previously read by nothing at all.
+    // carries the closing reflection that the flat field holds separately.
     if (promotedIntention && hasText(promotedIntention.content)) {
       entries.push({ dateKey: day.date, kind: "intention", text: promotedIntention.content });
     }
@@ -184,9 +183,9 @@ export function collectArchiveEntries(
         });
       }
 
-      // Never a promotion: closing reflections come from the live feature in
-      // `day-reflection.ts`, so one is always a separate writing from
-      // `day.journal.closing` even when the text happens to match.
+      // Never a promotion: a stored reflection entry was written directly by
+      // an older version of the product, so it is always a separate writing
+      // from `day.journal.closing` even when the text happens to match.
       if (entry.type === "reflection" && hasText(entry.content)) {
         entries.push({ dateKey: day.date, kind: "reflection", text: entry.content });
       }

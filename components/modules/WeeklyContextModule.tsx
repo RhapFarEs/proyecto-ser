@@ -4,7 +4,6 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { Body } from "@/components/ui/Typography";
 import type { Day } from "@/lib/domain/day/day";
 import type { Habit } from "@/lib/domain/habit/habit";
-import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import { formatDateKeyLabel } from "@/lib/date";
 
 type WeeklyContextModuleProps = {
@@ -38,14 +37,9 @@ export default function WeeklyContextModule({
     .filter((day) => day.entries.some((entry) => entry.type === "journal"))
     .map((day) => formatDateKeyLabel(day.date));
 
-  const closingDates = days
-    .filter((day) => hasClosingReflection(day))
-    .map((day) => formatDateKeyLabel(day.date));
-
   const sustainedPractices = getSustainedPractices(days, habits);
 
-  const hasContext =
-    journalDates.length > 0 || closingDates.length > 0 || sustainedPractices.length > 0;
+  const hasContext = journalDates.length > 0 || sustainedPractices.length > 0;
 
   if (!hasContext) {
     return null;
@@ -60,10 +54,6 @@ export default function WeeklyContextModule({
           <Body className="text-ink">
             Escribiste en tu diario: {journalDates.join(", ")}.
           </Body>
-        ) : null}
-
-        {closingDates.length > 0 ? (
-          <Body className="text-ink">Cerraste el día: {closingDates.join(", ")}.</Body>
         ) : null}
 
         {sustainedPractices.length > 0 ? (

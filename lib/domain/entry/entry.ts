@@ -29,6 +29,11 @@ export interface IntentionEntry extends BaseEntry {
   content: string;
 }
 
+/**
+ * Only ever read, never written. No version of the product still creates
+ * one; the type stays because a person who used an older version may have
+ * one in storage, and the export has to keep finding their words.
+ */
 export interface ReflectionEntry extends BaseEntry {
   type: "reflection";
   content: string;
@@ -93,14 +98,3 @@ export function createIntentionEntry(id: string, content: string): IntentionEntr
   };
 }
 
-export function createReflectionEntry(id: string, content: string): ReflectionEntry {
-  const now = new Date().toISOString();
-
-  return {
-    id,
-    type: "reflection",
-    createdAt: now,
-    updatedAt: now,
-    content,
-  };
-}

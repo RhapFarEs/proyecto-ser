@@ -19,7 +19,6 @@ import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
 import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
 import { collectArchiveEntries, KIND_LABEL, type ArchiveEntry } from "@/lib/domain/archive/archive";
 import { searchArchive } from "@/lib/domain/archive/search";
-import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 import type { Day } from "@/lib/domain/day/day";
 import type { Habit } from "@/lib/domain/habit/habit";
@@ -48,13 +47,12 @@ type PathDay = {
   day: Day;
   intention: string;
   wroteJournal: boolean;
-  closedDay: boolean;
   sustained: string[];
 };
 
 /**
  * A day belongs to the path if the person was present in it in any way —
- * a note, an intention, a closing reflection, or a sustained practice.
+ * a note, an intention, or a sustained practice.
  * Days with nothing are simply absent, never shown as gaps or failures
  * (LANGUAGE_GUIDE.md: absence is silence, never a marked failure).
  */
@@ -87,13 +85,12 @@ function buildPathDays(days: Day[], habits: Habit[], notes: JournalNote[]): Path
         // three hundred of those look identical after a year.
         intention: day.intention.trim(),
         wroteJournal: dayKeysWithNotes.has(day.date),
-        closedDay: hasClosingReflection(day),
         sustained,
       };
     })
     .filter(
       (item) =>
-        item.wroteJournal || item.intention || item.closedDay || item.sustained.length > 0,
+        item.wroteJournal || item.intention || item.sustained.length > 0,
     )
     .sort((left, right) => right.day.date.localeCompare(left.day.date))
     .slice(0, MAX_PATH_DAYS);
@@ -238,7 +235,7 @@ export default function ProgressView() {
             />
           ) : (
             <div className="space-y-2">
-              {pathDays.map(({ day, intention, wroteJournal, closedDay, sustained }) => (
+              {pathDays.map(({ day, intention, wroteJournal, sustained }) => (
                 <Card key={day.id} className="space-y-2">
                   <Caption>{formatDateKeyLabel(day.date)}</Caption>
 
@@ -261,7 +258,6 @@ export default function ProgressView() {
 
                   {wroteJournal ? <Caption>Escribiste en tu diario.</Caption> : null}
 
-                  {closedDay ? <Caption>Cerraste el día con una reflexión.</Caption> : null}
                 </Card>
               ))}
             </div>

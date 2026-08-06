@@ -56,7 +56,7 @@ export default function JournalHistoryModule({ items }: JournalHistoryModuleProp
 
   return (
     <div className="space-y-2">
-      {historyItems.map(({ day, notes, hasClosing }) => {
+      {historyItems.map(({ day, notes }) => {
         const isExpanded = expandedDay === day.id;
         const dateLabel = formatDateKeyLabel(day.date);
         const latestNote = notes[notes.length - 1];
@@ -71,7 +71,6 @@ export default function JournalHistoryModule({ items }: JournalHistoryModuleProp
                   {latestNote.content.trim()}
                 </Body>
               ) : null}
-              {hasClosing ? <Caption>Cierre del día registrado</Caption> : null}
             </div>
 
             {notes.length > 0 ? (

@@ -1,5 +1,4 @@
 import type { Day } from "./day";
-import { hasClosingReflection } from "./day-reflection";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 
@@ -59,11 +58,10 @@ export function groupJournalNotesByDayKey(
   return byDayKey;
 }
 
-/** A day as the history tab shows it: what was written, and whether it closed. */
+/** A day as the history tab shows it. */
 export type JournalHistoryDay = {
   day: Day;
   notes: JournalEntry[];
-  hasClosing: boolean;
 };
 
 /**
@@ -78,11 +76,7 @@ export function buildJournalHistory(
   notesByDayKey: ReadonlyMap<string, JournalEntry[]>,
 ): JournalHistoryDay[] {
   return days
-    .map((day) => ({
-      day,
-      notes: notesByDayKey.get(day.date) ?? [],
-      hasClosing: hasClosingReflection(day),
-    }))
-    .filter((item) => item.notes.length > 0 || item.hasClosing)
+    .map((day) => ({ day, notes: notesByDayKey.get(day.date) ?? [] }))
+    .filter((item) => item.notes.length > 0)
     .sort((left, right) => right.day.date.localeCompare(left.day.date));
 }

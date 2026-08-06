@@ -378,7 +378,7 @@ describe("two writings are never merged", () => {
   });
 
   it("keeps a live closing reflection separate from the legacy one", () => {
-    // Reflections come from day-reflection.ts and are never promotions, so
+    // A stored reflection entry is never a promotion, so
     // matching text is a coincidence rather than a copy.
     const entries = collectArchiveEntries(
       [
