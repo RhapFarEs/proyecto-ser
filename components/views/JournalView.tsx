@@ -9,18 +9,18 @@ import journalModules from "@/components/modules/journal.config";
 import { Caption } from "@/components/ui/Typography";
 import { getAllDays, updateDay } from "@/lib/domain/day/day-storage";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
-import {
-  addJournalNote,
-  deleteJournalNote,
-  editJournalNote,
-  restoreJournalNote,
-} from "@/lib/domain/day/day-journal";
+import { addJournalNote } from "@/lib/domain/day/day-journal";
 import {
   buildJournalHistory,
   groupJournalNotesByDayKey,
   type JournalHistoryDay,
 } from "@/lib/domain/day/day-history";
-import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
+import {
+  editJournalNote,
+  getJournalNotes,
+  removeJournalNote,
+  restoreJournalNote,
+} from "@/lib/domain/journal/journal-storage";
 import { getOwnMoodVocabulary } from "@/lib/domain/journal/journal-vocabulary";
 import { getLocalDateKey } from "@/lib/date";
 import { useHydrated } from "@/lib/hooks/useHydrated";
@@ -65,16 +65,22 @@ export default function JournalView() {
     updateDay(todayDate, (current) => addJournalNote(current, mood, content));
   };
 
+  /*
+    Identified by note id, so these work on a note from any day. They used to
+    be routed through `updateDay(todayDate, ...)`, which is what limited them
+    to today and, incidentally, marked today as modified every time someone
+    corrected a note written months ago.
+  */
   const handleDeleteNote = (noteId: string) => {
-    updateDay(todayDate, (current) => deleteJournalNote(current, noteId));
+    removeJournalNote(noteId);
   };
 
   const handleRestoreNote = (noteId: string) => {
-    updateDay(todayDate, (current) => restoreJournalNote(current, noteId));
+    restoreJournalNote(noteId);
   };
 
   const handleEditNote = (noteId: string, mood: string, content: string) => {
-    updateDay(todayDate, (current) => editJournalNote(current, noteId, mood, content));
+    editJournalNote(noteId, mood, content);
   };
 
   const visibleModules = [...journalModules]
@@ -136,7 +142,12 @@ export default function JournalView() {
           })}
         </div>
       ) : (
-        <JournalHistoryModule items={historyItems} />
+        <JournalHistoryModule
+          items={historyItems}
+          onEditNote={handleEditNote}
+          onDeleteNote={handleDeleteNote}
+          onRestoreNote={handleRestoreNote}
+        />
       )}
     </Page>
   );

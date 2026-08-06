@@ -1,11 +1,5 @@
 import type { Day } from "./day";
-import {
-  removeJournalNote,
-  saveJournalNote,
-  updateJournalNote,
-} from "@/lib/domain/journal/journal-storage";
-import { applyNoteEdit } from "@/lib/domain/journal/journal";
-import { applyRestore } from "@/lib/sync/types";
+import { saveJournalNote } from "@/lib/domain/journal/journal-storage";
 
 /*
   Notes live in their own cloud-synced store (`lib/domain/journal`), not in
@@ -13,8 +7,10 @@ import { applyRestore } from "@/lib/sync/types";
   adapters the rest of the app already called, so no UI component needed to
   change when the storage moved.
 
-  Reading them back belongs in `day-history.ts`, which stays pure; every
-  function in this file touches the store.
+  Reading them back belongs in `day-history.ts`, which stays pure. Editing,
+  deleting and restoring live in the note store, because they are identified
+  by note id and have nothing to do with a day — only writing a new note
+  needs to know which day it belongs to.
 */
 
 /**
@@ -27,45 +23,5 @@ import { applyRestore } from "@/lib/sync/types";
  */
 export function addJournalNote(day: Day, mood: string, content: string): Day {
   saveJournalNote(day.date, mood, content);
-  return { ...day };
-}
-
-/**
- * Removes a note the person no longer wants to keep. Writes a tombstone
- * rather than dropping the record (see `SyncableEntity.deletedAt`), so the
- * deletion propagates to their other devices instead of the note
- * reappearing on the next pull.
- *
- * Same adapter shape as `addJournalNote`: the returned `Day` is unchanged
- * apart from being a new object, which is what makes React re-render.
- */
-export function deleteJournalNote(day: Day, noteId: string): Day {
-  removeJournalNote(noteId);
-  return { ...day };
-}
-
-/**
- * Corrects a note that is already written.
- *
- * The note keeps its own id and the moment it was written; only the words
- * and the mood change, and `updatedAt` moves. A correction is not a new
- * note — it happened when it happened, and it should stay where it sits in
- * the day rather than jumping to the end because a typo was fixed.
- *
- * Same adapter shape as the two above: the returned `Day` is unchanged apart
- * from being a new object, which is what makes React re-render.
- */
-export function editJournalNote(day: Day, noteId: string, mood: string, content: string): Day {
-  updateJournalNote(noteId, (note) => applyNoteEdit(note, mood, content));
-  return { ...day };
-}
-
-/**
- * Undoes a removal. Same adapter shape as the others: the returned `Day` is
- * unchanged apart from being a new object, which is what makes React
- * re-render.
- */
-export function restoreJournalNote(day: Day, noteId: string): Day {
-  updateJournalNote(noteId, applyRestore);
   return { ...day };
 }

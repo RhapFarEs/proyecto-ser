@@ -1,5 +1,6 @@
 import { createSyncedStore } from "@/lib/sync/createSyncedStore";
-import { createJournalNote, type JournalNote } from "./journal";
+import { applyRestore } from "@/lib/sync/types";
+import { applyNoteEdit, createJournalNote, type JournalNote } from "./journal";
 import { importLegacyDayJournalNotes, migrateJournalNote } from "./journal-migrations";
 
 export const JOURNAL_STORAGE_KEY = "ser.journal_entries";
@@ -75,6 +76,28 @@ export function updateJournalNote(
 
 export function removeJournalNote(id: string): void {
   store.remove(id);
+}
+
+/**
+ * Corrects a note that is already written.
+ *
+ * The note keeps its own id and the moment it was written; only the words
+ * and the mood change, and `updatedAt` moves. A correction is not a new
+ * note — it happened when it happened, and it stays where it sits in its
+ * day rather than jumping to the end because a typo was fixed.
+ *
+ * Identified by note id alone, which is what makes it work on a note from
+ * any day. It used to take the `Day` as well and hand back a copy of it,
+ * and that unused parameter is the whole reason correcting a note looked
+ * like something only today could do.
+ */
+export function editJournalNote(id: string, mood: string, content: string): void {
+  updateJournalNote(id, (note) => applyNoteEdit(note, mood, content));
+}
+
+/** Undoes a removal by clearing the tombstone. Also id-only. */
+export function restoreJournalNote(id: string): void {
+  updateJournalNote(id, applyRestore);
 }
 
 export function setJournalSyncUserId(userId: string | null): void {
