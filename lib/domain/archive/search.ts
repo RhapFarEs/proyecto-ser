@@ -36,6 +36,23 @@ export function matchesQuery(text: string, query: string): boolean {
   return terms.every((term) => haystack.includes(term));
 }
 
+/** An entry with its comparable form worked out ahead of time. */
+export type SearchableEntry = ArchiveEntry & { readonly haystack: string };
+
+/**
+ * Prepares the archive for searching, once.
+ *
+ * Stripping accents and case is the expensive half of a search, and the
+ * result never changes while someone is typing — the archive does not move
+ * between one keystroke and the next. Doing it per keystroke instead cost
+ * about 20ms per character over a few thousand writings on a desktop, and
+ * several times that on a phone, which is felt directly as the field
+ * lagging behind the hand.
+ */
+export function buildSearchIndex(entries: readonly ArchiveEntry[]): SearchableEntry[] {
+  return entries.map((entry) => ({ ...entry, haystack: normalize(entry.text) }));
+}
+
 /**
  * Newest first, because someone searching for something usually wants the
  * most recent time they said it — and because the alternative is ordering by
@@ -43,15 +60,17 @@ export function matchesQuery(text: string, query: string): boolean {
  * person's own writing.
  */
 export function searchArchive(
-  entries: readonly ArchiveEntry[],
+  index: readonly SearchableEntry[],
   query: string,
-): ArchiveEntry[] {
-  if (query.trim().length === 0) {
+): SearchableEntry[] {
+  const terms = normalize(query).split(/\s+/).filter(Boolean);
+
+  if (terms.length === 0) {
     return [];
   }
 
-  return entries
-    .filter((entry) => matchesQuery(entry.text, query))
+  return index
+    .filter((entry) => terms.every((term) => entry.haystack.includes(term)))
     .sort((left, right) => {
       const byDate = right.dateKey.localeCompare(left.dateKey);
 

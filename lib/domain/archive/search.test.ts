@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ArchiveEntry } from "./archive";
-import { matchesQuery, searchArchive } from "./search";
+import { buildSearchIndex, matchesQuery, searchArchive } from "./search";
 
 function entry(dateKey: string, text: string): ArchiveEntry {
   return { dateKey, kind: "note", text };
@@ -44,6 +44,48 @@ describe("matching", () => {
   });
 });
 
+describe("preparing the archive for searching", () => {
+  const entries = [entry("2026-03-01", "Hoy me costó concentrarme")];
+
+  it("keeps everything the entry already said", () => {
+    const [indexed] = buildSearchIndex(entries);
+
+    expect(indexed.dateKey).toBe("2026-03-01");
+    expect(indexed.kind).toBe("note");
+    expect(indexed.text).toBe("Hoy me costó concentrarme");
+  });
+
+  it("works out the comparable form ahead of time", () => {
+    // The whole point: this is the expensive half, and it is done once
+    // rather than again for every character someone types.
+    expect(buildSearchIndex(entries)[0].haystack).toBe("hoy me costo concentrarme");
+  });
+
+  it("does not modify the entries it was given", () => {
+    const original = { ...entries[0] };
+
+    buildSearchIndex(entries);
+
+    expect(entries[0]).toEqual(original);
+  });
+
+  it("finds exactly what matching one entry at a time would find", () => {
+    const corpus = [
+      entry("2026-03-01", "Hoy me costó concentrarme"),
+      entry("2026-03-02", "Salí a caminar"),
+      entry("2026-03-03", "Otra vez me costó arrancar"),
+    ];
+
+    const viaIndex = searchArchive(buildSearchIndex(corpus), "costo").map((m) => m.dateKey);
+    const viaMatch = corpus
+      .filter((item) => matchesQuery(item.text, "costo"))
+      .map((item) => item.dateKey)
+      .sort((a, b) => b.localeCompare(a));
+
+    expect(viaIndex).toEqual(viaMatch);
+  });
+});
+
 describe("searching the archive", () => {
   const entries = [
     entry("2026-03-01", "Hoy me costó concentrarme"),
@@ -52,23 +94,23 @@ describe("searching the archive", () => {
   ];
 
   it("returns nothing until something is typed", () => {
-    expect(searchArchive(entries, "")).toEqual([]);
-    expect(searchArchive(entries, "  ")).toEqual([]);
+    expect(searchArchive(buildSearchIndex(entries), "")).toEqual([]);
+    expect(searchArchive(buildSearchIndex(entries), "  ")).toEqual([]);
   });
 
   it("returns every writing that matches", () => {
-    expect(searchArchive(entries, "costo")).toHaveLength(2);
+    expect(searchArchive(buildSearchIndex(entries), "costo")).toHaveLength(2);
   });
 
   it("returns the most recent first", () => {
-    expect(searchArchive(entries, "costo").map((match) => match.dateKey)).toEqual([
+    expect(searchArchive(buildSearchIndex(entries), "costo").map((match) => match.dateKey)).toEqual([
       "2026-05-01",
       "2026-03-01",
     ]);
   });
 
   it("returns nothing rather than guessing when there is no match", () => {
-    expect(searchArchive(entries, "bicicleta")).toEqual([]);
+    expect(searchArchive(buildSearchIndex(entries), "bicicleta")).toEqual([]);
   });
 
   it("searches every kind of writing, not only notes", () => {
@@ -78,17 +120,17 @@ describe("searching the archive", () => {
       { dateKey: "2026-03-03", kind: "reflection", text: "Caminé al final" },
     ];
 
-    expect(searchArchive(mixed, "camin")).toHaveLength(3);
+    expect(searchArchive(buildSearchIndex(mixed), "camin")).toHaveLength(3);
   });
 
   it("gives the same answer every time", () => {
-    expect(searchArchive(entries, "costo")).toEqual(searchArchive(entries, "costo"));
+    expect(searchArchive(buildSearchIndex(entries), "costo")).toEqual(searchArchive(buildSearchIndex(entries), "costo"));
   });
 
   it("does not reorder the archive it was given", () => {
     const original = entries.map((item) => item.dateKey);
 
-    searchArchive(entries, "costo");
+    searchArchive(buildSearchIndex(entries), "costo");
 
     expect(entries.map((item) => item.dateKey)).toEqual(original);
   });

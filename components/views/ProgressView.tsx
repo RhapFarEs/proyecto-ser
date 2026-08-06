@@ -17,8 +17,8 @@ import { getWeeks } from "@/lib/domain/week/week-storage";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
 import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
 import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
-import { collectArchiveEntries, KIND_LABEL, type ArchiveEntry } from "@/lib/domain/archive/archive";
-import { searchArchive } from "@/lib/domain/archive/search";
+import { collectArchiveEntries, KIND_LABEL } from "@/lib/domain/archive/archive";
+import { buildSearchIndex, searchArchive, type SearchableEntry } from "@/lib/domain/archive/search";
 import type { JournalNote } from "@/lib/domain/journal/journal";
 import type { Day } from "@/lib/domain/day/day";
 import type { Habit } from "@/lib/domain/habit/habit";
@@ -40,7 +40,7 @@ const MAX_PATH_DAYS = 30;
 const MAX_SEARCH_RESULTS = 50;
 
 const EMPTY_PATH: PathDay[] = [];
-const EMPTY_CORPUS: ArchiveEntry[] = [];
+const EMPTY_CORPUS: SearchableEntry[] = [];
 const EMPTY_WEEKS: Week[] = [];
 
 type PathDay = {
@@ -126,7 +126,7 @@ export default function ProgressView() {
     to show.
   */
   const corpus = useStoredValue(
-    () => collectArchiveEntries(getAllDays(), getJournalNotes(), getWeeks()),
+    () => buildSearchIndex(collectArchiveEntries(getAllDays(), getJournalNotes(), getWeeks())),
     EMPTY_CORPUS,
   );
 
