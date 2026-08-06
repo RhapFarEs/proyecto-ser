@@ -23,6 +23,9 @@ export const DRAFT_KEYS = {
   weeklyWentWell: "ser.draft.weekly.went-well",
   weeklyDifficult: "ser.draft.weekly.difficult",
   weeklyNextWeekFocus: "ser.draft.weekly.next-week-focus",
+  // Not archive writing, but writing all the same, and the one message the
+  // product most needs not to lose while it is still being tested.
+  feedback: "ser.draft.feedback",
 } as const;
 
 const ALL_DRAFT_KEYS = Object.values(DRAFT_KEYS);

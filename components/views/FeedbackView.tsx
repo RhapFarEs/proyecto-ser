@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+
+import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 import { usePathname } from "next/navigation";
 
 import Page from "@/components/ui/Page";
@@ -25,7 +27,7 @@ export default function FeedbackView() {
   const { user } = useAuth();
   const pathname = usePathname();
   const [category, setCategory] = useState<FeedbackCategory | null>(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage, discardMessage] = useDraft(DRAFT_KEYS.feedback, "");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -46,6 +48,7 @@ export default function FeedbackView() {
     submitFeedback(feedback)
       .then(() => {
         setSent(true);
+        discardMessage();
         setMessage("");
       })
       .catch(() => {
