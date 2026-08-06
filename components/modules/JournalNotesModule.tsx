@@ -180,7 +180,7 @@ export default function JournalNotesModule({
       <TextArea
         value={content}
         onChange={(event) => handleContentChange(event.target.value)}
-        placeholder="Empieza a escribir..."
+        placeholder="Empieza a escribir…"
         aria-label="Tu nota"
       />
 

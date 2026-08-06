@@ -113,7 +113,7 @@ export default function FeedbackView() {
             {error ? <Caption className="text-ink-soft">{error}</Caption> : null}
 
             <Button type="button" variant="primary" disabled={!canSubmit} onClick={handleSubmit}>
-              {sending ? "Enviando..." : "Enviar comentario"}
+              {sending ? "Enviando…" : "Enviar comentario"}
             </Button>
           </>
         )}

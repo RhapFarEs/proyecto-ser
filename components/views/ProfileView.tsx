@@ -178,11 +178,11 @@ export default function ProfileView() {
 
   if (!profile) {
     return (
-      <Page title="Perfil" subtitle="Lo esencial sobre ti, en un solo lugar.">
+      <Page title="Perfil" subtitle="Quién eres aquí, y qué te importa.">
         <Card>
-          <Body className="text-ink-soft">
+          <Body className="text-ink-soft" role="status" aria-live="polite">
             {profileLoading
-              ? "Cargando tu perfil..."
+              ? "Cargando tu perfil…"
               : "Aún no encontramos tu perfil. Vuelve a iniciar sesión."}
           </Body>
         </Card>
@@ -229,7 +229,7 @@ export default function ProfileView() {
 
             {uploadingPhoto ? (
               <span className="absolute inset-0 flex items-center justify-center bg-surface text-xs text-ink">
-                Subiendo...
+                Subiendo…
               </span>
             ) : null}
           </button>
@@ -285,7 +285,7 @@ export default function ProfileView() {
           {mode === "editing" ? (
             <>
               <Button type="button" variant="primary" onClick={handleSave} disabled={saving}>
-                {saving ? "Guardando..." : "Guardar"}
+                {saving ? "Guardando…" : "Guardar"}
               </Button>
               <Button type="button" variant="ghost" onClick={handleCancel} disabled={saving}>
                 Cancelar

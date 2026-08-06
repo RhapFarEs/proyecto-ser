@@ -150,7 +150,7 @@ export default function OnboardingFlow({ user, profile }: OnboardingFlowProps) {
               disabled={finishing}
               onClick={handleFinish}
             >
-              {finishing ? "Guardando..." : "Comenzar"}
+              {finishing ? "Guardando…" : "Comenzar"}
             </Button>
           </div>
         ) : null}
