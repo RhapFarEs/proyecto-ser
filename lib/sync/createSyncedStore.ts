@@ -1,6 +1,7 @@
 import storage from "@/lib/storage/storage";
 import { supabase } from "@/lib/supabase/client";
 import type { SyncableEntity } from "./types";
+import { notifyDataChanged } from "./data-version";
 
 type Listener = () => void;
 
@@ -59,6 +60,7 @@ export function subscribeToSyncState(listener: Listener): () => void {
   return () => syncStateListeners.delete(listener);
 }
 
+
 /**
  * Re-attempts pending writes across every domain. Called on reconnect and
  * available to the UI; previously the only retry path was the next login,
@@ -107,6 +109,8 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     for (const listener of listeners) {
       listener();
     }
+
+    notifyDataChanged();
   }
 
   // Every key is namespaced by the signed-in user once one is known, so two

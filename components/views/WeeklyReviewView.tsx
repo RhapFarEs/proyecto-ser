@@ -17,10 +17,13 @@ import {
 } from "@/lib/date";
 import { getDay } from "@/lib/domain/day/day-storage";
 import { getWeek, updateWeek } from "@/lib/domain/week/week-storage";
-import { createWeek, type Week, type WeeklyReflection } from "@/lib/domain/week/week";
+import { createWeek, type WeeklyReflection } from "@/lib/domain/week/week";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
 import { getLifeAreas } from "@/lib/domain/life-area/life-area-storage";
-import { useClientState } from "@/lib/hooks/useClientState";
+import type { Habit } from "@/lib/domain/habit/habit";
+import type { LifeArea } from "@/lib/domain/life-area/life-area";
+import type { Day } from "@/lib/domain/day/day";
+import { useStoredValue } from "@/lib/hooks/useStoredValue";
 import { useHydrated } from "@/lib/hooks/useHydrated";
 
 // Extension point for a future Journey domain: this view already walks
@@ -31,23 +34,35 @@ export default function WeeklyReviewView() {
   const currentWeekStart = getWeekStartKey(new Date());
   const [weekStart, setWeekStart] = useState(currentWeekStart);
   const hydrated = useHydrated();
-  const [week, setWeek] = useClientState<Week>(
-    () => getWeek(currentWeekStart),
-    createWeek(currentWeekStart),
-  );
-
-  const habits = hydrated ? getHabits() : [];
-  const areas = hydrated ? getLifeAreas() : [];
   const weekDayKeys = getWeekDayKeys(weekStart);
-  const days = hydrated ? weekDayKeys.map((key) => getDay(key)) : [];
+
+  /*
+    Read from the stores on every change, and again whenever another week is
+    chosen. Previously the week was loaded once and re-read by hand on each
+    arrow press, while habits, areas and all seven days were rebuilt on every
+    single render.
+  */
+  const { week, habits, areas, days } = useStoredValue(
+    () => ({
+      week: getWeek(weekStart),
+      habits: getHabits(),
+      areas: getLifeAreas(),
+      days: weekDayKeys.map((key) => getDay(key)),
+    }),
+    {
+      week: createWeek(weekStart),
+      habits: [] as Habit[],
+      areas: [] as LifeArea[],
+      days: [] as Day[],
+    },
+    [weekStart],
+  );
 
   const isCurrentWeek = weekStart === currentWeekStart;
   const weekRangeLabel = `${formatDateKeyLabel(weekStart)} – ${formatDateKeyLabel(weekDayKeys[6])}`;
 
   const goToPreviousWeek = () => {
-    const nextWeekStart = addDaysToKey(weekStart, -7);
-    setWeekStart(nextWeekStart);
-    setWeek(getWeek(nextWeekStart));
+    setWeekStart(addDaysToKey(weekStart, -7));
   };
 
   const goToNextWeek = () => {
@@ -55,22 +70,18 @@ export default function WeeklyReviewView() {
       return;
     }
 
-    const nextWeekStart = addDaysToKey(weekStart, 7);
-    setWeekStart(nextWeekStart);
-    setWeek(getWeek(nextWeekStart));
+    setWeekStart(addDaysToKey(weekStart, 7));
   };
 
   const handleSaveReflection = (reflection: WeeklyReflection) => {
-    const next = updateWeek(weekStart, (current) => ({ ...current, reflection }));
-    setWeek(next);
+    updateWeek(weekStart, (current) => ({ ...current, reflection }));
   };
 
   const handleSelectFocusArea = (lifeAreaId: string | undefined) => {
-    const next = updateWeek(weekStart, (current) => ({
+    updateWeek(weekStart, (current) => ({
       ...current,
       focusLifeAreaId: lifeAreaId,
     }));
-    setWeek(next);
   };
 
   return (

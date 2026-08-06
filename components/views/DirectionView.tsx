@@ -23,8 +23,14 @@ import {
   saveLifeArea,
   updateLifeArea,
 } from "@/lib/domain/life-area/life-area-storage";
-import { useClientState } from "@/lib/hooks/useClientState";
+import { useStoredValue } from "@/lib/hooks/useStoredValue";
 import { useHydrated } from "@/lib/hooks/useHydrated";
+
+const EMPTY_DIRECTION: {
+  direction: DirectionRevision | null;
+  history: DirectionRevision[];
+  areas: LifeArea[];
+} = { direction: null, history: [], areas: [] };
 
 type AreasMode = "list" | "form";
 
@@ -35,15 +41,16 @@ export default function DirectionView() {
   // reaching for it from a module that has no business touching the DOM is
   // what made the save path untestable.
   const { atmosphere } = useAtmosphere();
-  const [direction, setDirection] = useClientState<DirectionRevision | null>(
-    () => getLifeDirection(),
-    null,
+  // Read from the stores rather than kept alongside them: every write below
+  // notifies, so these are always what is actually saved.
+  const { direction, history, areas } = useStoredValue(
+    () => ({
+      direction: getLifeDirection(),
+      history: getDirectionHistory(),
+      areas: getLifeAreas(),
+    }),
+    EMPTY_DIRECTION,
   );
-  const [history, setHistory] = useClientState<DirectionRevision[]>(
-    () => getDirectionHistory(),
-    [],
-  );
-  const [areas, setAreas] = useClientState<LifeArea[]>(() => getLifeAreas(), []);
   const [mode, setMode] = useState<AreasMode>("list");
   const [editingArea, setEditingArea] = useState<LifeArea | null>(null);
   const [justDeletedAreaId, setJustDeletedAreaId] = useState<string | null>(null);
@@ -65,23 +72,19 @@ export default function DirectionView() {
 
   const handleToggleActive = (id: string) => {
     updateLifeArea(id, (area) => ({ ...area, active: !area.active }));
-    setAreas(getLifeAreas());
   };
 
   const handleToggleFocus = (id: string) => {
     updateLifeArea(id, (area) => ({ ...area, inFocus: !area.inFocus }));
-    setAreas(getLifeAreas());
   };
 
   const handleDeleteArea = (id: string) => {
     removeLifeArea(id);
-    setAreas(getLifeAreas());
     setJustDeletedAreaId(id);
   };
 
   const handleRestoreArea = (id: string) => {
     restoreLifeArea(id);
-    setAreas(getLifeAreas());
     setJustDeletedAreaId(null);
   };
 
@@ -96,20 +99,14 @@ export default function DirectionView() {
       saveLifeArea(createLifeArea(values.title, values.whyItMatters));
     }
 
-    setAreas(getLifeAreas());
     closeForm();
   };
 
   const handleSaveDirection = (statement: string) => {
-    // Null means nothing was appended — unchanged or empty text. Re-reading
-    // then would rebuild identical state for no reason, and would push a
-    // pointless render through a screen whose whole job is to feel still.
-    if (!saveLifeDirection(statement, atmosphere)) {
-      return;
-    }
-
-    setDirection(getLifeDirection());
-    setHistory(getDirectionHistory());
+    // Returns null when nothing was appended — unchanged or empty text — in
+    // which case nothing notifies and this screen stays exactly as still as
+    // it was, which is the whole point of it.
+    saveLifeDirection(statement, atmosphere);
   };
 
   return (

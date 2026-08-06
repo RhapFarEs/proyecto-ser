@@ -16,12 +16,17 @@ import {
   saveHabit,
   updateHabit,
 } from "@/lib/domain/habit/habit-storage";
-import { useClientState } from "@/lib/hooks/useClientState";
+import { useStoredValue } from "@/lib/hooks/useStoredValue";
+
+const EMPTY_HABITS: Habit[] = [];
 
 type HabitsMode = "list" | "form";
 
 export default function HabitsView() {
-  const [habits, setHabits] = useClientState<Habit[]>(() => getHabits(), []);
+  // Read from the store rather than kept alongside it: every write below
+  // notifies, so this is always what is actually saved — including writes
+  // that arrived from another device.
+  const habits = useStoredValue(getHabits, EMPTY_HABITS);
   const [mode, setMode] = useState<HabitsMode>("list");
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [justDeletedId, setJustDeletedId] = useState<string | null>(null);
@@ -43,18 +48,15 @@ export default function HabitsView() {
 
   const handleToggleActive = (id: string) => {
     updateHabit(id, (habit) => ({ ...habit, active: !habit.active }));
-    setHabits(getHabits());
   };
 
   const handleDelete = (id: string) => {
     removeHabit(id);
-    setHabits(getHabits());
     setJustDeletedId(id);
   };
 
   const handleRestore = (id: string) => {
     restoreHabit(id);
-    setHabits(getHabits());
     setJustDeletedId(null);
   };
 
@@ -70,7 +72,6 @@ export default function HabitsView() {
       saveHabit(createHabit(values.title, values.purpose, values.weekdays));
     }
 
-    setHabits(getHabits());
     closeForm();
   };
 

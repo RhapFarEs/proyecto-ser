@@ -11,13 +11,13 @@ import EmptyState from "@/components/ui/EmptyState";
 import Input from "@/components/ui/Input";
 import { Body, Caption } from "@/components/ui/Typography";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { useHydrated } from "@/lib/hooks/useHydrated";
+import { useStoredValue } from "@/lib/hooks/useStoredValue";
 import { getAllDays } from "@/lib/domain/day/day-storage";
 import { getWeeks } from "@/lib/domain/week/week-storage";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
 import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
 import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
-import { collectArchiveEntries, KIND_LABEL } from "@/lib/domain/archive/archive";
+import { collectArchiveEntries, KIND_LABEL, type ArchiveEntry } from "@/lib/domain/archive/archive";
 import { searchArchive } from "@/lib/domain/archive/search";
 import { hasClosingReflection } from "@/lib/domain/day/day-reflection";
 import type { JournalNote } from "@/lib/domain/journal/journal";
@@ -39,6 +39,10 @@ const MAX_PATH_DAYS = 30;
 
 /** Enough to find something; few enough that the answer stays readable. */
 const MAX_SEARCH_RESULTS = 50;
+
+const EMPTY_PATH: PathDay[] = [];
+const EMPTY_CORPUS: ArchiveEntry[] = [];
+const EMPTY_WEEKS: Week[] = [];
 
 type PathDay = {
   day: Day;
@@ -102,17 +106,19 @@ function hasReflectionContent(week: Week): boolean {
 
 export default function ProgressView() {
   const { profile } = useAuth();
-  const hydrated = useHydrated();
 
-  // Memoised because the search field below lives on this screen: without it
-  // every keystroke re-resolved the direction's revision chain for a sentence
-  // that cannot have changed while someone is typing.
-  const direction = useMemo(() => (hydrated ? getLifeDirection() : null), [hydrated]);
+  /*
+    Read once per change rather than per render: the search field below lives
+    on this screen, so without this every keystroke re-resolved the
+    direction's revision chain and rebuilt the whole archive corpus for
+    writing that cannot have changed while someone is typing.
+  */
+  const direction = useStoredValue(getLifeDirection, null);
   const statement = direction?.statement.trim() ?? "";
 
-  const pathDays = useMemo(
-    () => (hydrated ? buildPathDays(getAllDays(), getHabits(), getJournalNotes()) : []),
-    [hydrated],
+  const pathDays = useStoredValue(
+    () => buildPathDays(getAllDays(), getHabits(), getJournalNotes()),
+    EMPTY_PATH,
   );
 
   const [query, setQuery] = useState("");
@@ -120,25 +126,22 @@ export default function ProgressView() {
   /*
     Built from the same collector the export uses, so searching reaches every
     place a person has written rather than only the ones this screen happens
-    to show. Recomputed when the query first appears rather than on every
-    keystroke, since the archive does not change while someone is typing.
+    to show.
   */
-  const corpus = useMemo(
-    () => (hydrated ? collectArchiveEntries(getAllDays(), getJournalNotes(), getWeeks()) : []),
-    [hydrated],
+  const corpus = useStoredValue(
+    () => collectArchiveEntries(getAllDays(), getJournalNotes(), getWeeks()),
+    EMPTY_CORPUS,
   );
 
   const results = useMemo(() => searchArchive(corpus, query), [corpus, query]);
   const isSearching = query.trim().length > 0;
 
-  const reflectedWeeks = useMemo(
+  const reflectedWeeks = useStoredValue(
     () =>
-      hydrated
-        ? getWeeks()
-            .filter(hasReflectionContent)
-            .sort((left, right) => right.id.localeCompare(left.id))
-        : [],
-    [hydrated],
+      getWeeks()
+        .filter(hasReflectionContent)
+        .sort((left, right) => right.id.localeCompare(left.id)),
+    EMPTY_WEEKS,
   );
 
   return (
