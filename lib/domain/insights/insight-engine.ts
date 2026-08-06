@@ -26,19 +26,28 @@ export function getCompletedHabitsToday(day: Day, habits: Habit[]): Habit[] {
   );
 }
 
-/** Whether a journal entry exists for the given day. */
-export function getJournalStatusToday(day: Day): boolean {
-  return day.entries.some((entry) => entry.type === "journal");
+/**
+ * Whether anything was written on this day.
+ *
+ * Notes live in their own store and have done since they stopped being
+ * part of the day record, so asking `day.entries` alone answers "no" for
+ * every note written since — which is why this takes the set of days that
+ * have notes. The `day.entries` half remains for days migrated from before
+ * the move, where the note really is still inside the day.
+ */
+export function wroteOn(day: Day, dayKeysWithNotes: ReadonlySet<string>): boolean {
+  return (
+    dayKeysWithNotes.has(day.date) ||
+    day.entries.some((entry) => entry.type === "journal")
+  );
 }
 
 /** Any trace at all that the person was here on this day. */
-function hasPresence(day: Day): boolean {
+function hasPresence(day: Day, dayKeysWithNotes: ReadonlySet<string>): boolean {
   return (
     day.intention.trim().length > 0 ||
-    day.entries.some(
-      (entry) =>
-        entry.type === "journal" || (entry.type === "habit" && entry.completed),
-    )
+    wroteOn(day, dayKeysWithNotes) ||
+    day.entries.some((entry) => entry.type === "habit" && entry.completed)
   );
 }
 
@@ -53,9 +62,10 @@ function hasPresence(day: Day): boolean {
 export function isReturningAfterAbsence(
   todayKey: string,
   history: Day[],
+  dayKeysWithNotes: ReadonlySet<string>,
 ): boolean {
   const previous = history
-    .filter((day) => day.date < todayKey && hasPresence(day))
+    .filter((day) => day.date < todayKey && hasPresence(day, dayKeysWithNotes))
     .map((day) => day.date)
     .sort();
 
@@ -113,10 +123,11 @@ export function getTodayInsight(
   habits: Habit[],
   now: Date = new Date(),
   history: Day[] = [],
+  dayKeysWithNotes: ReadonlySet<string> = new Set(),
 ): Insight | null {
   const completedHabits = getCompletedHabitsToday(day, habits);
   const hasIntention = day.intention.trim().length > 0;
-  const hasJournal = getJournalStatusToday(day);
+  const hasJournal = wroteOn(day, dayKeysWithNotes);
   const timeOfDay = getTimeOfDay(now);
   const somethingToday = hasIntention || hasJournal || completedHabits.length > 0;
 
@@ -127,7 +138,7 @@ export function getTodayInsight(
   //
   // What it deliberately does NOT do: name the number of days, ask where
   // they were, or imply anything is owed. It notices; it doesn't audit.
-  if (!somethingToday && isReturningAfterAbsence(day.date, history)) {
+  if (!somethingToday && isReturningAfterAbsence(day.date, history, dayKeysWithNotes)) {
     return {
       id: "welcome-back",
       message: "Qué bueno tenerte de vuelta. Empezamos desde aquí.",

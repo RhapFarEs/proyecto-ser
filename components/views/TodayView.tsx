@@ -14,6 +14,7 @@ import { getLifeDirection } from "@/lib/domain/direction/direction-storage";
 import { getToday } from "@/lib/today";
 import { isHabitScheduledOn, type Habit, type Weekday } from "@/lib/domain/habit/habit";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
+import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
 import { getWeek } from "@/lib/domain/week/week-storage";
 import { getLifeArea } from "@/lib/domain/life-area/life-area-storage";
 import { useStoredValue } from "@/lib/hooks/useStoredValue";
@@ -53,12 +54,15 @@ export default function TodayView() {
       // the same source: the echo (a memory, dated and rare) and the pool
       // the day's line is drawn from (undated, unremarked, theirs).
       const written = gatherEchoSources();
+      // Days that hold at least one note. The insight engine needs this
+      // because notes no longer live inside the day record.
+      const dayKeysWithNotes = new Set(getJournalNotes().map((note) => note.dayKey));
 
       return {
         intention: currentDay.intention,
         // History is only read so the insight engine can recognise a
         // return; it is never displayed here.
-        insight: getTodayInsight(currentDay, habits, new Date(), getAllDays()),
+        insight: getTodayInsight(currentDay, habits, new Date(), getAllDays(), dayKeysWithNotes),
         echo: selectEcho(written, todayDate),
         today: getToday(selectOwnReflectionLines(written, todayDate)),
         // Their own direction takes the place of the product's motto at the
