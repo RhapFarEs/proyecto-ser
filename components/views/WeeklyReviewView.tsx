@@ -26,15 +26,31 @@ import type { LifeArea } from "@/lib/domain/life-area/life-area";
 import type { Day } from "@/lib/domain/day/day";
 import { useStoredValue } from "@/lib/hooks/useStoredValue";
 import { useHydrated } from "@/lib/hooks/useHydrated";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { parseLocalDateKey } from "@/lib/date";
 
 // Extension point for a future Journey domain: this view already walks
 // week-by-week and resolves a Life Area reference (focusLifeAreaId) without
 // copying data — a Journey timeline could read the same weeks/areas rather
 // than needing its own storage. No Journey concept exists yet.
 export default function WeeklyReviewView() {
+  const { profile } = useAuth();
   const currentWeekStart = getWeekStartKey(new Date());
   const [weekStart, setWeekStart] = useState(currentWeekStart);
   const hydrated = useHydrated();
+
+  /*
+    Back only as far as the week someone started in.
+
+    Without a floor, "Semana anterior" walked forever into weeks that
+    predate the account — a first-day user could press it thirty times and
+    read thirty identical empty weeks, which makes a product look hollow
+    rather than new. There is nothing before the beginning to look at.
+  */
+  const firstWeekStart = profile
+    ? getWeekStartKey(parseLocalDateKey(profile.startedAt))
+    : currentWeekStart;
+  const isFirstWeek = weekStart <= firstWeekStart;
   const weekDayKeys = getWeekDayKeys(weekStart);
 
   /*
@@ -65,6 +81,10 @@ export default function WeeklyReviewView() {
   const weekRangeLabel = `${formatDateKeyLabel(weekStart)} – ${formatDateKeyLabel(weekDayKeys[6])}`;
 
   const goToPreviousWeek = () => {
+    if (isFirstWeek) {
+      return;
+    }
+
     setWeekStart(addDaysToKey(weekStart, -7));
   };
 
@@ -90,7 +110,12 @@ export default function WeeklyReviewView() {
   return (
     <Page title="Revisión semanal" subtitle="Una mirada calmada a tu semana.">
       <div className="flex items-center justify-between gap-3">
-        <Button type="button" variant="ghost" onClick={goToPreviousWeek}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={goToPreviousWeek}
+          disabled={isFirstWeek}
+        >
           Semana anterior
         </Button>
 
