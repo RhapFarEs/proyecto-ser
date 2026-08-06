@@ -92,10 +92,6 @@ export function restoreLifeArea(id: string): void {
   store.update(id, applyRestore);
 }
 
-export function subscribeToLifeAreas(listener: () => void): () => void {
-  return store.subscribe(listener);
-}
-
 export function setLifeAreaSyncUserId(userId: string | null): void {
   store.setUserId(userId);
 }

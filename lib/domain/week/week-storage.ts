@@ -78,14 +78,6 @@ export function updateWeek(id: string, updater: (week: Week) => Week): Week {
   return next;
 }
 
-export function removeWeek(id: string): void {
-  store.remove(id);
-}
-
-export function subscribeToWeeks(listener: () => void): () => void {
-  return store.subscribe(listener);
-}
-
 export function setWeekSyncUserId(userId: string | null): void {
   store.setUserId(userId);
 }

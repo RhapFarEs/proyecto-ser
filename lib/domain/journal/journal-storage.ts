@@ -77,10 +77,6 @@ export function removeJournalNote(id: string): void {
   store.remove(id);
 }
 
-export function subscribeToJournalNotes(listener: () => void): () => void {
-  return store.subscribe(listener);
-}
-
 export function setJournalSyncUserId(userId: string | null): void {
   store.setUserId(userId);
 }

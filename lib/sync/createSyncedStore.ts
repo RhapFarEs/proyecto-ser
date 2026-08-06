@@ -24,7 +24,6 @@ export interface SyncedStore<T extends SyncableEntity> {
   save(entity: T): void;
   update(id: string, updater: (entity: T) => T): T | undefined;
   remove(id: string): void;
-  subscribe(listener: Listener): () => void;
   setUserId(userId: string | null): void;
   pull(): Promise<void>;
   runInitialMigration(): Promise<void>;
@@ -101,15 +100,18 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
   let userId: string | null = null;
   let memory: Record<string, T> | null = null;
   let cachedSnapshot: T[] | null = null;
-  const listeners = new Set<Listener>();
 
+  /*
+    Every write goes through here: the cached snapshot is dropped so the
+    next read rebuilds it, and the app is told something changed.
+
+    Each store used to carry its own listener set as well, so a screen could
+    subscribe to one domain. Nothing ever did — screens read several domains
+    at once and want to know when any of them moved, which is what
+    `notifyDataChanged` answers.
+  */
   function notify(): void {
     cachedSnapshot = null;
-
-    for (const listener of listeners) {
-      listener();
-    }
-
     notifyDataChanged();
   }
 
@@ -301,11 +303,6 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     save({ ...current, deletedAt: new Date().toISOString() });
   }
 
-  function subscribe(listener: Listener): () => void {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  }
-
   /**
    * Dropping `memory` (and its cached snapshot) whenever the user actually
    * changes is what prevents a leak: the next read has to go back through
@@ -421,7 +418,6 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     save,
     update,
     remove,
-    subscribe,
     setUserId,
     pull,
     runInitialMigration,

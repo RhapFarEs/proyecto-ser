@@ -98,18 +98,6 @@ export function updateDay(date: string, updater: (day: Day) => Day): Day {
   return next;
 }
 
-export function removeDay(date: string): void {
-  store.remove(date);
-}
-
-export function clearDayStorage(): void {
-  storage.remove(DAY_STORAGE_KEY);
-}
-
-export function subscribeToDays(listener: () => void): () => void {
-  return store.subscribe(listener);
-}
-
 export function setDaySyncUserId(userId: string | null): void {
   store.setUserId(userId);
 }

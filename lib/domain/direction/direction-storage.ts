@@ -73,7 +73,7 @@ function toRow(revision: DirectionRevision, userId: string): DirectionRevisionRo
  */
 type DirectionStore = Pick<
   SyncedStore<DirectionRevision>,
-  "getAll" | "save" | "subscribe" | "setUserId" | "pull" | "runInitialMigration"
+  "getAll" | "save" | "setUserId" | "pull" | "runInitialMigration"
 >;
 
 const store: DirectionStore = createSyncedStore<DirectionRevision, DirectionRevisionRow>({
@@ -142,10 +142,6 @@ export function saveLifeDirection(
   }
 
   return revision;
-}
-
-export function subscribeToLifeDirection(listener: () => void): () => void {
-  return store.subscribe(listener);
 }
 
 export function setLifeDirectionSyncUserId(userId: string | null): void {

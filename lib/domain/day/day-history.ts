@@ -10,7 +10,7 @@ import type { JournalNote } from "@/lib/domain/journal/journal";
  * only types, so it can be tested without a Supabase client existing. The
  * saving side reaches for the store; this side never does.
  */
-export function toJournalEntry(note: JournalNote): JournalEntry {
+function toJournalEntry(note: JournalNote): JournalEntry {
   return {
     id: note.id,
     type: "journal",

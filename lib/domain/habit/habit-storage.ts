@@ -65,10 +65,6 @@ export function getHabits(): Habit[] {
   return store.getAll();
 }
 
-export function getHabit(id: string): Habit | undefined {
-  return store.getOne(id);
-}
-
 export function saveHabit(habit: Habit): void {
   store.save(habit);
 }
@@ -87,10 +83,6 @@ export function removeHabit(id: string): void {
 /** Undoes a removal — the practice returns with every day it was kept. */
 export function restoreHabit(id: string): void {
   store.update(id, applyRestore);
-}
-
-export function subscribeToHabits(listener: () => void): () => void {
-  return store.subscribe(listener);
 }
 
 export function setHabitSyncUserId(userId: string | null): void {
