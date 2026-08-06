@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Card from "@/components/ui/Card";
 import Divider from "@/components/ui/Divider";
@@ -9,6 +9,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
+import SavedNotice from "@/components/ui/SavedNotice";
 import UndoNotice from "@/components/ui/UndoNotice";
 import MoodSelector from "@/components/ui/MoodSelector";
 import { Body, Caption } from "@/components/ui/Typography";
@@ -73,7 +74,7 @@ export default function JournalNotesModule({
     "",
     editingNoteId ?? "",
   );
-  const [justSaved, setJustSaved] = useState(false);
+  const [justSaved, setJustSaved] = useState(0);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [justDeletedId, setJustDeletedId] = useState<string | null>(null);
@@ -82,7 +83,7 @@ export default function JournalNotesModule({
 
   const handleContentChange = (value: string) => {
     setContent(value);
-    setJustSaved(false);
+    setJustSaved(0);
   };
 
   const handleSave = () => {
@@ -100,7 +101,7 @@ export default function JournalNotesModule({
     setEditingNoteId(null);
     setContent("");
     setMood("");
-    setJustSaved(true);
+    setJustSaved(Date.now());
   };
 
   /** Brings a written note back into the composer, exactly as it was. */
@@ -108,7 +109,7 @@ export default function JournalNotesModule({
     setEditingNoteId(noteId);
     setMood(noteMood);
     setContent(noteContent);
-    setJustSaved(false);
+    setJustSaved(0);
     setConfirmingDeleteId(null);
   };
 
@@ -146,17 +147,6 @@ export default function JournalNotesModule({
     const suggestion = moodOptions.find((option) => option.id === moodId);
     setMood(suggestion?.label ?? moodId);
   };
-
-  // "Guardado." used to sit there until the next keystroke, so a note saved
-  // and left alone kept announcing itself. It says its one word and goes.
-  useEffect(() => {
-    if (!justSaved) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setJustSaved(false), 2600);
-    return () => window.clearTimeout(timer);
-  }, [justSaved]);
 
   const toggleExpanded = (noteId: string) => {
     setExpandedNoteId((current) => (current === noteId ? null : noteId));
@@ -205,11 +195,8 @@ export default function JournalNotesModule({
           </Button>
         ) : null}
 
-        {/* Polite, not assertive: a confirmation should never interrupt. */}
         {justSaved ? (
-          <Caption className="ser-settle-in" role="status" aria-live="polite">
-            Guardado.
-          </Caption>
+          <SavedNotice key={justSaved} onDismiss={() => setJustSaved(0)} />
         ) : null}
 
         {justDeletedId && onRestoreNote ? (

@@ -7,6 +7,7 @@ import Card from "@/components/ui/Card";
 import SectionTitle from "@/components/ui/SectionTitle";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
+import SavedNotice from "@/components/ui/SavedNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import { formatDateKeyLongLabel, getLocalDateKey } from "@/lib/date";
 import type { DirectionRevision } from "@/lib/domain/direction/direction";
@@ -30,17 +31,14 @@ export default function DirectionStatementModule({
   onSave,
 }: DirectionStatementModuleProps) {
   const [draft, setDraft, discardDraft] = useDraft(DRAFT_KEYS.direction, statement);
-  const [savedValue, setSavedValue] = useState(statement);
+  const [savedAt, setSavedAt] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
   const historyId = useId();
 
-  const isSaved = draft.trim().length > 0 && draft.trim() === savedValue.trim();
-
   const handleSave = () => {
-    const trimmed = draft.trim();
-    onSave?.(trimmed);
+    onSave?.(draft.trim());
     discardDraft();
-    setSavedValue(trimmed);
+    setSavedAt(Date.now());
   };
 
   return (
@@ -63,7 +61,9 @@ export default function DirectionStatementModule({
             Guardar
           </Button>
 
-          {isSaved ? <Caption className="text-ink-faint">Guardado.</Caption> : null}
+          {savedAt ? (
+            <SavedNotice key={savedAt} onDismiss={() => setSavedAt(0)} />
+          ) : null}
         </div>
 
         {/*

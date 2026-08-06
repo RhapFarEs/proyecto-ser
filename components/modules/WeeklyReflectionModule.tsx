@@ -9,7 +9,7 @@ import ModuleHeader from "@/components/ui/ModuleHeader";
 import Divider from "@/components/ui/Divider";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
-import { Caption } from "@/components/ui/Typography";
+import SavedNotice from "@/components/ui/SavedNotice";
 import type { Week, WeeklyReflection } from "@/lib/domain/week/week";
 import { DRAFT_KEYS, useDraft } from "@/lib/hooks/useDraft";
 
@@ -37,18 +37,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
     week.reflection.nextWeekFocus,
     week.id,
   );
-  const [savedReflection, setSavedReflection] = useState(week.reflection);
-
-  const hasSavedContent =
-    savedReflection.wentWell.trim().length > 0 ||
-    savedReflection.difficult.trim().length > 0 ||
-    savedReflection.nextWeekFocus.trim().length > 0;
-
-  const isSaved =
-    hasSavedContent &&
-    wentWell.trim() === savedReflection.wentWell.trim() &&
-    difficult.trim() === savedReflection.difficult.trim() &&
-    nextWeekFocus.trim() === savedReflection.nextWeekFocus.trim();
+  const [savedAt, setSavedAt] = useState(0);
 
   const handleSave = () => {
     const trimmed: WeeklyReflection = {
@@ -61,7 +50,7 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
     discardWentWell();
     discardDifficult();
     discardNextWeekFocus();
-    setSavedReflection(trimmed);
+    setSavedAt(Date.now());
   };
 
   return (
@@ -111,7 +100,9 @@ export default function WeeklyReflectionModule({ week, onSave }: WeeklyReflectio
             Guardar
           </Button>
 
-          {isSaved ? <Caption className="text-ink-faint">Guardado.</Caption> : null}
+          {savedAt ? (
+            <SavedNotice key={savedAt} onDismiss={() => setSavedAt(0)} />
+          ) : null}
         </div>
       </Card>
     </Section>
