@@ -2,6 +2,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import ConfirmButton from "@/components/ui/ConfirmButton";
 import EmptyState from "@/components/ui/EmptyState";
+import UndoNotice from "@/components/ui/UndoNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { Habit, Weekday } from "@/lib/domain/habit/habit";
 
@@ -37,6 +38,10 @@ type HabitListModuleProps = {
   onEdit: (habit: Habit) => void;
   onToggleActive: (id: string) => void;
   onDelete: (id: string) => void;
+  /** The practice just removed, if the offer to take it back still stands. */
+  justDeletedId: string | null;
+  onRestore: (id: string) => void;
+  onDismissUndo: () => void;
 };
 
 export default function HabitListModule({
@@ -45,12 +50,26 @@ export default function HabitListModule({
   onEdit,
   onToggleActive,
   onDelete,
+  justDeletedId,
+  onRestore,
+  onDismissUndo,
 }: HabitListModuleProps) {
   return (
     <div className="space-y-3">
       <Button type="button" variant="primary" onClick={onCreateNew}>
         Nuevo hábito
       </Button>
+
+      {/* Above the list: the card it refers to has just left, so anchoring
+          the offer to a row would put it wherever the gap happened to be. */}
+      {justDeletedId ? (
+        <UndoNotice
+          key={justDeletedId}
+          message="Práctica eliminada."
+          onUndo={() => onRestore(justDeletedId)}
+          onDismiss={onDismissUndo}
+        />
+      ) : null}
 
       {habits.length === 0 ? (
         <EmptyState

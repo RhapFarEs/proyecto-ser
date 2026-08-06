@@ -9,6 +9,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
+import UndoNotice from "@/components/ui/UndoNotice";
 import MoodSelector from "@/components/ui/MoodSelector";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { JournalEntry } from "@/lib/domain/entry/entry";
@@ -157,18 +158,6 @@ export default function JournalNotesModule({
     return () => window.clearTimeout(timer);
   }, [justSaved]);
 
-  // Longer than the save confirmation: that one reports something already
-  // done, this one is an offer, and it has to outlast the moment of "wait,
-  // no". It withdraws quietly rather than sitting there as an accusation.
-  useEffect(() => {
-    if (!justDeletedId) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setJustDeletedId(null), 9000);
-    return () => window.clearTimeout(timer);
-  }, [justDeletedId]);
-
   const toggleExpanded = (noteId: string) => {
     setExpandedNoteId((current) => (current === noteId ? null : noteId));
   };
@@ -222,19 +211,15 @@ export default function JournalNotesModule({
         ) : null}
 
         {justDeletedId && onRestoreNote ? (
-          <div className="ser-settle-in flex items-center gap-2" role="status" aria-live="polite">
-            <Caption>Nota eliminada.</Caption>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                onRestoreNote(justDeletedId);
-                setJustDeletedId(null);
-              }}
-            >
-              Deshacer
-            </Button>
-          </div>
+          <UndoNotice
+            key={justDeletedId}
+            message="Nota eliminada."
+            onUndo={() => {
+              onRestoreNote(justDeletedId);
+              setJustDeletedId(null);
+            }}
+            onDismiss={() => setJustDeletedId(null)}
+          />
         ) : null}
       </div>
 

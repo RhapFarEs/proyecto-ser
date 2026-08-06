@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { applyNoteEdit, applyNoteRestore, type JournalNote } from "./journal";
+import { applyNoteEdit, type JournalNote } from "./journal";
+import { applyRestore } from "@/lib/sync/types";
 
 const NOTE: JournalNote = {
   id: "abc123",
@@ -72,11 +73,11 @@ describe("undoing a removal", () => {
   };
 
   it("clears the mark that hid the note", () => {
-    expect(applyNoteRestore(removed).deletedAt).toBeNull();
+    expect(applyRestore(removed).deletedAt).toBeNull();
   });
 
   it("brings the words back exactly", () => {
-    const restored = applyNoteRestore(removed);
+    const restored = applyRestore(removed);
 
     expect(restored.content).toBe("Hoy me costo concentrarme");
     expect(restored.mood).toBe("cansado");
@@ -84,7 +85,7 @@ describe("undoing a removal", () => {
 
   it("returns the note to the moment it was written", () => {
     // Not to the end of the day, and not to the moment it was deleted.
-    const restored = applyNoteRestore(removed);
+    const restored = applyRestore(removed);
 
     expect(restored.id).toBe("abc123");
     expect(restored.createdAt).toBe("2026-03-01T21:04:00.000Z");
@@ -92,11 +93,11 @@ describe("undoing a removal", () => {
   });
 
   it("is harmless on a note that was never removed", () => {
-    expect(applyNoteRestore(NOTE)).toEqual(NOTE);
+    expect(applyRestore(NOTE)).toEqual(NOTE);
   });
 
   it("does not modify the note it is given", () => {
-    applyNoteRestore(removed);
+    applyRestore(removed);
 
     expect(removed.deletedAt).toBe("2026-03-02T09:00:00.000Z");
   });

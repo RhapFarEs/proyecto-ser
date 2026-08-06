@@ -1,4 +1,5 @@
 import { createSyncedStore } from "@/lib/sync/createSyncedStore";
+import { applyRestore } from "@/lib/sync/types";
 import { type LifeArea } from "./life-area";
 import { normalizeLifeArea } from "./life-area-migrations";
 
@@ -84,6 +85,11 @@ export function updateLifeArea(
 
 export function removeLifeArea(id: string): void {
   store.remove(id);
+}
+
+/** Undoes a removal — the area returns exactly as it was. */
+export function restoreLifeArea(id: string): void {
+  store.update(id, applyRestore);
 }
 
 export function subscribeToLifeAreas(listener: () => void): () => void {

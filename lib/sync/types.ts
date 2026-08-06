@@ -11,3 +11,16 @@ export interface SyncableEntity {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+/**
+ * Taking a removal back.
+ *
+ * Because `remove()` writes a tombstone rather than dropping the record,
+ * undo is the same operation for every domain: clear the marker and the
+ * thing is simply there again, with its id, its history and everything that
+ * pointed at it intact. One function rather than one per domain — there is
+ * nothing domain-specific left to say.
+ */
+export function applyRestore<T extends SyncableEntity>(entity: T): T {
+  return { ...entity, deletedAt: null };
+}

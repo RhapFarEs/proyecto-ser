@@ -12,6 +12,7 @@ import { createHabit } from "@/lib/domain/habit/habit";
 import {
   getHabits,
   removeHabit,
+  restoreHabit,
   saveHabit,
   updateHabit,
 } from "@/lib/domain/habit/habit-storage";
@@ -23,6 +24,7 @@ export default function HabitsView() {
   const [habits, setHabits] = useClientState<Habit[]>(() => getHabits(), []);
   const [mode, setMode] = useState<HabitsMode>("list");
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [justDeletedId, setJustDeletedId] = useState<string | null>(null);
 
   const openCreateForm = () => {
     setEditingHabit(null);
@@ -47,6 +49,13 @@ export default function HabitsView() {
   const handleDelete = (id: string) => {
     removeHabit(id);
     setHabits(getHabits());
+    setJustDeletedId(id);
+  };
+
+  const handleRestore = (id: string) => {
+    restoreHabit(id);
+    setHabits(getHabits());
+    setJustDeletedId(null);
   };
 
   const handleSubmit = (values: HabitFormValues) => {
@@ -85,6 +94,9 @@ export default function HabitsView() {
           onEdit={openEditForm}
           onToggleActive={handleToggleActive}
           onDelete={handleDelete}
+          justDeletedId={justDeletedId}
+          onRestore={handleRestore}
+          onDismissUndo={() => setJustDeletedId(null)}
         />
       ) : (
         <HabitFormModule

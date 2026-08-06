@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button";
 import ConfirmButton from "@/components/ui/ConfirmButton";
 import EmptyState from "@/components/ui/EmptyState";
 import SectionTitle from "@/components/ui/SectionTitle";
+import UndoNotice from "@/components/ui/UndoNotice";
 import { Body, Caption } from "@/components/ui/Typography";
 import type { LifeArea } from "@/lib/domain/life-area/life-area";
 
@@ -13,6 +14,10 @@ type LifeAreaListModuleProps = {
   onToggleActive: (id: string) => void;
   onToggleFocus: (id: string) => void;
   onDelete: (id: string) => void;
+  /** The area just removed, if the offer to take it back still stands. */
+  justDeletedId: string | null;
+  onRestore: (id: string) => void;
+  onDismissUndo: () => void;
 };
 
 export default function LifeAreaListModule({
@@ -22,6 +27,9 @@ export default function LifeAreaListModule({
   onToggleActive,
   onToggleFocus,
   onDelete,
+  justDeletedId,
+  onRestore,
+  onDismissUndo,
 }: LifeAreaListModuleProps) {
   const activeAreas = areas.filter((area) => area.active);
   const archivedAreas = areas.filter((area) => !area.active);
@@ -31,6 +39,16 @@ export default function LifeAreaListModule({
       <Button type="button" variant="primary" onClick={onCreateNew}>
         Nueva área
       </Button>
+
+      {/* Above both lists: a removed area may have been in either of them. */}
+      {justDeletedId ? (
+        <UndoNotice
+          key={justDeletedId}
+          message="Área eliminada."
+          onUndo={() => onRestore(justDeletedId)}
+          onDismiss={onDismissUndo}
+        />
+      ) : null}
 
       {activeAreas.length === 0 ? (
         <EmptyState

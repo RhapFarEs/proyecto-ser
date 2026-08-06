@@ -19,6 +19,7 @@ import { createLifeArea, type LifeArea } from "@/lib/domain/life-area/life-area"
 import {
   getLifeAreas,
   removeLifeArea,
+  restoreLifeArea,
   saveLifeArea,
   updateLifeArea,
 } from "@/lib/domain/life-area/life-area-storage";
@@ -45,6 +46,7 @@ export default function DirectionView() {
   const [areas, setAreas] = useClientState<LifeArea[]>(() => getLifeAreas(), []);
   const [mode, setMode] = useState<AreasMode>("list");
   const [editingArea, setEditingArea] = useState<LifeArea | null>(null);
+  const [justDeletedAreaId, setJustDeletedAreaId] = useState<string | null>(null);
 
   const openCreateForm = () => {
     setEditingArea(null);
@@ -74,6 +76,13 @@ export default function DirectionView() {
   const handleDeleteArea = (id: string) => {
     removeLifeArea(id);
     setAreas(getLifeAreas());
+    setJustDeletedAreaId(id);
+  };
+
+  const handleRestoreArea = (id: string) => {
+    restoreLifeArea(id);
+    setAreas(getLifeAreas());
+    setJustDeletedAreaId(null);
   };
 
   const handleSubmitArea = (values: LifeAreaFormValues) => {
@@ -123,6 +132,9 @@ export default function DirectionView() {
           onToggleActive={handleToggleActive}
           onToggleFocus={handleToggleFocus}
           onDelete={handleDeleteArea}
+          justDeletedId={justDeletedAreaId}
+          onRestore={handleRestoreArea}
+          onDismissUndo={() => setJustDeletedAreaId(null)}
         />
       ) : (
         <LifeAreaFormModule area={editingArea} onSubmit={handleSubmitArea} onCancel={closeForm} />

@@ -1,4 +1,5 @@
 import { createSyncedStore } from "@/lib/sync/createSyncedStore";
+import { applyRestore } from "@/lib/sync/types";
 import { type Habit, type Weekday } from "./habit";
 import { migrateHabit } from "./habit-migrations";
 
@@ -81,6 +82,11 @@ export function updateHabit(
 
 export function removeHabit(id: string): void {
   store.remove(id);
+}
+
+/** Undoes a removal — the practice returns with every day it was kept. */
+export function restoreHabit(id: string): void {
+  store.update(id, applyRestore);
 }
 
 export function subscribeToHabits(listener: () => void): () => void {

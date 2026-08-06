@@ -4,7 +4,8 @@ import {
   saveJournalNote,
   updateJournalNote,
 } from "@/lib/domain/journal/journal-storage";
-import { applyNoteEdit, applyNoteRestore } from "@/lib/domain/journal/journal";
+import { applyNoteEdit } from "@/lib/domain/journal/journal";
+import { applyRestore } from "@/lib/sync/types";
 
 /*
   Notes live in their own cloud-synced store (`lib/domain/journal`), not in
@@ -65,6 +66,6 @@ export function editJournalNote(day: Day, noteId: string, mood: string, content:
  * re-render.
  */
 export function restoreJournalNote(day: Day, noteId: string): Day {
-  updateJournalNote(noteId, applyNoteRestore);
+  updateJournalNote(noteId, applyRestore);
   return { ...day };
 }
