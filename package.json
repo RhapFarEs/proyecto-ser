@@ -9,7 +9,8 @@
     "lint": "eslint",
     "generate-pwa-icons": "node scripts/generate-pwa-icons.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",

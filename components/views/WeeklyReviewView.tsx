@@ -19,6 +19,7 @@ import { getDay } from "@/lib/domain/day/day-storage";
 import { getWeek, updateWeek } from "@/lib/domain/week/week-storage";
 import { createWeek, type WeeklyReflection } from "@/lib/domain/week/week";
 import { getHabits } from "@/lib/domain/habit/habit-storage";
+import { getJournalNotes } from "@/lib/domain/journal/journal-storage";
 import { getLifeAreas } from "@/lib/domain/life-area/life-area-storage";
 import type { Habit } from "@/lib/domain/habit/habit";
 import type { LifeArea } from "@/lib/domain/life-area/life-area";
@@ -42,18 +43,20 @@ export default function WeeklyReviewView() {
     arrow press, while habits, areas and all seven days were rebuilt on every
     single render.
   */
-  const { week, habits, areas, days } = useStoredValue(
+  const { week, habits, areas, days, dayKeysWithNotes } = useStoredValue(
     () => ({
       week: getWeek(weekStart),
       habits: getHabits(),
       areas: getLifeAreas(),
       days: weekDayKeys.map((key) => getDay(key)),
+      dayKeysWithNotes: new Set(getJournalNotes().map((note) => note.dayKey)) as ReadonlySet<string>,
     }),
     {
       week: createWeek(weekStart),
       habits: [] as Habit[],
       areas: [] as LifeArea[],
       days: [] as Day[],
+      dayKeysWithNotes: new Set() as ReadonlySet<string>,
     },
     [weekStart],
   );
@@ -98,7 +101,7 @@ export default function WeeklyReviewView() {
         </Button>
       </div>
 
-      <WeeklyContextModule days={days} habits={habits} />
+      <WeeklyContextModule days={days} habits={habits} dayKeysWithNotes={dayKeysWithNotes} />
 
       <WeeklyFocusAreaModule
         areas={areas}

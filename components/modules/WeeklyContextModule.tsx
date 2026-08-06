@@ -4,11 +4,14 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { Body } from "@/components/ui/Typography";
 import type { Day } from "@/lib/domain/day/day";
 import type { Habit } from "@/lib/domain/habit/habit";
+import { wroteOn } from "@/lib/domain/insights/insight-engine";
 import { formatDateKeyLabel } from "@/lib/date";
 
 type WeeklyContextModuleProps = {
   days?: Day[];
   habits?: Habit[];
+  /** Which days hold notes. Notes live in their own store, not in the day. */
+  dayKeysWithNotes?: ReadonlySet<string>;
 };
 
 function getSustainedPractices(days: Day[], habits: Habit[]): string[] {
@@ -29,12 +32,17 @@ function getSustainedPractices(days: Day[], habits: Habit[]): string[] {
   return Array.from(practices);
 }
 
+const NO_NOTES: ReadonlySet<string> = new Set();
+
 export default function WeeklyContextModule({
   days = [],
   habits = [],
+  dayKeysWithNotes = NO_NOTES,
 }: WeeklyContextModuleProps) {
+  // Asking the day record alone answered "nobody wrote this week" for every
+  // week since notes moved out of it — see `wroteOn`.
   const journalDates = days
-    .filter((day) => day.entries.some((entry) => entry.type === "journal"))
+    .filter((day) => wroteOn(day, dayKeysWithNotes))
     .map((day) => formatDateKeyLabel(day.date));
 
   const sustainedPractices = getSustainedPractices(days, habits);

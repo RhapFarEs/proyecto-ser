@@ -1,10 +1,11 @@
 /**
- * Hardcoded for now — bump this by hand until a real release/build
- * versioning process exists (tracked in docs/BACKLOG.md). Shown to the
- * user on the Más screen and attached to every feedback submission, so
- * incoming feedback can be tied to the version it was written against.
+ * Taken from package.json at build time (see `next.config.ts`). Shown on
+ * the Más screen and attached to every feedback submission, so incoming
+ * feedback can be tied to the version it was written against — which it
+ * could not be while this was a hand-bumped constant that had drifted to
+ * 1.0.0 against a package version of 0.1.0.
  */
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "desconocida";
 
 export interface FeedbackContext {
   route: string;
