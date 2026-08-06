@@ -51,7 +51,7 @@ you wrote, that reappears instead.
 # 2. User Journey
 
 Five screens are in the navigation: **Hoy** (`/`), **Diario** (`/journal`),
-**Hábitos** (`/habits`), **Camino** (`/progress`), **Más** (`/more`). Four more
+**Prácticas** (`/habits`), **Camino** (`/progress`), **Más** (`/more`). Four more
 are routes without nav entries: `/weekly-review`, `/direction`, `/profile`,
 `/feedback`.
 
@@ -75,7 +75,7 @@ Shown once per account, while `profile.onboardingCompleted` is false.
 
 Three steps: a welcome paragraph; *"¿Cómo quieres que te llamemos?"* (the only
 field, required, non-empty); and *"Un vistazo rápido"* naming Hoy, Diario and
-Hábitos. Finishing writes `displayName` and sets `onboardingCompleted`.
+Prácticas. Finishing writes `displayName` and sets `onboardingCompleted`.
 
 **Edge cases.** Cannot be revisited once completed. Does not ask the person to
 write anything. Does not mention Camino, Más, or the weekly review.
@@ -101,6 +101,9 @@ Greeting boundaries: `< 12h` mañana, `< 19h` tardes, otherwise noches.
 `FooterModule` shows *"Ser antes que hacer."* until the person has written a
 Direction, after which it shows their statement in serif instead. Nobody
 configures this.
+
+The intention can also be removed, with a two-step confirm and the same
+nine-second undo.
 
 **Stored.** The intention writes to that day's `Day.intention`. Ticking a
 practice writes a `HabitEntry` into `Day.entries`.
@@ -130,9 +133,10 @@ and changes only text, mood and `updatedAt`.
 30 days at a time with *"Ver días anteriores"*. Each card shows the date, a
 3-line clamp of the most recent note, and expands to every note of that day.
 
-**Edge case, important.** Edit and delete are wired only to
-`JournalNotesModule`, which only ever receives *today's* notes. History is
-read-only. See §11.
+Each note in an expanded day carries **Editar** and **Eliminar** of its own,
+so a note from any day can be corrected in place or removed with the same
+two-step confirm and nine-second undo. History editing is not draft-backed:
+leaving mid-edit costs the correction, never the note.
 
 ## Camino (`/progress`)
 
@@ -153,7 +157,7 @@ and quotation marks, *"Sostuviste: …"*, and *"Escribiste en tu diario."*
 **Edge cases.** Cards are not interactive — there is no way to open a day.
 Search results are likewise not interactive.
 
-## Habits — Hábitos (`/habits`)
+## Practices — Prácticas (`/habits`)
 
 **Purpose.** Create and tend practices.
 **List.** Each card shows title, the weekdays as `Lu · Ma · Mi …` (or *"Todos
@@ -161,9 +165,9 @@ los días"* / *"Sin días programados"*), and `· Archivado` when inactive.
 Actions per card: **Editar**, **Archivar/Activar**, **Eliminar** (two-step
 confirm). Deleting offers **Deshacer** for 9 seconds, rendered above the list.
 
-**Form.** Title (required), purpose (optional, unmarked), and seven weekday
-toggles (at least one required). Save is disabled until both conditions hold,
-with no on-screen explanation of why.
+**Form.** Title (required), purpose (optional), and seven weekday toggles in
+a labelled group, each reporting its own state (at least one required). Save
+is disabled until both conditions hold and the form says which is missing.
 
 **Stored.** `Habit { id, title, purpose, weekdays[], active, deletedAt,
 createdAt, updatedAt }`.
@@ -252,16 +256,15 @@ Four kinds of writing, in three stores, with different rules.
 |---|---|---|---|---|
 | Lives in | `Day.intention` | `journal_entries` | `Week.reflection` | `direction` |
 | One per | day | unlimited per day | week | append-only chain |
-| Editable | yes, any day, by replacement | **only on the day written** | yes, any week | never — a new revision is appended |
-| Deletable | **no** | **only on the day written** | by emptying and saving | **no** |
-| Undo | none | 9 s, day-of only | none | not applicable |
+| Editable | yes, any day, by replacement | yes, any day | yes, any week | never — a new revision is appended |
+| Deletable | yes | yes | by emptying and saving | **no** |
+| Undo | 9 s | 9 s | none | not applicable |
 | Overwrites | yes | yes | yes | never |
 | Stamped with atmosphere | no | no | no | **yes** |
 
 **Intentions.** One per day, plain text on the `Day`. Saved through the
-composer in `IntentionModule`. `handleSave` returns early on empty text and
-the button is disabled when empty, so once written an intention can be
-replaced but not cleared.
+composer in `IntentionModule`, replaced by writing over it, and removed
+through a two-step confirm with undo.
 
 **Notes.** Independent records with their own id, `dayKey`, mood and content.
 Editing keeps id and `createdAt` so a corrected note stays in place in the
@@ -492,7 +495,10 @@ draft after sign-out.
 1. Writing is saved locally before anything else, and never blocks on network.
 2. If the device cannot save, the app says so immediately and plainly.
 3. Nothing the person wrote is ever transmitted anywhere except their own
-   Supabase rows, under RLS scoped to `auth.uid() = user_id`.
+   Supabase rows, under RLS scoped to `auth.uid() = user_id`. **Profile
+   photos are the exception**: they live in a public storage bucket at
+   `<user id>/avatar.jpg`, so anyone holding that id can fetch the image
+   without signing in. Writes are still restricted to the owner.
 4. No model reads their writing. No analytics currently exist at all.
 5. Everything they wrote can be exported in one press, offline, in a format
    readable without SER.
@@ -504,24 +510,24 @@ draft after sign-out.
 
 ## Guarantees SER does **not** make
 
-1. **That writing can be corrected or removed after the day it was written.**
-   It cannot.
-2. That an account can be deleted. There is no such path.
-3. That there is a privacy policy or terms. There are none.
-4. Any conflict resolution beyond newest-write-wins; simultaneous edits on two
+1. That an account can be deleted. There is no such path, and none is
+   possible from the client: no table carries a DELETE policy.
+2. That there is a privacy policy or terms. There are none.
+3. Any conflict resolution beyond newest-write-wins; simultaneous edits on two
    devices lose one side entirely.
-5. Encryption at rest beyond what Supabase provides. Not end-to-end.
-6. Any recovery of a note deleted more than 9 seconds ago.
-7. Any version history except for Direction.
-8. Availability of the account without Google.
-9. Correct behaviour across midnight while the app stays open (§11).
+4. Encryption at rest beyond what Supabase provides. Not end-to-end.
+5. Any recovery of a note deleted more than 9 seconds ago.
+6. Any version history except for Direction.
+7. Availability of the account without Google.
 
 ---
 
 # 10. Design Language
 
-**Naming.** One concept, one noun in copy. Code identifiers may differ.
-*Camino* for the path screen; *Dirección personal*; *Revisión semanal*.
+**Naming.** One concept, one noun in copy. Code identifiers may differ — the
+practices route is still `/habits`. *Práctica* for the object, *Ritual del
+día* for the daily occasion; *Camino*; *Dirección personal*; *Revisión
+semanal*. Ellipsis is always `…`.
 
 **Typography.** Newsreader (serif, `ser-voice`) exclusively for what a person
 wrote — notes, intentions quoted back, the echo, the daily line when it is
@@ -548,10 +554,18 @@ its radius ages with the atmosphere.
 **Buttons.** `primary` (inverted ink/ground) for the action that commits;
 `secondary` for confirming a destructive step; `ghost` for everything else.
 All are pill-shaped with a press-scale, a focus-visible ring, and disabled
-states.
+states, and all are at least 44px tall — the documented minimum touch target
+on both mobile platforms.
 
 **Loading.** `FullScreenLoader` — product name plus one calm line, no spinner,
-`role="status"`.
+`role="status"`. Inline loading lines are announced the same way.
+
+**Saving.** `SavedNotice`: *"Guardado."*, announced politely, arriving with
+the settle motion and withdrawing after 2,600 ms. Status never persists.
+
+**Written text.** Anything carrying `ser-voice` renders with
+`white-space: pre-wrap`, so the paragraphs a person typed survive. The body
+sets `overflow-wrap: break-word` so a pasted link cannot break the layout.
 
 **Empty states.** `EmptyState` with title, description and an optional single
 action.
@@ -580,63 +594,46 @@ motion model and collapse to near-zero under reduced motion.
 Current facts, not plans.
 
 **Writing**
-1. Notes can be edited and deleted only on the day they were written. History
-   is read-only; after midnight a note is permanent.
-2. An intention cannot be cleared once written, only replaced.
-3. A Direction statement cannot be deleted, only superseded.
-4. Editing a note, an intention or a weekly reflection keeps no prior version
-   and offers no undo.
+1. Editing a note, an intention or a weekly reflection keeps no prior version.
+   Only Direction is append-only.
+2. A Direction statement cannot be deleted, only superseded.
 
 **Account and legal**
-5. There is no account deletion.
-6. There is no privacy policy and no terms anywhere in the product.
-7. Google is the only sign-in method.
-
-**Correctness**
-8. The date does not advance while the app is open. There is no
-   `visibilitychange` handler, interval or rollover: a resumed PWA shows the
-   previous day's greeting, line, intention and practices, and a note written
-   just after midnight is filed under the previous day.
-9. Empty states are rendered before hydration, including in the
-   server-rendered HTML, so a cold open briefly tells a person with a full
-   archive that they have written nothing. `DailyHabitsModule` is the only
-   module that gates on hydration.
-10. The service worker serves cached HTML stale-first with a manually bumped
-    cache name, so a client can run one deploy behind.
+3. There is no account deletion, and none is possible from the client: no
+   table carries a DELETE policy.
+4. There is no privacy policy and no terms anywhere in the product.
+5. Google is the only sign-in method.
+6. Profile photos sit in a public storage bucket at a path derived from the
+   user id, so they are readable by anyone holding that id, indefinitely.
 
 **Content**
-11. The daily line is drawn from 42 product-written lines plus the person's own
-    eligible sentences, indexed by `(year + dayOfYear) % pool.length` — so with
-    a small pool it cycles in the same order roughly every six weeks.
-12. Own sentences become eligible for that pool at 14 days old and between 30
-    and 190 characters.
-13. `JournalPromptModule` asks one fixed question, unchanged every day.
-14. The insight engine has seven possible messages, chosen deterministically
+7. The daily line is drawn from 42 product-written lines plus the person's own
+   eligible sentences, indexed by `(year + dayOfYear) % pool.length` — so with
+   a small pool it cycles in the same order roughly every six weeks.
+8. Own sentences become eligible for that pool at 14 days old and between 30
+   and 190 characters.
+9. `JournalPromptModule` asks one fixed question, unchanged every day.
+10. The insight engine has seven possible messages, chosen deterministically
     from the day's state.
 
 **Interface**
-15. Copy calls the same object both *hábito* and *práctica*, including twice
-    within one card.
-16. The weekly focus area is named differently on Today and in Weekly Review.
-17. *"Guardado."* behaves differently on the journal, Direction, weekly review
-    and profile.
-18. Weekly Review navigates backward without a lower bound, into empty weeks
-    predating the account.
-19. Nothing in the app manages focus; opening a form or an edit mode never
+11. The weekly focus area is named differently on Today and in Weekly Review.
+12. Nothing in the app manages focus; opening a form or an edit mode never
     focuses its field.
-20. Camino cards and search results are not interactive; there is no way to
+13. Camino cards and search results are not interactive; there is no way to
     open a specific day.
-21. Weekday toggles in the habit form expose no selected state to assistive
-    technology, and the disabled save button gives no reason.
-22. Every route shares the title *Proyecto SER*.
+14. Every route shares the title *Proyecto SER*.
+15. The undo window lives in memory and does not survive a reload.
+16. Today's empty practices state is the only one not built on `EmptyState`.
+17. `<Body>` defaults to `text-ink-soft` and is overridden in most usages.
+18. `Section`'s own margin is overridden wherever it is not the first child.
 
 **Scope**
-23. Spanish only.
-24. `ReflectionEntry` and the legacy closing-reflection fields are read by the
+19. Spanish only.
+20. `ReflectionEntry` and the legacy closing-reflection fields are read by the
     export and by nothing else; no path writes them.
-25. Migrations are applied by hand with `npx supabase db push`.
-
----
+21. Migrations are applied by hand with `npx supabase db push`.
+22. `profile.timezone` is captured at creation and never read.
 
 # 12. Beta State
 
@@ -645,11 +642,12 @@ Current facts, not plans.
 Local-first sync with tombstones, offline queue, retry on reconnect and
 visible failure states. Export. Echo, including anniversaries and per-person
 cadence. Plain-text search across the whole archive with a prepared index.
-Journal composing, same-day editing, same-day delete with undo. Practices with
+Journal composing, editing and deleting any note from any day, with undo.
+Practices with
 create, edit, archive, delete and undo. Life Areas with the same. Append-only
 Direction with history. Weekly review across any week. Five verified
 atmospheres with non-colour models. Error boundaries. Draft persistence across
-seven surfaces. 211 passing tests over pure domain logic; `typecheck`, `eslint`
+seven surfaces. 217 passing tests over pure domain logic; `typecheck`, `eslint`
 and `build` clean.
 
 ## Intentionally postponed
@@ -662,13 +660,12 @@ automation. Promoting Revisión semanal into the navigation.
 
 ## Still blocking beta invitations
 
-1. Edit and delete a note from any day *(§11.1)*
-2. Account deletion *(§11.5)*
-3. Privacy policy and terms *(§11.6)*
-4. Service worker network-first for HTML *(§11.10)*
-5. Date rollover while the app is open *(§11.8)*
-6. Empty states gated on hydration *(§11.9)*
-7. Sign-in verified on a real iPhone and a real Android
-8. One noun for practices *(§11.15)*
+1. **Account deletion** — requires a service-role path, since no table has a
+   DELETE policy, and a product decision about what deletion means (§11.3).
+2. **Privacy policy and terms** — requires a contact address and a
+   jurisdiction (§11.4).
+3. **Sign-in verified on a real iPhone and a real Android.** Standalone PWAs
+   and Google OAuth interact badly on some platforms and this has not been
+   tested on hardware.
 
 Everything else in §11 is a known limitation the beta ships with.
