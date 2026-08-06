@@ -8,12 +8,12 @@
 // handled exclusively by createSyncedStore (memory -> localStorage ->
 // Supabase); this service worker has no opinion about app data at all.
 
-// Bumped for the append-only Direction change. A client running the previous
-// bundle reads Direction by its old singleton id, so against the new data it
-// would show the *oldest* revision as current and, on save, overwrite it.
-// Changing this name makes the activate handler drop the stale shell, which
-// bounds that window to a single load.
-const CACHE_NAME = "ser-shell-v2";
+// Bumping this drops every previously cached asset on activate.
+//
+// It is no longer how a new build reaches people — the HTML is fetched from
+// the network now, so each load names the current bundles by itself. This is
+// only a lever for evicting assets wholesale, which nothing routinely needs.
+const CACHE_NAME = "ser-shell-v3";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -46,11 +46,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // A document request — the HTML shell. Everything else here is a build
+  // asset whose filename already carries a content hash.
+  const isDocument =
+    request.mode === "navigate" || request.destination === "document";
+
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cached = await cache.match(request);
 
-      const networkFetch = fetch(request)
+      const fromNetwork = fetch(request)
         .then((response) => {
           if (response.ok) {
             cache.put(request, response.clone());
@@ -60,10 +65,25 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => cached);
 
-      // Stale-while-revalidate: serve the cached shell instantly if we
-      // have one (so opening the app never waits on the network), while
-      // always refreshing the cache in the background for next time.
-      return cached || networkFetch;
+      /*
+        The HTML is fetched first and only falls back to the cache offline.
+
+        It used to be served from the cache immediately, like everything
+        else. But the HTML is what names the hashed script bundles, so a
+        cached copy pins the whole app to the build it was cached from —
+        every person stayed one deploy behind, and a fix shipped on Friday
+        did not reach them until their second load. During a beta that
+        turns a bug report into a report about a build nobody is running.
+
+        Assets keep the old behaviour, and can: their names change whenever
+        their contents do, so a cached one is never stale — it is simply
+        the correct file for the HTML that asked for it.
+      */
+      if (isDocument) {
+        return fromNetwork;
+      }
+
+      return cached || fromNetwork;
     }),
   );
 });
