@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import storage from "@/lib/storage/storage";
-import { clearDrafts, draftToRestore, DRAFT_KEYS } from "./useDraft";
+import { clearDrafts, draftToRestore, DRAFT_KEYS, hasUnsavedDrafts } from "./useDraft";
 
 function installStorage(): void {
   const entries = new Map<string, string>();
@@ -103,5 +103,51 @@ describe("the keys themselves", () => {
 
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys.every((key) => key.startsWith("ser.draft."))).toBe(true);
+  });
+});
+
+describe("knowing whether something is part-written", () => {
+  it("says no when nothing has been typed", () => {
+    installStorage();
+
+    expect(hasUnsavedDrafts()).toBe(false);
+  });
+
+  it("says yes when a draft holds words", () => {
+    installStorage();
+    storage.set(DRAFT_KEYS.journalNote, { scope: "", text: "Hoy me costó" });
+
+    expect(hasUnsavedDrafts()).toBe(true);
+  });
+
+  it("does not count a draft that is only whitespace", () => {
+    // Otherwise leaving would be interrupted to protect a stray newline.
+    installStorage();
+    storage.set(DRAFT_KEYS.intention, { scope: "", text: "   \n " });
+
+    expect(hasUnsavedDrafts()).toBe(false);
+  });
+
+  it("looks at every writing surface, not only the journal", () => {
+    installStorage();
+    storage.set(DRAFT_KEYS.weeklyDifficult, { scope: "2026-03-02", text: "Algo" });
+
+    expect(hasUnsavedDrafts()).toBe(true);
+  });
+
+  it("says no again once the drafts are cleared", () => {
+    installStorage();
+    storage.set(DRAFT_KEYS.direction, { scope: "", text: "Hacia allá" });
+
+    clearDrafts();
+
+    expect(hasUnsavedDrafts()).toBe(false);
+  });
+
+  it("ignores a value that is not a draft at all", () => {
+    installStorage();
+    storage.set(DRAFT_KEYS.journalNote, "texto suelto de una versión anterior");
+
+    expect(hasUnsavedDrafts()).toBe(false);
   });
 });

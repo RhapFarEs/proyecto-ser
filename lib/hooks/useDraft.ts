@@ -62,6 +62,23 @@ export function draftToRestore(stored: unknown, saved: string, scope: string): s
 }
 
 /**
+ * Whether anything is part-written and not yet saved.
+ *
+ * Leaving an account throws every draft away, which is right — unsaved
+ * words must not appear in front of whoever signs in next. But it is also
+ * the one thing this product does that destroys writing, and it was
+ * happening on a single tap with nothing said. This is what lets it ask
+ * first, and only when there is actually something to lose.
+ */
+export function hasUnsavedDrafts(): boolean {
+  return ALL_DRAFT_KEYS.some((key) => {
+    const stored = storage.get<unknown>(key, undefined);
+
+    return isStoredDraft(stored) && stored.text.trim().length > 0;
+  });
+}
+
+/**
  * Removes every draft. Called when an account is left, so that unsaved words
  * cannot appear in front of whoever signs in next on a shared device.
  */
