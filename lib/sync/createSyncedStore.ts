@@ -31,6 +31,8 @@ export interface SyncedStore<T extends SyncableEntity> {
   pendingCount(): number;
   /** Re-attempts every pending write. Safe to call at any time. */
   retryPending(): Promise<void>;
+  /** Forgets this domain's cached copy on this device. */
+  clearLocal(): void;
 }
 
 /**
@@ -39,7 +41,11 @@ export interface SyncedStore<T extends SyncableEntity> {
  * device?") instead of six. Registration happens at module load, since
  * each domain creates its store as a module-level singleton.
  */
-const registeredStores: { pendingCount(): number; retryPending(): Promise<void> }[] = [];
+const registeredStores: {
+  pendingCount(): number;
+  retryPending(): Promise<void>;
+  clearLocal(): void;
+}[] = [];
 const syncStateListeners = new Set<Listener>();
 
 function notifySyncStateChanged(): void {
@@ -67,6 +73,25 @@ export function subscribeToSyncState(listener: Listener): () => void {
  */
 export async function retryAllPendingWrites(): Promise<void> {
   await Promise.all(registeredStores.map((store) => store.retryPending()));
+}
+
+/**
+ * Forgets every domain's cached copy on this device.
+ *
+ * Used when an account is deleted: the rows are gone from Supabase, and
+ * leaving the local caches behind would mean the writing is still sitting
+ * in this browser after the person asked for all of it to go.
+ *
+ * Goes through the registry rather than a list of keys, for the same reason
+ * `retryAllPendingWrites` does: a domain added later joins automatically,
+ * and a list is one more place to forget one. Deliberately not
+ * `localStorage.clear()` — that would take another account's cache with it
+ * on a shared device.
+ */
+export function clearAllLocalData(): void {
+  for (const store of registeredStores) {
+    store.clearLocal();
+  }
 }
 
 if (typeof window !== "undefined") {
@@ -412,6 +437,22 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     }
   }
 
+  /**
+   * Drops this domain's cache on this device, both the namespaced key and
+   * the bare one a device may still be carrying from before namespacing.
+   * `memory` is dropped with it so the next read rebuilds from what is
+   * actually left rather than from what was in memory when it was called.
+   */
+  function clearLocal(): void {
+    storage.remove(storageKeyFor(userId));
+    storage.remove(pendingKeyFor(userId));
+    storage.remove(config.storageKey);
+    storage.remove(`${config.storageKey}.pending`);
+
+    memory = null;
+    notify();
+  }
+
   const store: SyncedStore<T> = {
     getAll,
     getOne,
@@ -423,6 +464,7 @@ export function createSyncedStore<T extends SyncableEntity, Row>(
     runInitialMigration,
     pendingCount,
     retryPending,
+    clearLocal,
   };
 
   registeredStores.push(store);

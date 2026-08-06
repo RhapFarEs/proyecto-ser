@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
+import { AVATAR_BUCKET, avatarPath } from "./avatar";
 
-const AVATAR_BUCKET = "avatars";
 const MAX_DIMENSION = 512;
 const JPEG_QUALITY = 0.8;
 
@@ -40,7 +40,7 @@ async function compressImage(file: File): Promise<Blob> {
  */
 export async function uploadAvatar(userId: string, file: File): Promise<string> {
   const compressed = await compressImage(file);
-  const path = `${userId}/avatar.jpg`;
+  const path = avatarPath(userId);
 
   const { error: uploadError } = await supabase.storage
     .from(AVATAR_BUCKET)

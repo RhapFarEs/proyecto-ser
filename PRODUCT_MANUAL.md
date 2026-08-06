@@ -228,8 +228,9 @@ There is no settings screen; Más is it.
 **Espacios** — links to Revisión semanal and Dirección personal.
 **Atmósfera** — the atmosphere chooser (§10).
 **Cuenta** — Perfil; *Descargar mi archivo* (export, one press, no
-confirmation); *Cambiar de cuenta*; *Cerrar sesión*. The last two ask for
-confirmation only when an unsaved draft exists.
+confirmation); *Cambiar de cuenta*; *Cerrar sesión*; *Eliminar mi cuenta*.
+The two leaving actions ask for confirmation only when an unsaved draft
+exists. Deletion always asks, and asks harder — see §8.
 **Footer** — *Proyecto SER · versión {APP_VERSION}*, sourced from
 `package.json` at build time.
 
@@ -481,6 +482,23 @@ entirely on-device from local storage, so it works offline. Produces Markdown
 containing everything the collector reaches (§6) plus Direction revisions and
 profile basics.
 
+**Account deletion.** Más → *Eliminar mi cuenta*. The only irreversible
+action in the product, and the only one that asks the person to type a word
+(`eliminar`) rather than tap twice. The warning names exactly what goes, and
+offers the export inside itself, because that is the last moment it is
+possible.
+
+It removes, in this order: the avatar file; then everything in Supabase via
+`delete_my_account()`, a `security definer` function that deletes the
+`auth.users` row — every table declares `on delete cascade` against it, so
+the profile, days, notes, practices, areas, weeks, direction and feedback go
+with it in one transaction; then every local cache and draft on this device.
+The session is closed last.
+
+A failure of the avatar step is not fatal and does not stop the rest. A
+failure of the Supabase step stops everything after it, and the person is
+told plainly that nothing was deleted.
+
 **What cannot be recovered.** A note or intention from a previous day. A
 deleted note after its 9 seconds elapse or the page reloads. An overwritten
 intention, weekly reflection, or note (editing keeps no prior version). Any
@@ -510,8 +528,8 @@ draft after sign-out.
 
 ## Guarantees SER does **not** make
 
-1. That an account can be deleted. There is no such path, and none is
-   possible from the client: no table carries a DELETE policy.
+1. That a deleted account can be recovered. It cannot, by anyone, including
+   us. There is no grace period and no backup copy.
 2. That there is a privacy policy or terms. There are none.
 3. Any conflict resolution beyond newest-write-wins; simultaneous edits on two
    devices lose one side entirely.
@@ -599,21 +617,19 @@ Current facts, not plans.
 2. A Direction statement cannot be deleted, only superseded.
 
 **Account and legal**
-3. There is no account deletion, and none is possible from the client: no
-   table carries a DELETE policy.
-4. There is no privacy policy and no terms anywhere in the product.
-5. Google is the only sign-in method.
-6. Profile photos sit in a public storage bucket at a path derived from the
+3. There is no privacy policy and no terms anywhere in the product.
+4. Google is the only sign-in method.
+5. Profile photos sit in a public storage bucket at a path derived from the
    user id, so they are readable by anyone holding that id, indefinitely.
 
 **Content**
-7. The daily line is drawn from 42 product-written lines plus the person's own
+6. The daily line is drawn from 42 product-written lines plus the person's own
    eligible sentences, indexed by `(year + dayOfYear) % pool.length` — so with
    a small pool it cycles in the same order roughly every six weeks.
-8. Own sentences become eligible for that pool at 14 days old and between 30
+7. Own sentences become eligible for that pool at 14 days old and between 30
    and 190 characters.
-9. `JournalPromptModule` asks one fixed question, unchanged every day.
-10. The insight engine has seven possible messages, chosen deterministically
+8. `JournalPromptModule` asks one fixed question, unchanged every day.
+9. The insight engine has seven possible messages, chosen deterministically
     from the day's state.
 
 **Interface**
@@ -644,7 +660,8 @@ cadence. Plain-text search across the whole archive with a prepared index.
 Journal composing, editing and deleting any note from any day, with undo.
 Practices with
 create, edit, archive, delete and undo. Life Areas with the same. Append-only
-Direction with history. Weekly review across any week. Five verified
+Direction with history. Weekly review across any week. Complete account
+deletion. Five verified
 atmospheres with non-colour models. Error boundaries. Draft persistence across
 seven surfaces. 217 passing tests over pure domain logic; `typecheck`, `eslint`
 and `build` clean.
@@ -659,11 +676,10 @@ automation. Promoting Revisión semanal into the navigation.
 
 ## Still blocking beta invitations
 
-1. **Account deletion** — requires a service-role path, since no table has a
-   DELETE policy, and a product decision about what deletion means (§11.3).
-2. **Privacy policy and terms** — requires a contact address and a
-   jurisdiction (§11.4).
-3. **Sign-in verified on a real iPhone and a real Android.** Standalone PWAs
+1. **The account-deletion migration must be applied** —
+   `20260806120000_account_deletion.sql`, via `npx supabase db push`. Until
+   it runs, *Eliminar mi cuenta* will fail and say so.
+2. **Sign-in verified on a real iPhone and a real Android.** Standalone PWAs
    and Google OAuth interact badly on some platforms and this has not been
    tested on hardware.
 

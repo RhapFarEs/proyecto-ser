@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import Page from "@/components/ui/Page";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { Body, Caption } from "@/components/ui/Typography";
 import AtmosphereChooser from "@/components/atmosphere/AtmosphereChooser";
@@ -14,6 +15,7 @@ import { getLocalDateKey } from "@/lib/date";
 import { buildArchiveDocument } from "@/lib/domain/archive/archive";
 import { gatherArchive } from "@/lib/domain/archive/archive-storage";
 import { hasUnsavedDrafts } from "@/lib/hooks/useDraft";
+import { deleteAccount, AccountDeletionError } from "@/lib/domain/profile/account-deletion";
 
 /*
   `ser-card`, not a hardcoded radius. These rows are cards and have to age
@@ -80,8 +82,141 @@ function LeaveAccountRow({ label, onLeave }: { label: string; onLeave: () => voi
   );
 }
 
+/** Typed rather than tapped, because this is the one thing that cannot be undone. */
+const DELETE_CONFIRMATION = "eliminar";
+
+/**
+ * Leaving for good.
+ *
+ * Every other removal in SER is a tombstone with nine seconds to change your
+ * mind. This one is not: it removes the account, everything written in it,
+ * the profile photo, and the caches on this device, and nothing brings any of
+ * it back. So it is the only place in the product that asks someone to type
+ * something — two taps is the right weight for a note and the wrong weight
+ * for a life's worth of writing.
+ *
+ * The offer to download the archive sits inside the warning rather than
+ * somewhere else on the screen, because this is the last moment it is
+ * possible.
+ */
+function DeleteAccountRow({ userId, onExport }: { userId: string; onExport: () => void }) {
+  const [asking, setAsking] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const canDelete =
+    confirmation.trim().toLowerCase() === DELETE_CONFIRMATION && !deleting;
+
+  const handleDelete = () => {
+    if (!canDelete) {
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    deleteAccount(userId)
+      .then(() => {
+        // The session is closed inside `deleteAccount`, so AuthGate takes
+        // over and shows the login screen. A full reload rather than a
+        // route change, so nothing in memory outlives the account.
+        window.location.replace("/");
+      })
+      .catch((cause: unknown) => {
+        setError(
+          cause instanceof AccountDeletionError
+            ? cause.message
+            : "No pudimos eliminar tu cuenta. No se ha borrado nada.",
+        );
+        setDeleting(false);
+      });
+  };
+
+  if (!asking) {
+    return (
+      <button type="button" className={rowClassName} onClick={() => setAsking(true)}>
+        <div className="space-y-1">
+          <Body className="text-ink">Eliminar mi cuenta</Body>
+          <Caption>Borra tu cuenta y todo lo que has escrito.</Caption>
+        </div>
+      </button>
+    );
+  }
+
+  return (
+    <div className={rowClassName}>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Body className="text-ink">Eliminar mi cuenta</Body>
+
+          {/* The strongest ink in the palette, and no softening. */}
+          <Caption className="text-ink-strong">
+            Esto borra tu cuenta, todo lo que has escrito, tus prácticas, tus áreas, tu
+            dirección personal y tu foto. No se puede deshacer y no hay copia.
+          </Caption>
+
+          <Caption>
+            Si quieres conservar lo que escribiste, descárgalo antes. Es el último momento
+            para hacerlo.
+          </Caption>
+        </div>
+
+        <Button type="button" variant="secondary" onClick={onExport}>
+          Descargar mi archivo
+        </Button>
+
+        <div className="space-y-2">
+          <Caption>
+            Escribe <span className="text-ink-strong">{DELETE_CONFIRMATION}</span> para
+            confirmar.
+          </Caption>
+
+          <Input
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+            aria-label={`Escribe ${DELETE_CONFIRMATION} para confirmar`}
+            autoComplete="off"
+            disabled={deleting}
+          />
+        </div>
+
+        {error ? (
+          <Caption className="text-ink-strong" role="alert">
+            {error}
+          </Caption>
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={!canDelete}
+            onClick={handleDelete}
+          >
+            {deleting ? "Eliminando…" : "Eliminar definitivamente"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={deleting}
+            onClick={() => {
+              setAsking(false);
+              setConfirmation("");
+              setError(null);
+            }}
+          >
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MorePage() {
-  const { profile, changeAccount, signOut } = useAuth();
+  const { user, profile, changeAccount, signOut } = useAuth();
 
   /*
     Everything they have written, as a file they keep.
@@ -169,6 +304,8 @@ export default function MorePage() {
             />
 
             <LeaveAccountRow label="Cerrar sesión" onLeave={() => void signOut()} />
+
+            {user ? <DeleteAccountRow userId={user.id} onExport={handleExport} /> : null}
           </div>
         </div>
 
