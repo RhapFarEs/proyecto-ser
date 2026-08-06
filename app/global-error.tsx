@@ -31,13 +31,29 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
               con tu archivo.
             </p>
 
-            <button
-              type="button"
-              onClick={reset}
-              className="ser-card inline-flex items-center justify-center border border-transparent bg-ink-strong px-4 py-2.5 text-sm font-medium text-ground transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint"
-            >
-              Intentar de nuevo
-            </button>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={reset}
+                className="ser-card inline-flex items-center justify-center border border-transparent bg-ink-strong px-4 py-3 text-sm font-medium text-ground transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink-faint"
+              >
+                Intentar de nuevo
+              </button>
+
+              {/*
+                A plain anchor, not a Link: the router lives in the layout
+                that just failed, so a full navigation is the only one that
+                can be relied on here.
+              */}
+              <p>
+                <a
+                  href="/feedback"
+                  className="text-sm leading-6 text-ink-faint underline underline-offset-4 hover:text-ink-soft"
+                >
+                  Contar qué pasó
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </body>

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
+
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
-import { Body, Display } from "@/components/ui/Typography";
+import { Body, Caption, Display } from "@/components/ui/Typography";
 
 /**
  * What a person sees when a screen fails to render.
@@ -32,9 +34,22 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
             con tu archivo.
           </Body>
 
-          <Button type="button" variant="primary" onClick={reset}>
-            Intentar de nuevo
-          </Button>
+          <div className="space-y-3">
+            <Button type="button" variant="primary" onClick={reset}>
+              Intentar de nuevo
+            </Button>
+
+            {/*
+              The error is still not shown and still not sent anywhere. But
+              without a way to say what happened, the one moment worth
+              hearing about produced nothing at all.
+            */}
+            <Link href="/feedback" className="inline-block w-fit">
+              <Caption className="underline-offset-4 hover:text-ink-soft hover:underline">
+                Contar qué pasó
+              </Caption>
+            </Link>
+          </div>
         </div>
       </Container>
     </main>
