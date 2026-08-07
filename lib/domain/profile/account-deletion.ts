@@ -40,15 +40,49 @@ export class AccountDeletionError extends Error {
  * account it referred to does not exist.
  */
 export async function deleteAccount(userId: string): Promise<void> {
+  /*
+    `remove()` reports failures by returning them, not by throwing, so the
+    `catch` below never saw an RLS rejection or a missing policy — and the
+    returned value was discarded. The result: this step could fail on every
+    single attempt and say nothing, anywhere, forever.
+
+    Still best effort. Nothing here stops the deletion: a photo left behind
+    must never be the reason someone cannot leave.
+  */
   try {
-    await supabase.storage.from(AVATAR_BUCKET).remove([avatarPath(userId)]);
-  } catch {
-    // Best effort. See above.
+    const { error: avatarError } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .remove([avatarPath(userId)]);
+
+    if (avatarError) {
+      console.error(
+        "Account deletion: avatar removal failed, continuing anyway.",
+        avatarError,
+      );
+    }
+  } catch (cause: unknown) {
+    console.error("Account deletion: avatar removal threw, continuing anyway.", cause);
   }
 
   const { error } = await supabase.rpc("delete_my_account");
 
   if (error) {
+    /*
+      The whole error, not a boolean.
+
+      This line used to read `error` only as a condition and throw it away,
+      so the first time deletion failed there was a message on screen and no
+      way to find out why — the cause had to be read off a network tab. A
+      PostgREST error carries no part of what anyone wrote, so logging it in
+      full costs nothing and answers the question immediately.
+    */
+    console.error("Account deletion failed at delete_my_account().", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+
     throw new AccountDeletionError(
       "No pudimos eliminar tu cuenta. No se ha borrado nada; todo lo que escribiste sigue aquí.",
     );

@@ -683,9 +683,11 @@ automation. Promoting Revisión semanal into the navigation.
 
 ## Still blocking beta invitations
 
-1. **The account-deletion migration must be applied** —
-   `20260806120000_account_deletion.sql`, via `npx supabase db push`. Until
-   it runs, *Eliminar mi cuenta* will fail and say so.
+1. **Account deletion must be run end to end on a throwaway account.** The
+   migration is applied and `delete_my_account()` exists, but the function
+   body has never executed: it deletes from `auth.users` and
+   `storage.objects`, neither of which is owned by the role it runs as.
+   See §11 of the release checklist.
 2. **Sign-in verified on a real iPhone and a real Android.** Standalone PWAs
    and Google OAuth interact badly on some platforms and this has not been
    tested on hardware.
